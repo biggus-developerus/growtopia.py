@@ -6,12 +6,16 @@ A simple API for Growtopia, capable of creating servers, clients, and more!
 - [Python 3.10.7 or above](https://www.python.org/downloads/)
 
 ### Installing from source
+
 1. Clone the repository.
 2. Open a terminal in the repository's directory.
-3. Run the following command:
-    ```bash
-    pip install -u .
-    ```
+3. Install it using pip.
+
+```powershell
+git clone https://github.com/kaJob-dev/growtopia.py.git
+cd growtopia.py
+pip install .
+```
 
 # Examples
 ### Server
@@ -63,4 +67,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
     - Extension to parse the items.dat and player_tribute.dat files (provides the parse function)
 
 ### Major Changes
-There are no major changes in this version. This is the initial release.    
+There are no major changes in this version. This is the initial release.
+
+# TODO
+- [ ] Add more documentation
+- [ ] Add some examples
+- [ ] Make an interface for creating servers 
+- [ ] Make an interface for creating clients
+- [ ] Add more features to the parser
