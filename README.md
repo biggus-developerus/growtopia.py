@@ -28,14 +28,22 @@ A simple API for Growtopia, capable of creating servers, clients, and more!
 ```python
 import growtopia
 
-item_data = growtopia.ItemData("tests/data/items_v14.dat") # Represents the items.dat file
-player_tribute = growtopia.PlayerTribute("tests/data/player_tribute.dat") # Represents the player_tribute.dat file
+item_data = growtopia.ItemData("tests/data/items_v14.dat") 
+# Represents the items.dat file
 
-growtopia.extensions.parse(item_data, player_tribute) # Parses the items.dat file and player_tribute.dat file. Both parameters are optional, but you should parse at least one of them.
+player_tribute = growtopia.PlayerTribute("tests/data/player_tribute.dat") 
+# Represents the player_tribute.dat file
+
+growtopia.extensions.parse(item_data, player_tribute) 
+# Parses the items.dat and player_tribute.dat files. 
+# Both parameters are optional, but you should parse at least one of them.
 
 # To fetch an item from the items.dat file, you can use the following:
-item = item_data.get_item("dirt") # Returns an object of Item with the name "dirt"
-item = item_data.get_item(0) # Returns an object of Item with the ID 0 (blank)
+item = item_data.get_item("dirt") 
+# Returns an object of Item with the name "dirt"
+
+item = item_data.get_item(0) 
+# Returns an object of Item with the ID 0 (blank)
 ```
 
 
