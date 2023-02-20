@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0", "cython"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "growtopia.py"
+description = "A simple API for Growtopia, capable of creating servers, clients, and more!"
+readme = "README.md"
+license = {file = "LICENSE"}
+
+version = "0.1.0"
+requires-python = ">=3.10.7"
+
+dependencies = [
+    "enet @ git+https://github.com/kajob-dev/pyenet",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/kaJob-dev/growtopia.py"
+"Bug Tracker" = "https://github.com/kaJob-dev/growtopia.py"
