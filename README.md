@@ -1,4 +1,6 @@
 # Growtopia.py
+[![](https://discord.com/api/guilds/1009905646897999913/embed.png)](https://discord.gg/3RYSVwBCQC)
+
 A simple API for Growtopia, capable of creating servers, clients, and more!
 
 # Installation
