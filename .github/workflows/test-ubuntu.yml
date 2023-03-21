@@ -28,7 +28,7 @@ jobs:
         python -m pip install pytest
         python -m pip install cython  
         
-        python -m pip install .
+        pip install -e .
     - name: Run pytest
       run: |
         pytest ./tests -s
