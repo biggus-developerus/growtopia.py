@@ -17,12 +17,23 @@ package_data = {
 }
 
 extensions = [
-    Extension("growtopia.extensions.parse", ["growtopia/extensions/parse.pyx"]),
+    Extension(
+        "growtopia.extensions.parse",
+        ["growtopia/extensions/parse.pyx"],
+    ),
 ]
 
+cythonize(extensions, language_level="3")
+
+for ext in extensions:
+    for src in ext.sources:
+        if src.endswith(".pyx"):
+            ext.sources.remove(src)
+            ext.sources.append(src[:-3] + "c")
+
 setup(
-    name="growtopia.py",
     packages=find_packages(include=packages),
-    ext_modules=cythonize(extensions, language_level="3"),
+    ext_modules=extensions,
+    include_package_data=True,
     package_data=package_data,
 )
