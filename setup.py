@@ -18,8 +18,8 @@ package_data = {
 
 extensions = [
     Extension(
-        "growtopia.extensions.parse",
-        ["growtopia/extensions/parse.pyx"],
+        "growtopia.extensions.parser",
+        ["growtopia/extensions/parser.pyx"],
     ),
 ]
 
