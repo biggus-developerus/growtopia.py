@@ -1,5 +1,5 @@
-from growtopia.items_data import ItemsData
-from growtopia.player_tribute import PlayerTribute
+from ..items_data import ItemsData
+from ..player_tribute import PlayerTribute
 
 def decipher(name: str, key: int) -> str:
     """

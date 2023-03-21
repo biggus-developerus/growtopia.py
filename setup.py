@@ -17,7 +17,7 @@ package_data = {
 }
 
 extensions = [
-    Extension("growtopia.extensions.parse", ["growtopia/extensions/parse/parse.pyx"]),
+    Extension("growtopia.extensions.parse", ["growtopia/extensions/parse.pyx"]),
 ]
 
 setup(

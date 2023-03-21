@@ -1,8 +1,8 @@
-from growtopia.constants import ignored_attributes
-from growtopia.exceptions import UnsupportedItemsData
-from growtopia.item import Item
-from growtopia.items_data import ItemsData
-from growtopia.player_tribute import PlayerTribute
+from ..constants import ignored_attributes
+from ..exceptions import UnsupportedItemsData
+from ..item import Item
+from ..items_data import ItemsData
+from ..player_tribute import PlayerTribute
 
 
 def decipher(name, key):
