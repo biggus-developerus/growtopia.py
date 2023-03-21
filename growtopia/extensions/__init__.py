@@ -1,1 +1,1 @@
-from .parse import parse, decipher, hash_
+from .parse import decipher, hash_, parse

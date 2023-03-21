@@ -8,8 +8,8 @@ description = "A simple API for Growtopia, capable of creating servers, clients,
 readme = "README.md"
 license = {file = "LICENSE"}
 
-version = "0.1.0"
-requires-python = ">=3.10.7"
+version = "0.1.1"
+requires-python = ">=3.11"
 
 dependencies = [
     "enet @ git+https://github.com/kajob-dev/pyenet",
@@ -18,3 +18,6 @@ dependencies = [
 [project.urls]
 "Homepage" = "https://github.com/kaJob-dev/growtopia.py"
 "Bug Tracker" = "https://github.com/kaJob-dev/growtopia.py"
+
+[tool.isort]
+profile = "black"
