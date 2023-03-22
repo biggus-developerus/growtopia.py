@@ -13,6 +13,6 @@ class ErrorManager:
     @classmethod
     def _raise_exception(cls, exception: Exception) -> None:
         if cls.callback is not None:
-            cls.call_callback(exception)
+            cls.callback(exception)
         else:
             raise exception
