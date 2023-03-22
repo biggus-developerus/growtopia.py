@@ -4,7 +4,7 @@ from typing import Callable, Optional
 
 
 class ErrorManager:
-    callback: Optional[Callable]
+    callback: Optional[Callable] = None
 
     @classmethod
     def set_callback(cls, callback: Callable) -> None:
