@@ -27,7 +27,7 @@ class GrowtopiaException(Exception):
         )
 
     def __str__(self):
-        return f"{self.error_name}: {self.message}"
+        return f"{self.message}"
 
 
 class ParserException(GrowtopiaException):

@@ -1,5 +1,6 @@
 __all__ = ("ErrorManager",)
 
+import traceback
 from typing import Callable, Optional
 
 
@@ -15,4 +16,9 @@ class ErrorManager:
         if cls.callback is not None:
             cls.callback(exception)
         else:
-            raise exception
+            # We catch the exception here to prevent the program from halting.
+            # Traceback is still printed out due to the print_exc() call.
+            try:
+                raise exception
+            except Exception:
+                traceback.print_exc()  # Print the traceback to the console
