@@ -4,6 +4,8 @@ from enum import StrEnum
 
 
 class EventID(StrEnum):
+    UNKNOWN = "on_unknown"
+
     # ENet events
 
     CONNECT = "on_connect"
@@ -12,3 +14,6 @@ class EventID(StrEnum):
 
     # Server events
     SERVER_READY = "on_server_ready"
+
+    # Packet events
+    LOGIN_REQUEST = "on_login_request"

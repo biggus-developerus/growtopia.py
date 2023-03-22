@@ -1,12 +1,16 @@
 __all__ = ("Server",)
 
 import asyncio
+from typing import Optional
 
 import enet
 
 from .context import Context
 from .enums import EventID
+from .player import Player
 from .pool import Pool
+from .protocol import Packet
+from .utils import id_packet
 
 
 class Server(Pool, enet.Host):
@@ -23,6 +27,17 @@ class Server(Pool, enet.Host):
 
         self.compress_with_range_coder()
         self.checksum = enet.ENET_CRC32
+
+        self.__players: dict[str, Player] = {}
+
+    def get_player(self, address: str) -> Optional[Player]:
+        return self.__players.get(address, None)
+
+    def add_player(self, player: Player) -> None:
+        self.__players[str(player.address)] = player
+
+    def remove_player(self, player: Player) -> None:
+        self.__players.pop(str(player.address), None)
 
     async def run(self) -> None:
         ctx = Context()
@@ -43,14 +58,25 @@ class Server(Pool, enet.Host):
             ctx.server = self
 
             if event.type == enet.EVENT_TYPE_CONNECT:
+                player = Player(event.peer)
+                self.add_player(player)
+
                 ctx.peer = event.peer
+                ctx.player = player
+
                 await self._dispatch(EventID.CONNECT, ctx)
 
             elif event.type == enet.EVENT_TYPE_RECEIVE:
                 ctx.peer = event.peer
                 ctx.enet_packet = event.packet
+                ctx.player = self.get_player(str(event.peer.address))
+
+                ctx.packet = Packet.from_bytes(event.packet.data)
+
+                await self._dispatch(id_packet(ctx.packet), ctx)
                 await self._dispatch(EventID.RECEIVE, ctx)
             elif event.type == enet.EVENT_TYPE_DISCONNECT:
+                ctx.player = self.get_player(str(event.peer.address))
                 ctx.peer = event.peer
                 await self._dispatch(EventID.DISCONNECT, ctx)
 
