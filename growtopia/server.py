@@ -10,7 +10,7 @@ from .enums import EventID
 from .player import Player
 from .pool import Pool
 from .protocol import Packet
-from .utils import id_packet
+from .utils import identify_packet
 
 
 class Server(Pool, enet.Host):
@@ -73,7 +73,7 @@ class Server(Pool, enet.Host):
 
                 ctx.packet = Packet.from_bytes(event.packet.data)
 
-                await self._dispatch(id_packet(ctx.packet), ctx)
+                await self._dispatch(identify_packet(ctx.packet), ctx)
                 await self._dispatch(EventID.RECEIVE, ctx)
             elif event.type == enet.EVENT_TYPE_DISCONNECT:
                 ctx.player = self.get_player(str(event.peer.address))

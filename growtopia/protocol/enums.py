@@ -1,5 +1,7 @@
 __all__ = (
     "PacketType",
+    "VariantType",
+    "GamePacketFlags",
     "GamePacketType",
 )
 
@@ -12,6 +14,33 @@ class PacketType(IntEnum):
     TEXT = 2
     GAME_MESSAGE = 3
     GAME_PACKET = 4
+
+    @classmethod
+    def _missing_(cls, _):
+        return cls.UNKNOWN
+
+
+class VariantType(IntEnum):
+    NONE = 0
+    FLOAT = 1
+    STR = 2
+    VECTOR2 = 3
+    VECTOR3 = 4
+    UINT = 8
+    INT = 9
+
+    @classmethod
+    def _missing_(cls, _):
+        return cls.NONE
+
+
+class GamePacketFlags(IntEnum):
+    UNKNOWN = -1
+    EXTRA_DATA = 8
+
+    @classmethod
+    def _missing_(cls, _):
+        return cls.UNKNOWN
 
 
 class GamePacketType(IntEnum):
@@ -56,3 +85,7 @@ class GamePacketType(IntEnum):
     ACTIVE_ARROW_TO_ITEM = 37
     SELECT_TILE_INDEX = 38
     SEND_PLAYER_TRIBUTE_DATA = 39
+
+    @classmethod
+    def _missing_(cls, _):
+        return cls.UNKNOWN

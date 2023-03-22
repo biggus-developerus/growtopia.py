@@ -17,3 +17,4 @@ class EventID(StrEnum):
 
     # Packet events
     LOGIN_REQUEST = "on_login_request"
+    QUIT = "on_quit"
