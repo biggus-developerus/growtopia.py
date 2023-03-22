@@ -37,6 +37,7 @@ class GamePacket:
     def deserialise_game_packet(self, data) -> None:
         if len(data) < 52:
             ErrorManager._raise_exception(BadPacketLength(self, ">=52"))
+            return
 
         self.game_packet_type = GamePacketType(int.from_bytes(data[:1], "little"))
 
@@ -65,6 +66,7 @@ class GamePacket:
         if self.flags == GamePacketFlags.EXTRA_DATA:
             if len(data) < 56:
                 ErrorManager._raise_exception(BadPacketLength(self, ">=56"))
+                return
 
             self.extra_data_size = int.from_bytes(data[52:56], "little")
             self.extra_data = data[56:]
