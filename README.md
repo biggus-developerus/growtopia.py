@@ -103,3 +103,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 # Thanks to
 - [RebillionXX](https://github.com/RebillionXX) - For their [open-source Growtopia server](https://github.com/RebillionXX/GrowtopiaServer), which helped with the development of this project.
+
+# TODO
+- [ ] Finish the client
+- [ ] Add more examples and tests
+- [ ] Document functions and classes
+- [ ] Add a from_bytes function to both the variant and variant list
