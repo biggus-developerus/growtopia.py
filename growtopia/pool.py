@@ -1,7 +1,9 @@
 __all__ = ("Pool",)
 
 import asyncio
-import importlib
+from importlib.util import spec_from_file_location, module_from_spec
+from importlib.machinery import ModuleSpec
+from types import ModuleType
 import inspect
 from typing import Callable
 
@@ -14,6 +16,15 @@ class Pool:
     def __init__(self) -> None:
         self.__listeners: dict[str, Listener] = {}
         self._event_loop = asyncio.get_event_loop()
+
+    def listener(self, func: Callable) -> Callable:
+        if not asyncio.iscoroutinefunction(func):
+            raise TypeError("callback must be a coroutine")
+
+        listener = Listener(func)
+        self.register_listeners(listener)
+
+        return listener
 
     def register_listeners(self, *listeners: Listener) -> None:
         for listener in listeners:
@@ -31,8 +42,22 @@ class Pool:
         collection = collection()
         self.unregister_listeners(*list(collection._listeners.values()))
 
-    def load_extension(self, path: str) -> None:
-        module = importlib.import_module(path)
+    def _get_module(self, name: str, pck: str = None) -> tuple[ModuleType, ModuleSpec]:
+        pck = pck or "."
+
+        return (
+            module_from_spec(
+                spec := spec_from_file_location(
+                    name if not name.endswith(".py") else name[:-3],
+                    f"{pck}\{name}",
+                )
+            ),
+            spec,
+        )
+
+    def load_extension(self, module_name: str, package: str = None) -> None:
+        module, spec = self._get_module(module_name, package)
+        spec.loader.exec_module(module)
 
         for _, value in module.__dict__.items():
             if isinstance(value, Listener):
@@ -40,23 +65,15 @@ class Pool:
             elif inspect.isclass(value) and issubclass(value, Collection):
                 self.register_collection(value)
 
-    def unload_extension(self, path: str) -> None:
-        module = importlib.import_module(path)
+    def unload_extension(self, module_name: str, package: str = None) -> None:
+        module, spec = self._get_module(module_name, package)
+        spec.loader.exec_module(module)
 
         for _, value in module.__dict__.items():
             if isinstance(value, Listener):
                 self.unregister_listeners(value)
             elif inspect.isclass(value) and issubclass(value, Collection):
                 self.unregister_collection(value)
-
-    def listener(self, func: Callable) -> Callable:
-        if not asyncio.iscoroutinefunction(func):
-            raise TypeError("callback must be a coroutine")
-
-        listener = Listener(func)
-        self.register_listeners(listener)
-
-        return listener
 
     async def _dispatch(self, event_id: EventID, *args, **kwargs) -> None:
         listener = self.__listeners.get(event_id, None)

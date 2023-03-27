@@ -106,6 +106,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 # TODO
 - [ ] Finish the client
-- [ ] Add more examples and tests
+- [x] Add more examples and tests
 - [ ] Document functions and classes
 - [x] Add a from_bytes function to both the variant and variant list
+- [ ] Add logging using the logging module
