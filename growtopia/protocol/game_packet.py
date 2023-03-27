@@ -4,6 +4,7 @@ from typing import Optional
 from ..error_manager import ErrorManager
 from ..exceptions import BadPacketLength
 from .enums import GamePacketFlags, GamePacketType
+from .variant_list import VariantList
 
 
 class GamePacket:
@@ -33,6 +34,12 @@ class GamePacket:
 
         self.extra_data_size: int = 0  # uint32
         self.extra_data: bytes = b""  # uint8[]
+
+    def set_variant_list(self, variant_list: VariantList) -> None:
+        self.flags = GamePacketFlags.EXTRA_DATA
+
+        self.extra_data = variant_list.serialise()
+        self.extra_data_size = len(self.extra_data)
 
     def deserialise_game_packet(self, data) -> None:
         if len(data) < 52:

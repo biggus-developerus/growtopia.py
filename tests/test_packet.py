@@ -48,12 +48,13 @@ def test_game_packet() -> None:
     packet.game_packet_type = protocol.GamePacketType.CALL_FUNCTION
     packet.flags = protocol.GamePacketFlags.EXTRA_DATA
 
-    packet.extra_data = (
-        vlist_data := protocol.VariantList("OnConsoleMessage", "Hello, world!").data
-    )
-    packet.extra_data_size = len(vlist_data)
+    packet.set_variant_list(protocol.VariantList("OnConsoleMessage", "Hello, world!"))
 
-    # Wait until I add a way to convert bytes to a variant list. (from_bytes function)
+    vlist_from_bytes = protocol.VariantList.from_bytes(packet.extra_data)
+
+    assert len(vlist_from_bytes) == 2
+    assert vlist_from_bytes[0].value == "OnConsoleMessage"
+    assert vlist_from_bytes[1].value == "Hello, world!"
 
 
 if __name__ == "__main__":

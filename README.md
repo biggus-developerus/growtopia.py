@@ -108,4 +108,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Finish the client
 - [ ] Add more examples and tests
 - [ ] Document functions and classes
-- [ ] Add a from_bytes function to both the variant and variant list
+- [x] Add a from_bytes function to both the variant and variant list

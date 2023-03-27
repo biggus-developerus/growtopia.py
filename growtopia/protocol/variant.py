@@ -12,6 +12,17 @@ serialisers = {
     VariantType.STR: lambda data: bytearray(
         len(data).to_bytes(4, "little") + data.encode()
     ),
+    VariantType.NONE: lambda data: bytearray(),
+}
+
+deserialisers = {
+    VariantType.INT: lambda data: int.from_bytes(data, "little"),
+    VariantType.UINT: lambda data: int.from_bytes(data, "little", signed=True),
+    VariantType.FLOAT: lambda data: struct.unpack("f", data)[0],
+    VariantType.STR: lambda data: data[
+        4 : 4 + int.from_bytes(data[:4], "little")
+    ].decode(),
+    VariantType.NONE: lambda data: None,
 }
 
 
@@ -31,3 +42,10 @@ class Variant:
         )
 
         return self.data
+
+    @classmethod
+    def from_bytes(cls, data: bytearray) -> "Variant":
+        return cls(
+            type_=(type_ := VariantType(int.from_bytes(data[1:2], "little"))),
+            value=deserialisers[type_](data[2:]),
+        )
