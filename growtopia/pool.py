@@ -1,10 +1,10 @@
 __all__ = ("Pool",)
 
 import asyncio
-from importlib.util import spec_from_file_location, module_from_spec
-from importlib.machinery import ModuleSpec
-from types import ModuleType
 import inspect
+from importlib.machinery import ModuleSpec
+from importlib.util import module_from_spec, spec_from_file_location
+from types import ModuleType
 from typing import Callable
 
 from .collection import Collection
