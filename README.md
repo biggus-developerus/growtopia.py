@@ -10,6 +10,8 @@ Check out the [examples](examples) folder for examples on how to use this librar
 - [Python 3.11 or above](https://www.python.org/downloads/)
 
 ### Installing from source
+For ubuntu users, use the -e flag to install the library in editable mode and avoid errors caused by the C extensions.
+
 
 1. Clone the repository.
 2. Open a terminal in the repository's directory
@@ -19,8 +21,6 @@ Check out the [examples](examples) folder for examples on how to use this librar
 git clone https://github.com/kaJob-dev/growtopia.py.git
 cd growtopia.py
 
-make install
--- or --
 pip(3) install -U .
 ```
 
