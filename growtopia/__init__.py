@@ -1,4 +1,5 @@
 from . import extensions, protocol
+from .client import *
 from .collection import *
 from .context import *
 from .enums import *

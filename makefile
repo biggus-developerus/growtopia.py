@@ -24,4 +24,4 @@ install:
 	$(pip) install -U .
 
 install2:
-	$(pip) install --no-cache-dir --no-dependencies --no-build-isolation -U -e .
+	$(pip) install --no-cache-dir --no-dependencies --no-build-isolation -U .

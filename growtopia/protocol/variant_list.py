@@ -22,7 +22,7 @@ class VariantList:
 
     def serialise(self) -> bytearray:
         self.data[0] = len(self.variants)
-        return bytes(self.data)
+        return bytearray(self.data)
 
     @classmethod
     def from_bytes(cls, data: bytearray) -> "VariantList":

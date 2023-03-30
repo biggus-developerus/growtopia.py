@@ -9,8 +9,8 @@ from .game_packet import GamePacket
 
 
 class Packet(GamePacket):
-    def __init__(self) -> None:
-        self.data: bytes = b""
+    def __init__(self, data: bytearray = None) -> None:
+        self.data: bytearray = data or bytearray()
 
         self.type: PacketType = PacketType.UNKNOWN
 
@@ -19,20 +19,29 @@ class Packet(GamePacket):
 
         super().__init__()
 
-    def serialise(self) -> bytes:
-        data = self.type.value.to_bytes(4, "little")
+        if data is not None and len(data) > 0:
+            self.deserialise()
+
+    def serialise(self) -> bytearray:
+        data = bytearray(self.type.value.to_bytes(4, "little"))
 
         if self.type == PacketType.TEXT:
-            data += self.text.encode() + b"\n"
+            data.extend(self.text.encode() + b"\n")
         elif self.type == PacketType.GAME_MESSAGE:
-            data += self.game_message.encode() + b"\n"
+            data.extend(self.game_message.encode() + b"\n")
         elif self.type == PacketType.GAME_PACKET:
-            data += self.serialise_game_packet()
+            data.extend(self.serialise_game_packet())
 
         return data
 
-    def deserialise(self, data: Optional[bytes] = None) -> None:
-        self.data = data or self.data
+    def deserialise(self, data: Optional[bytearray] = None) -> None:
+        self.data = (
+            data
+            if data is not None and data is bytearray
+            else bytearray(data)
+            if data is not None
+            else self.data
+        )
 
         if len(self.data) == 0:
             return
@@ -63,7 +72,7 @@ class Packet(GamePacket):
         return enet.Packet(self.serialise(), enet.PACKET_FLAG_RELIABLE)
 
     @classmethod
-    def from_bytes(cls, data: bytes) -> "Packet":
+    def from_bytes(cls, data: bytearray) -> "Packet":
         packet = cls()
         packet.deserialise(data)
         return packet

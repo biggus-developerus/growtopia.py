@@ -39,6 +39,10 @@ class Server(Pool, enet.Host):
     def remove_player(self, player: Player) -> None:
         self.__players.pop(str(player.address), None)
 
+    def start(self) -> None:
+        self._event_loop.create_task(self.run())
+        self._event_loop.run_forever()
+
     async def run(self) -> None:
         ctx = Context()
         ctx.server = self
@@ -79,7 +83,3 @@ class Server(Pool, enet.Host):
                 ctx.player = self.get_player(str(event.peer.address))
                 ctx.peer = event.peer
                 await self._dispatch(EventID.DISCONNECT, ctx)
-
-    def start(self) -> None:
-        self._event_loop.create_task(self.run())
-        self._event_loop.run_forever()
