@@ -36,8 +36,8 @@ class Server(Pool, enet.Host):
     def add_player(self, player: Player) -> None:
         self.__players[str(player.address)] = player
 
-    def remove_player(self, player: Player) -> None:
-        self.__players.pop(str(player.address), None)
+    def remove_player(self, player_addr: str) -> Optional[Player]:
+        return self.__players.pop(player_addr, None)
 
     def start(self) -> None:
         self._event_loop.create_task(self.run())
@@ -80,6 +80,6 @@ class Server(Pool, enet.Host):
                 await self._dispatch(identify_packet(ctx.packet), ctx)
                 await self._dispatch(EventID.RECEIVE, ctx)
             elif event.type == enet.EVENT_TYPE_DISCONNECT:
-                ctx.player = self.get_player(str(event.peer.address))
+                ctx.player = self.remove_player(str(event.peer.address))
                 ctx.peer = event.peer
                 await self._dispatch(EventID.DISCONNECT, ctx)

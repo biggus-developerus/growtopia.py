@@ -59,6 +59,7 @@ class Client(Pool):
             ctx.client = self
 
             if event.type == enet.EVENT_TYPE_CONNECT:
+                ctx.peer = event.peer
                 await self._dispatch(EventID.CONNECT, ctx)
 
             elif event.type == enet.EVENT_TYPE_RECEIVE:

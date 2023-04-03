@@ -7,7 +7,9 @@ import enet
 if TYPE_CHECKING:
     from .client import Client
     from .player import Player
-    from .protocol import Packet
+    from .protocol import (  # Doesn't really cause any circular import issues but looks better here
+        Packet,
+    )
     from .server import Server
 
 

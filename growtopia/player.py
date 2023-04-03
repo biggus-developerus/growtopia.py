@@ -2,7 +2,7 @@ __all__ = ("Player",)
 
 import enet
 
-from .protocol import Packet
+from .protocol import Packet, PacketType
 
 
 class Player:
@@ -15,3 +15,24 @@ class Player:
             packet = Packet.from_bytes(data)
 
         self.peer.send(0, packet.enet_packet)
+
+    def logon_fail(self) -> None:
+        packet = Packet()
+        packet.type = PacketType.GAME_MESSAGE
+        packet.game_message = "action|logon_fail\n"
+
+        self.send(packet=packet)
+
+    def log(self, text: str) -> None:
+        packet = Packet()
+        packet.type = PacketType.GAME_MESSAGE
+        packet.game_message = f"action|log\nmsg|{text}\n"
+
+        self.send(packet=packet)
+
+    def set_url(self, url: str, label: str) -> None:
+        packet = Packet()
+        packet.type = PacketType.GAME_MESSAGE
+        packet.game_message = f"action|set_url\nurl|{url}\nlabel|{label}\n"
+
+        self.send(packet=packet)

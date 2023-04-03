@@ -16,6 +16,7 @@ class EventID(StrEnum):
     SERVER_READY = "on_server_ready"
 
     # Packet events
+    HELLO = "on_hello"
     LOGIN_REQUEST = "on_login_request"
     QUIT = "on_quit"
 

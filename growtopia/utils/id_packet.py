@@ -13,6 +13,9 @@ def identify_packet(packet: Packet) -> Optional[EventID]:
     # As of now, the most common packet would be the login packet.
     # In the future, it'll most definitely be a game packet containing state updates.
 
+    if packet.type == PacketType.HELLO:
+        return EventID.HELLO
+
     if packet.type == PacketType.TEXT and "requestedName" in packet.text:
         return EventID.LOGIN_REQUEST
 
