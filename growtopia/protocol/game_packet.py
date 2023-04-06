@@ -41,7 +41,13 @@ class GamePacket:
         self.extra_data = variant_list.serialise()
         self.extra_data_size = len(self.extra_data)
 
-    def deserialise_game_packet(self, data) -> None:
+    def get_variant_list(self) -> Optional[VariantList]:
+        if self.flags != GamePacketFlags.EXTRA_DATA:
+            return None
+
+        return VariantList.from_bytes(self.extra_data)
+
+    def _deserialise_game_packet(self, data: bytes) -> None:
         if len(data) < 52:
             ErrorManager._raise_exception(BadPacketLength(self, ">=52"))
             return
@@ -78,7 +84,7 @@ class GamePacket:
             self.extra_data_size = int.from_bytes(data[52:56], "little")
             self.extra_data = data[56:]
 
-    def serialise_game_packet(self) -> bytes:
+    def _serialise_game_packet(self) -> bytes:
         data = b""
 
         data += self.game_packet_type.value.to_bytes(1, "little")
@@ -108,4 +114,4 @@ class GamePacket:
             data += self.extra_data_size.to_bytes(4, "little")
             data += self.extra_data
 
-        return bytes(data)
+        return data
