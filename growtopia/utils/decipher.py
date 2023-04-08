@@ -2,7 +2,6 @@ __all__ = ("decipher",)
 
 
 def decipher(name: str, key: int) -> str:
-
     key %= (key_len := len("*PBG892FXX982ABC"))
     result = ""
 
