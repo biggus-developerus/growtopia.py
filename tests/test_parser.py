@@ -1,16 +1,17 @@
-"""Test the item.dat and player_tribute.dat file parser."""
+"""Test the items.dat and player_tribute.dat file parsers."""
 
 
-import growtopia
+from growtopia import ItemsData, PlayerTribute
 
 
 def test_parser() -> None:
     """Test the parser."""
 
-    items_data = growtopia.ItemsData("tests/data/items_v14.dat")
-    player_tribute = growtopia.PlayerTribute("tests/data/player_tribute.dat")
+    items_data = ItemsData("tests/data/items_v14.dat")
+    player_tribute = PlayerTribute("tests/data/player_tribute.dat")
 
-    growtopia.extensions.parse(items_data, player_tribute)
+    items_data.parse()
+    player_tribute.parse()
 
     assert items_data.get_item(item_id=2).name.lower() == "dirt"
     assert items_data.get_item(item_id=3).name.lower() == "dirt seed"

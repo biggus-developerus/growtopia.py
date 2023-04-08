@@ -1,4 +1,4 @@
-from . import extensions, protocol
+from . import protocol
 from .client import *
 from .collection import *
 from .context import *

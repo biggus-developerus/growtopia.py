@@ -7,7 +7,7 @@ else
 endif
 
 test:
-	pytest ./tests
+	pytest -vv ./tests
 
 format:
 	black ./growtopia

@@ -1,5 +1,4 @@
 from growtopia import Collection, Context, Listener
-from growtopia import protocol
 
 
 class EnetEvents(Collection):
