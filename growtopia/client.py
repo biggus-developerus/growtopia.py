@@ -6,14 +6,14 @@ import enet
 
 from .context import Context
 from .enums import EventID
-from .pool import Pool
+from .event_pool import EventPool
 from .protocol import Packet
 from .utils import identify_packet
 
 
-class Client(Pool, enet.Host):
+class Client(EventPool, enet.Host):
     def __init__(self, address: tuple[str, int] = None, **kwargs) -> None:
-        Pool.__init__(self)
+        EventPool.__init__(self)
         enet.Host.__init__(
             self,
             None,

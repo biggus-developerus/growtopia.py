@@ -12,7 +12,7 @@ from .enums import EventID
 from .listener import Listener
 
 
-class Pool:
+class EventPool:
     def __init__(self) -> None:
         self.__listeners: dict[str, Listener] = {}
         self._event_loop = asyncio.get_event_loop()

@@ -1,7 +1,7 @@
 __all__ = ("ItemsData",)
 
 from functools import lru_cache
-from typing import Optional
+from typing import BinaryIO, Optional, Union
 
 from .constants import ignored_attributes
 from .exceptions import UnsupportedItemsData
@@ -10,9 +10,18 @@ from .utils import decipher, hash_
 
 
 class ItemsData:
-    def __init__(self, path: str) -> None:
-        with open(path, "rb") as f:
-            self.content: bytes = f.read()
+    def __init__(self, data: Union[str, bytes, BinaryIO]) -> None:
+        self.content: bytes
+
+        if isinstance(data, str):
+            with open(data, "rb") as f:
+                self.content = f.read()
+        elif isinstance(data, bytes):
+            self.content = data
+        elif isinstance(data, BinaryIO):
+            self.content = data.read()
+        else:
+            raise ValueError("Invalid data type passed into initialiser.")
 
         self.items: dict[int, Item] = {}
         self.item_count: int = 0
@@ -31,7 +40,7 @@ class ItemsData:
         ):
             raise UnsupportedItemsData(self)
 
-        for i in range(self.item_count):
+        for _ in range(self.item_count):
             item = Item()
 
             for attr in item.__dict__:

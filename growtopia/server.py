@@ -7,15 +7,24 @@ import enet
 
 from .context import Context
 from .enums import EventID
-from .player import Player
-from .pool import Pool
+from .event_pool import EventPool
+from .items_data import ItemsData
+from .player_pool import PlayerPool
+from .player_tribute import PlayerTribute
 from .protocol import Packet
 from .utils import identify_packet
 
 
-class Server(Pool, enet.Host):
-    def __init__(self, address: tuple[str, int], **kwargs) -> None:
-        Pool.__init__(self)
+class Server(EventPool, PlayerPool, enet.Host):
+    def __init__(
+        self,
+        address: tuple[str, int],
+        items_data: Optional[ItemsData] = None,
+        player_tribute: Optional[PlayerTribute] = None,
+        **kwargs,
+    ) -> None:
+        EventPool.__init__(self)
+        PlayerPool.__init__(self)
         enet.Host.__init__(
             self,
             enet.Address(*address),
@@ -28,16 +37,8 @@ class Server(Pool, enet.Host):
         self.compress_with_range_coder()
         self.checksum = enet.ENET_CRC32
 
-        self.__players: dict[str, Player] = {}
-
-    def get_player(self, address: str) -> Optional[Player]:
-        return self.__players.get(address, None)
-
-    def add_player(self, player: Player) -> None:
-        self.__players[str(player.address)] = player
-
-    def remove_player(self, player_addr: str) -> Optional[Player]:
-        return self.__players.pop(player_addr, None)
+        self.items_data: Optional[ItemsData] = items_data or None
+        self.player_tribute: Optional[PlayerTribute] = player_tribute or None
 
     def start(self) -> None:
         self._event_loop.create_task(self.run())
@@ -62,11 +63,8 @@ class Server(Pool, enet.Host):
             ctx.server = self
 
             if event.type == enet.EVENT_TYPE_CONNECT:
-                player = Player(event.peer)
-                self.add_player(player)
-
+                ctx.player = self.new_player(event.peer)
                 ctx.peer = event.peer
-                ctx.player = player
 
                 await self._dispatch(EventID.CONNECT, ctx)
 
