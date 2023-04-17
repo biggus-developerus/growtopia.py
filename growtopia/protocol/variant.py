@@ -16,7 +16,7 @@ class Variant:
         VariantType.STR: lambda data: bytearray(
             len(data).to_bytes(4, "little") + data.encode()
         ),
-        VariantType.NONE: lambda data: bytearray(),
+        VariantType.NONE: lambda _: bytearray(),
     }
 
     _deserialisers = {
@@ -26,7 +26,7 @@ class Variant:
         VariantType.STR: lambda data: data[
             4 : 4 + int.from_bytes(data[:4], "little")
         ].decode(),
-        VariantType.NONE: lambda data: None,
+        VariantType.NONE: lambda _: None,
     }
 
     def __init__(self, value: Any, type_: VariantType = None) -> None:

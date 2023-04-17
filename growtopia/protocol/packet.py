@@ -46,10 +46,7 @@ class Packet(GamePacket):
             self.text = self._data[4:-1].decode()
         elif self.type == PacketType.GAME_MESSAGE:
             self.game_message = self._data[4:-1].decode()
-        elif (
-            self.type == PacketType.GAME_PACKET
-            or self.game_packet_type != GamePacketType.UNKNOWN
-        ):
+        elif self.type == PacketType.GAME_PACKET:
             self._deserialise_game_packet(self._data[4:])
 
     def parse_login_packet(self) -> dict[str, str]:

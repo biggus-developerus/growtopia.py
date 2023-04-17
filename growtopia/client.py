@@ -23,20 +23,19 @@ class Client(EventPool, enet.Host):
             kwargs.get("out_bandwidth", 0),
         )
 
-        self.__address: tuple[str, int] = address
-
         self.compress_with_range_coder()
         self.checksum = enet.ENET_CRC32
 
+        self.__address: tuple[str, int] = address
+        self.__running: bool = False
         self.__peer: enet.Peer = None
 
-    def connect(self, address: tuple[str, int] = None) -> None:
-        self.__address = address or self.__address
-        self.__peer = self.connect(enet.Address(*self.__address), 2, 0)
-
     def start(self) -> None:
-        self._event_loop.create_task(self.run())
-        self._event_loop.run_forever()
+        self.__running = True
+        self._event_loop.run_until_complete(self.run())
+
+    async def stop(self) -> None:
+        self.__running = False
 
     def send(self, packet: Packet = None, data: bytes = None) -> None:
         if data is not None:
@@ -47,9 +46,14 @@ class Client(EventPool, enet.Host):
 
     async def run(self) -> None:
         if self.__peer is None:
-            self.connect()
+            self.__peer = self.connect(enet.Address(*self.__address), 2, 0)
 
-        while True:
+        ctx = Context()
+        ctx.client = self
+
+        await self._dispatch(EventID.CLIENT_READY, ctx)
+
+        while self.__running:
             event = self.service(0, True)
 
             if event is None:
@@ -73,4 +77,4 @@ class Client(EventPool, enet.Host):
             elif event.type == enet.EVENT_TYPE_DISCONNECT:
                 await self._dispatch(EventID.DISCONNECT, ctx)
 
-            await asyncio.sleep(0)
+        await self._dispatch(EventID.CLIENT_CLEANUP, ctx)

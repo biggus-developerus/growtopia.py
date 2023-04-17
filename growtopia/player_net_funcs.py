@@ -12,6 +12,7 @@ class _PlayerNetworkFunctions:
 
     def logon_fail(self) -> None:
         packet = Packet()
+
         packet.type = PacketType.GAME_MESSAGE
         packet.game_message = "action|logon_fail\n"
 
@@ -19,6 +20,7 @@ class _PlayerNetworkFunctions:
 
     def log(self, text: str) -> None:
         packet = Packet()
+
         packet.type = PacketType.GAME_MESSAGE
         packet.game_message = f"action|log\nmsg|{text}\n"
 
@@ -26,6 +28,7 @@ class _PlayerNetworkFunctions:
 
     def set_url(self, url: str, label: str) -> None:
         packet = Packet()
+
         packet.type = PacketType.GAME_MESSAGE
         packet.game_message = f"action|set_url\nurl|{url}\nlabel|{label}\n"
 

@@ -40,21 +40,24 @@ class Server(EventPool, PlayerPool, enet.Host):
         self.items_data: Optional[ItemsData] = items_data or None
         self.player_tribute: Optional[PlayerTribute] = player_tribute or None
 
+        self.__running: bool = True
+
     def start(self) -> None:
-        self._event_loop.create_task(self.run())
-        self._event_loop.run_forever()
+        self.__running = True
+        self._event_loop.run_until_complete(self.run())
+
+    def stop(self) -> None:
+        self.__running = False
 
     async def run(self) -> None:
-        ctx = Context()
-        ctx.server = self
-
+        (ctx := Context()).server = self
         await self._dispatch(EventID.SERVER_READY, ctx)
 
-        while True:
+        while self.__running:
             event = self.service(0, True)
 
             if event is None:
-                await asyncio.sleep(0)
+                await asyncio.sleep(0)  # pass control back to the event loop
                 continue
 
             ctx = Context()
@@ -81,3 +84,5 @@ class Server(EventPool, PlayerPool, enet.Host):
                 ctx.player = self.remove_player(str(event.peer.address))
                 ctx.peer = event.peer
                 await self._dispatch(EventID.DISCONNECT, ctx)
+
+        await self._dispatch(EventID.SERVER_CLEANUP, ctx)

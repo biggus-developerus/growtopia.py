@@ -8,6 +8,7 @@ from .utils import hash_
 class PlayerTribute:
     def __init__(self, data: Union[str, bytes, BinaryIO]) -> None:
         self.content: bytes
+        self.hash: int = 0
 
         if isinstance(data, str):
             with open(data, "rb") as f:
@@ -18,8 +19,6 @@ class PlayerTribute:
             self.content = data.read()
         else:
             raise ValueError("Invalid data type passed into initialiser.")
-
-        self.hash: int = 0
 
     def parse(self) -> None:
         self.hash = hash_(self.content)

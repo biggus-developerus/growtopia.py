@@ -14,6 +14,11 @@ class EventID(StrEnum):
 
     # Server events
     SERVER_READY = "on_server_ready"
+    SERVER_CLEANUP = "on_server_cleanup"  # called when server is shutting down
+
+    # Client events
+    CLIENT_READY = "on_client_ready"
+    CLIENT_CLEANUP = "on_client_cleanup"  # called when client is shutting down
 
     # Packet events
     HELLO = "on_hello"

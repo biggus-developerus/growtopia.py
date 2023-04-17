@@ -15,7 +15,8 @@ from .listener import Listener
 class EventPool:
     def __init__(self) -> None:
         self.__listeners: dict[str, Listener] = {}
-        self._event_loop = asyncio.get_event_loop()
+        self._event_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._event_loop)
 
     def listener(self, func: Callable) -> Callable:
         if not asyncio.iscoroutinefunction(func):
