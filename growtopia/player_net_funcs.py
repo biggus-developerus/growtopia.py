@@ -1,9 +1,14 @@
 __all__ = ("_PlayerNetworkFunctions",)
 
+import enet
+
 from .protocol import Packet, PacketType
 
 
 class _PlayerNetworkFunctions:
+    def __init__(self) -> None:
+        self.peer: enet.Peer  # for type hinting
+
     def send(self, packet: Packet = None, data: bytes = None) -> None:
         if data is not None:
             packet = Packet.from_bytes(data)

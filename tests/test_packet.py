@@ -48,13 +48,18 @@ def test_game_packet() -> None:
     packet.game_packet_type = protocol.GamePacketType.CALL_FUNCTION
     packet.flags = protocol.GamePacketFlags.EXTRA_DATA
 
-    packet.set_variant_list(protocol.VariantList("OnConsoleMessage", "Hello, world!"))
+    packet.set_variant_list(
+        protocol.VariantList("OnConsoleMessage", "Hello, world!", 5, 10.5, 69)
+    )
 
     vlist_from_bytes = protocol.VariantList.from_bytes(packet.extra_data)
 
-    assert len(vlist_from_bytes) == 2
+    assert len(vlist_from_bytes) == 5
     assert vlist_from_bytes[0].value == "OnConsoleMessage"
     assert vlist_from_bytes[1].value == "Hello, world!"
+    assert vlist_from_bytes[2].value == 5
+    assert vlist_from_bytes[3].value == 10.5
+    assert vlist_from_bytes[4].value == 69
 
 
 def test_login_packet_parse() -> None:

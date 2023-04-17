@@ -20,19 +20,17 @@ class Variant:
     }
 
     _deserialisers = {
-        VariantType.INT: lambda data: int.from_bytes(data, "little"),
-        VariantType.UINT: lambda data: int.from_bytes(data, "little", signed=True),
-        VariantType.FLOAT: lambda data: struct.unpack("f", data)[0],
+        VariantType.INT: lambda data: int.from_bytes(data[:4], "little"),
+        VariantType.UINT: lambda data: int.from_bytes(data[:4], "little", signed=True),
+        VariantType.FLOAT: lambda data: struct.unpack("f", data[:4])[0],
         VariantType.STR: lambda data: data[
-            4 : 4 + int.from_bytes(data[:4], "little")
+            4 : int.from_bytes(data[:4], "little") + 4
         ].decode(),
         VariantType.NONE: lambda _: None,
     }
 
     def __init__(self, value: Any, type_: VariantType = None) -> None:
-        self.type: VariantType = (
-            type_ if type_ else VariantType[type(value).__name__.upper()]
-        )
+        self.type: VariantType = type_ or VariantType[type(value).__name__.upper()]
         self.value: Any = value
         self.data: bytearray = bytearray()
 
