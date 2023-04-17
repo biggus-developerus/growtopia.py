@@ -52,10 +52,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Thanks to
 
 - [RebillionXX](https://github.com/RebillionXX) - For their [open-source Growtopia server](https://github.com/RebillionXX/GrowtopiaServer), which helped with the development of this project.
-
-## TODO
-
-- [ ] Document functions and classes
-- [ ] Add logging using the logging module
-- [ ] Add support for texture files and texture extraction
-- [ ] Prevent some exceptions that could be raised by malformed / manipulated packets
