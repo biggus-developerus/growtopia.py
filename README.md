@@ -14,8 +14,6 @@ Check out the [examples](examples) folder for examples on how to use this librar
 
 ### Installing from source
 
-For ubuntu users, use the -e flag to install the library in editable mode and avoid errors caused by the C extensions.
-
 1. Clone the repository.
 2. Open a terminal in the repository's directory
 3. Install it using pip.
