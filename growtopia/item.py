@@ -69,6 +69,8 @@ class Item:
         self.bodypart: bytearray = bytearray(9)
         self.flags4: int = 4
         self.flags5: int = 4
+        self.unknown: bytearray = bytearray(25)
+        self.sit_file: str = ""
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Item):

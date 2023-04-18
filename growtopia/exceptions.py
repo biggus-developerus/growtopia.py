@@ -4,11 +4,13 @@ __all__ = (
     "UnsupportedItemsData",
 )
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 if TYPE_CHECKING:
     from .items_data import ItemsData
     from .player_tribute import PlayerTribute
+
+    from .protocol import Packet
 
 from .constants import ignored_attributes
 
@@ -16,31 +18,25 @@ from .constants import ignored_attributes
 class GrowtopiaException(Exception):
     """Base exception class for all exceptions raised by this library."""
 
-    def __init__(
-        self, error_name: str, message: str, detailed_message: Optional[str] = None
-    ):
+    def __init__(self, error_name: str, message: str):
         self.error_name: str = error_name
         self.message: str = message
-        self.detailed_message: Optional[str] = (
-            detailed_message if detailed_message is not None else None
-        )
 
         super().__init__(
             self.message,
         )
 
     def __str__(self):
-        return self.message
+        return f"{self.message}"
 
 
 class ParserException(GrowtopiaException):
-    """An exception that's raised due to a fail in the :function:`parse` function."""
+    """An exception that's raised due to a fail in the parse function."""
 
     def __init__(
         self,
         error_name: str,
         message: str,
-        detailed_message: Optional[str] = None,
         items_data: Optional["ItemsData"] = None,
         player_tribute: Optional["PlayerTribute"] = None,
     ):
@@ -59,7 +55,18 @@ class ParserException(GrowtopiaException):
         super().__init__(
             error_name,
             message,
-            detailed_message,
+        )
+
+
+class PacketException(GrowtopiaException):
+    """An exception that's raised when a packet fails to be parsed or appears to be malformed."""
+
+    def __init__(self, error_name: str, message: str, packet: "Packet"):
+        self.packet: "Packet" = packet
+
+        super().__init__(
+            error_name,
+            message,
         )
 
 
@@ -72,12 +79,27 @@ class UnsupportedItemsData(ParserException):
     def __init__(self, items_data: "ItemsData"):
         error_name = "UnsupportedItemsData"
         message = f"Unsupported items.dat version: {items_data.version}. Supported versions: {list(ignored_attributes.keys())}"
-        detailed_message = None
 
         super().__init__(
             error_name,
             message,
-            detailed_message,
             items_data,
             None,
+        )
+
+
+# Packet Exceptions
+
+
+class BadPacketLength(PacketException):
+    """An exception that's raised when a packet's length is not what it's supposed to be."""
+
+    def __init__(self, packet: "Packet", expected_length: Union[str, int]):
+        error_name = "BadPacketLength"
+        message = f"Packet length is not what it's supposed to be. Expected: {expected_length}, got: {len(packet.data)}"
+
+        super().__init__(
+            error_name,
+            message,
+            packet,
         )
