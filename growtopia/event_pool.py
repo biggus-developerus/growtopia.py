@@ -50,7 +50,8 @@ class EventPool:
             module_from_spec(
                 spec := spec_from_file_location(
                     name if not name.endswith(".py") else name[:-3],
-                    f"{pck}\{name}",
+                    f"{pck}/{name}",
+                    submodule_search_locations=[pck],
                 )
             ),
             spec,

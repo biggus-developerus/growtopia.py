@@ -1,3 +1,5 @@
+__all__ = ("GamePacket",)
+
 import struct
 from typing import Optional
 
