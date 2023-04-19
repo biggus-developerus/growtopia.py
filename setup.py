@@ -1,6 +1,6 @@
 import os
 
-from setuptools import find_packages, setup
+from setuptools import setup
 
 packages = [
     os.path.join(root).replace("\\", ".")
@@ -8,6 +8,4 @@ packages = [
     if "__init__.py" in files
 ]
 
-setup(
-    packages=find_packages(include=packages)
-)
+setup(packages=packages)
