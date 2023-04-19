@@ -4,7 +4,7 @@ from typing import Optional
 
 import enet
 
-from .enums import GamePacketType, PacketType
+from .enums import PacketType
 from .game_packet import GamePacket
 
 
