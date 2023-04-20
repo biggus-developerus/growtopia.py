@@ -11,7 +11,7 @@ Check out the [examples](examples) folder for examples on how to use this librar
 ### Requirements
 
 - [Python 3.11 or above](https://www.python.org/downloads/)
-- [PyENet](https://github.com/kajob-dev/pyenet) (If growtopia.py from PyPI)
+- [PyENet](https://github.com/kajob-dev/pyenet) (If installing growtopia.py from PyPI)
 
 ### Installing from source
 
