@@ -23,7 +23,7 @@ class ItemsData:
         else:
             raise ValueError("Invalid data type passed into initialiser.")
 
-        self.items: dict[int, Item] = {}
+        self.items: list[Item] = []
         self.item_count: int = 0
         self.version: int = 0
         self.hash: int = 0
@@ -77,17 +77,17 @@ class ItemsData:
                     ]
                     offset += len(item.__dict__[attr])
 
-            self.items[item.id] = item
+            self.items.append(item)
 
         self.hash = hash_(data)
 
     @lru_cache(maxsize=None)
     def get_item(self, item_id: int = None, name: str = None) -> Optional[Item]:
-        if item_id is not None:
-            return self.items.get(item_id, None)
+        if item_id is not None and item_id < len(self.items):
+            return self.items[item_id]
 
         if name is not None:
-            for item in list(self.items.values()):
+            for item in self.items:
                 if item.name.lower() == name.lower():
                     return item
 
@@ -96,23 +96,13 @@ class ItemsData:
     @lru_cache(maxsize=None)
     def get_starts_with(self, name: str) -> list[Item]:
         return [
-            item
-            for item in list(self.items.values())
-            if item.name.lower().startswith(name.lower())
+            item for item in self.items if item.name.lower().startswith(name.lower())
         ]
 
     @lru_cache(maxsize=None)
     def get_ends_with(self, name: str) -> list[Item]:
-        return [
-            item
-            for item in list(self.items.values())
-            if item.name.lower().endswith(name.lower())
-        ]
+        return [item for item in self.items if item.name.lower().endswith(name.lower())]
 
     @lru_cache(maxsize=None)
     def get_contains(self, name: str) -> list[Item]:
-        return [
-            item
-            for item in list(self.items.values())
-            if name.lower() in item.name.lower()
-        ]
+        return [item for item in self.items if name.lower() in item.name.lower()]
