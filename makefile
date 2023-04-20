@@ -17,8 +17,9 @@ format-check:
 	black --check .
 	isort --check-only .
 
-build:
+_build:
 	$(python) setup.py sdist bdist_wheel
+	$(python) -m build
 
 install:
 	$(pip) install -U .

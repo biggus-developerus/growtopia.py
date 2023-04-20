@@ -11,6 +11,7 @@ Check out the [examples](examples) folder for examples on how to use this librar
 ### Requirements
 
 - [Python 3.11 or above](https://www.python.org/downloads/)
+- [PyENet](https://github.com/kajob-dev/pyenet) (If growtopia.py from PyPI)
 
 ### Installing from source
 
@@ -24,6 +25,16 @@ cd growtopia.py
 
 pip(3) install -U .
 ```
+
+### Installing from PyPI
+
+Please do note that installing growtopia.py from PyPI will require you to install [PyENet](https://github.com/kajob-dev/pyenet) yourself, as PyPI does not support direct dependencies. This'll be resolved in the future by simply having [PyENet](https://github.com/kajob-dev/pyenet) available in PyPI too.
+
+```powershell
+pip(3) install growtopia.py
+```
+
+---
 
 ## Contributing
 
