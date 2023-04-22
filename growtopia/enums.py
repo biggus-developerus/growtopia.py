@@ -1,9 +1,9 @@
 __all__ = ("EventID",)
 
-from enum import StrEnum
+from enum import Enum
 
 
-class EventID(StrEnum):
+class EventID(Enum):
     UNKNOWN = "on_unknown"
 
     # ENet events

@@ -5,10 +5,10 @@ __all__ = (
     "GamePacketType",
 )
 
-from enum import IntEnum
+from enum import Enum
 
 
-class PacketType(IntEnum):
+class PacketType(Enum):
     UNKNOWN = 0
     HELLO = 1
     TEXT = 2
@@ -20,7 +20,7 @@ class PacketType(IntEnum):
         return cls.UNKNOWN
 
 
-class VariantType(IntEnum):
+class VariantType(Enum):
     NONE = 0
     FLOAT = 1
     STR = 2
@@ -34,7 +34,7 @@ class VariantType(IntEnum):
         return cls.NONE
 
 
-class GamePacketFlags(IntEnum):
+class GamePacketFlags(Enum):
     UNKNOWN = -1
     EXTRA_DATA = 8
 
@@ -43,7 +43,7 @@ class GamePacketFlags(IntEnum):
         return cls.UNKNOWN
 
 
-class GamePacketType(IntEnum):
+class GamePacketType(Enum):
     UNKNOWN = -1
     STATE = 0
     CALL_FUNCTION = 1
