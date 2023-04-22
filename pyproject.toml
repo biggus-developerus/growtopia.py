@@ -13,8 +13,8 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-version = "0.1.1"
-requires-python = ">=3.11"
+version = "0.1.2"
+requires-python = ">=3.10.7"
 
 dependencies = [
     "enet @ git+https://github.com/kajob-dev/pyenet",
