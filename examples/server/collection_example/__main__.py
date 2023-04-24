@@ -1,5 +1,6 @@
-import growtopia
 import os
+
+import growtopia
 
 server = growtopia.Server(("127.0.0.1", 10000))
 
