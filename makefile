@@ -7,15 +7,15 @@ else
 endif
 
 test:
-	pytest -vv ./tests
+	$(python) -m pytest -vv ./tests
 
 format:
-	black ./growtopia
-	isort ./growtopia
+	$(python) -m black ./growtopia
+	$(python) -m isort ./growtopia
 
 format-check:
-	black --check .
-	isort --check-only .
+	$(python) -m black --check .
+	$(python) -m isort --check-only .
 
 _build:
 	$(python) setup.py sdist bdist_wheel
@@ -26,3 +26,7 @@ install:
 
 install2:
 	$(pip) install --no-cache-dir --no-dependencies --no-build-isolation -U .
+
+upload:
+	make _build
+	$(python) -m twine upload --repository growtopia.py  dist/*
