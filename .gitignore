@@ -7,7 +7,6 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-growtopia/extensions/parse/parse.c
 .c
 .Python
 build/
