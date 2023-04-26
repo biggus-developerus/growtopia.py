@@ -62,7 +62,7 @@ class Packet(GamePacket):
         return enet.Packet(self.serialise(), enet.PACKET_FLAG_RELIABLE)
 
     @classmethod
-    def from_bytes(cls, data: bytearray) -> "Packet":
+    def from_bytes(cls, data: bytes) -> "Packet":
         packet = cls()
         packet.deserialise(data)
         return packet
