@@ -133,3 +133,6 @@ dmypy.json
 *.prof
 profiles/
 profile_**
+
+# IDE-Specific
+.idea
