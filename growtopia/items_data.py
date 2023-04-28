@@ -91,7 +91,7 @@ class ItemsData:
 
             self.items.append(item)
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=100)
     def get_item(self, item_id: int = None, name: str = None) -> Optional[Item]:
         if item_id is not None and item_id < len(self.items):
             return self.items[item_id]
@@ -103,16 +103,16 @@ class ItemsData:
 
         return None
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=100)
     def get_starts_with(self, name: str) -> list[Item]:
         return [
             item for item in self.items if item.name.lower().startswith(name.lower())
         ]
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=100)
     def get_ends_with(self, name: str) -> list[Item]:
         return [item for item in self.items if item.name.lower().endswith(name.lower())]
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=100)
     def get_contains(self, name: str) -> list[Item]:
         return [item for item in self.items if name.lower() in item.name.lower()]
