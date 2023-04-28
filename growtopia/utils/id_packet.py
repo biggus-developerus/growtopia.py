@@ -1,12 +1,13 @@
 __all__ = ("identify_packet",)
 
-from typing import Optional
+from typing import Optional, Union
 
+from .. import EventID
 from ..enums import EventID
-from ..protocol import Packet, PacketType
+from ..protocol import Packet, PacketType, GamePacketType
 
 
-def identify_packet(packet: Packet) -> Optional[EventID]:
+def identify_packet(packet: Packet) -> Union[EventID, GamePacketType]:
     """
     Identifies the packet handler based on the packet's contents.
 
@@ -28,15 +29,15 @@ def identify_packet(packet: Packet) -> Optional[EventID]:
     if packet.type == PacketType.HELLO:
         return EventID.HELLO
 
-    if packet.type == PacketType.TEXT and "requestedName" in packet.text:
-        return EventID.LOGIN_REQUEST
+    if packet.type == PacketType.TEXT:
+        if "requestedName" in packet.text:
+            return EventID.LOGIN_REQUEST
+        elif packet.text.startswith("action"):
+            return EventID(f"on_{packet.text.split('|')[1].lower()}")
 
-    if (
-        packet.type == PacketType.GAME_MESSAGE
-        or packet.type == PacketType.TEXT
-        and packet.game_message.startswith("action")
-    ):
-        return EventID(f"on_{packet.game_message.split('|')[1].lower()}")
+    if packet.type == PacketType.GAME_MESSAGE:
+        if packet.game_message.startswith("action"):
+            return EventID(f"on_{packet.game_message.split('|')[1].lower()}")
 
     if packet.type == PacketType.GAME_PACKET:
         return packet.game_packet_type
