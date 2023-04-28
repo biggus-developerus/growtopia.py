@@ -2,7 +2,6 @@ __all__ = ("identify_packet",)
 
 from typing import Optional, Union
 
-from .. import EventID
 from ..enums import EventID
 from ..protocol import Packet, PacketType, GamePacketType
 
