@@ -1,4 +1,4 @@
-__all__ = ("Pool",)
+__all__ = ("EventPool",)
 
 import asyncio
 import inspect
