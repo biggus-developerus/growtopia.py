@@ -6,12 +6,16 @@ from typing import BinaryIO, Optional, Union
 from .constants import ignored_attributes
 from .exceptions import UnsupportedItemsData
 from .item import Item
-from .utils import decipher, hash_
+from .utils import decipher
 
 
 class ItemsData:
     def __init__(self, data: Union[str, bytes, BinaryIO]) -> None:
         self.content: bytes
+        self.items: list[Item] = []
+        self.item_count: int = 0
+        self.version: int = 0
+        self.__hash: int = 0
 
         if isinstance(data, str):
             with open(data, "rb") as f:
@@ -23,10 +27,18 @@ class ItemsData:
         else:
             raise ValueError("Invalid data type passed into initialiser.")
 
-        self.items: list[Item] = []
-        self.item_count: int = 0
-        self.version: int = 0
-        self.hash: int = 0
+    @property
+    def hash(self) -> int:
+        if self.__hash != 0:
+            return self.__hash
+
+        result = 0x55555555
+
+        for i in self.content:
+            result = (result >> 27) + (result << 5) + i & 0xFFFFFFFF
+
+        self.__hash = result
+        return int(result)
 
     def parse(self) -> None:
         data, offset = self.content, 6
@@ -78,8 +90,6 @@ class ItemsData:
                     offset += len(item.__dict__[attr])
 
             self.items.append(item)
-
-        self.hash = hash_(data)
 
     @lru_cache(maxsize=None)
     def get_item(self, item_id: int = None, name: str = None) -> Optional[Item]:

@@ -1,14 +1,12 @@
 __all__ = ("PlayerTribute",)
 
-from typing import BinaryIO, Optional, Union
-
-from .utils import hash_
+from typing import BinaryIO, Union
 
 
 class PlayerTribute:
     def __init__(self, data: Union[str, bytes, BinaryIO]) -> None:
         self.content: bytes
-        self.hash: int = 0
+        self.__hash: int = 0
 
         if isinstance(data, str):
             with open(data, "rb") as f:
@@ -20,5 +18,18 @@ class PlayerTribute:
         else:
             raise ValueError("Invalid data type passed into initialiser.")
 
+    @property
+    def hash(self) -> int:
+        if self.__hash != 0:
+            return self.__hash
+
+        result = 0x55555555
+
+        for i in self.content:
+            result = (result >> 27) + (result << 5) + i & 0xFFFFFFFF
+
+        self.__hash = result
+        return int(result)
+
     def parse(self) -> None:
-        self.hash = hash_(self.content)
+        print(self.hash)
