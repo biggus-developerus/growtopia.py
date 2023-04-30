@@ -107,7 +107,6 @@ class ItemsData(File):
         This method is better called once, as it is quite slow.
         Try to store the instance of this class somewhere and reuse it.
 
-
         Raises
         ------
         UnsupportedItemsData
