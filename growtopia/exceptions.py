@@ -22,7 +22,24 @@ from .constants import ignored_attributes
 
 
 class GrowtopiaException(Exception):
-    """Base exception class for all exceptions raised by this library."""
+    """
+    Base exception class for all exceptions raised by this library.
+    This exception can be caught to handle all exceptions raised by this library.
+
+    Parameters
+    ----------
+    error_name: str
+        The name of the error.
+    message: str
+        The message of the error.
+
+    Attributes
+    ----------
+    error_name: str
+        The name of the error.
+    message: str
+        The message of the error.
+    """
 
     def __init__(self, error_name: str, message: str):
         self.error_name: str = error_name
@@ -33,11 +50,36 @@ class GrowtopiaException(Exception):
         )
 
     def __str__(self):
-        return f"{self.message}"
+        return f"{self.error_name}: {self.message}"
 
 
 class ParserException(GrowtopiaException):
-    """An exception that's raised due to a fail in the parse function."""
+    """
+    An exception that's raised due to a fail in a file's parser.
+    This exception can be caught to handle all parser exceptions.
+
+    Parameters
+    ----------
+    error_name: str
+        The name of the error.
+    message: str
+        The message of the error.
+    items_data: Optional[ItemsData]
+        The ItemsData object that was being parsed when the error occurred.
+    player_tribute: Optional[PlayerTribute]
+        The PlayerTribute object that was being parsed when the error occurred.
+
+    Attributes
+    ----------
+    items_data: Optional[ItemsData]
+        The ItemsData object that was being parsed when the error occurred.
+    player_tribute: Optional[PlayerTribute]
+        The PlayerTribute object that was being parsed when the error occurred.
+    version: Optional[int]
+        The version of the items.dat file.
+    supported_versions: list[int]
+        A list of all the supported versions of the items.dat file.
+    """
 
     def __init__(
         self,
@@ -61,7 +103,23 @@ class ParserException(GrowtopiaException):
 
 
 class UnsupportedItemsData(ParserException):
-    """An exception that's raised when the items.dat file's version appears to be unsupported."""
+    """
+    An exception that's raised when the items.dat file's version appears to be unsupported.
+
+    Parameters
+    ----------
+    items_data: ItemsData
+        The ItemsData object that was being parsed when the error occurred.
+
+    Attributes
+    ----------
+    items_data: ItemsData
+        The ItemsData object that was being parsed when the error occurred.
+    version: int
+        The version of the items.dat file.
+    supported_versions: list[int]
+        A list of all the supported versions of the items.dat file.
+    """
 
     def __init__(self, items_data: "ItemsData"):
         error_name = "UnsupportedItemsData"
