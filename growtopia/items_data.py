@@ -5,30 +5,104 @@ from typing import BinaryIO, Optional, Union
 
 from .constants import ignored_attributes
 from .exceptions import UnsupportedItemsData
+from .file import File
 from .item import Item
-from .utils import decipher, hash_
 
 
-class ItemsData:
+class ItemsData(File):
+    """
+    Represents the items.dat file. Allows for easy access to item data.
+
+    Parameters
+    ----------
+    data: Union[str, bytes, BinaryIO]
+        The data to parse. Can be a path to the file, bytes, or a file-like object.
+
+    Attributes
+    ----------
+    content: bytes
+        The raw bytes of the items.dat file.
+    items: list[Item]
+        A list of all the items in the items.dat file.
+    item_count: int
+        The amount of items in the items.dat file.
+    version: int
+        The version of the items.dat file.
+    hash: int
+        The hash of the items.dat file.
+
+    Raises
+    ------
+    ValueError
+        Invalid data type passed into initialiser.
+
+    Examples
+    --------
+    >>> from growtopia import ItemsData
+    >>> items = ItemsData("items.dat")
+    >>> items.get_item(1)
+    """
+
     def __init__(self, data: Union[str, bytes, BinaryIO]) -> None:
-        self.content: bytes
-
-        if isinstance(data, str):
-            with open(data, "rb") as f:
-                self.content = f.read()
-        elif isinstance(data, bytes):
-            self.content = data
-        elif isinstance(data, BinaryIO):
-            self.content = data.read()
-        else:
-            raise ValueError("Invalid data type passed into initialiser.")
+        super().__init__(data)
 
         self.items: list[Item] = []
         self.item_count: int = 0
         self.version: int = 0
-        self.hash: int = 0
+
+    @classmethod
+    def from_bytes(cls, data: bytes) -> "ItemsData":
+        """
+        Instantiates the class with the raw bytes provided.
+
+        Parameters
+        ----------
+        data: bytes
+            The raw data of the items.dat file.
+
+        Raises
+        ------
+        ValueError
+            Invalid data type passed into initialiser.
+
+        Returns
+        -------
+        ItemsData
+            The instance of the class.
+        """
+        return cls(data)
+
+    @classmethod
+    def decrypt(cls, name: str, key: int) -> str:
+        """ """
+        key %= (key_len := len("*PBG892FXX982ABC"))
+        result = ""
+
+        for i in name:
+            result += chr(ord(i) ^ ord("PBG892FXX982ABC*"[key]))
+            key += 1
+
+            if key >= key_len:
+                key = 0
+
+        return result
 
     def parse(self) -> None:
+        """
+        Parses the contents passed into the initialiser.
+        This method is better called once, as it is quite slow.
+        Try to store the instance of this class somewhere and reuse it.
+
+
+        Raises
+        ------
+        UnsupportedItemsData
+            The items.dat file is not supported by this library. Raised when the version of the items.dat file is not supported.
+
+        Returns
+        -------
+        None
+        """
         data, offset = self.content, 6
 
         self.version = int.from_bytes(data[:2], "little")
@@ -37,6 +111,7 @@ class ItemsData:
         if (
             self.version < list(ignored_attributes.keys())[0]
             or self.version > list(ignored_attributes.keys())[-1]
+            or self.version not in ignored_attributes
         ):
             raise UnsupportedItemsData(self)
 
@@ -60,7 +135,7 @@ class ItemsData:
                     offset += 2
 
                     if attr == "name":
-                        item.__dict__[attr] = decipher(
+                        item.__dict__[attr] = self.decrypt(
                             "".join(chr(i) for i in data[offset : offset + str_len]),
                             item.id,
                         )
@@ -79,9 +154,7 @@ class ItemsData:
 
             self.items.append(item)
 
-        self.hash = hash_(data)
-
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=100)
     def get_item(self, item_id: int = None, name: str = None) -> Optional[Item]:
         if item_id is not None and item_id < len(self.items):
             return self.items[item_id]
@@ -93,16 +166,16 @@ class ItemsData:
 
         return None
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=100)
     def get_starts_with(self, name: str) -> list[Item]:
         return [
             item for item in self.items if item.name.lower().startswith(name.lower())
         ]
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=100)
     def get_ends_with(self, name: str) -> list[Item]:
         return [item for item in self.items if item.name.lower().endswith(name.lower())]
 
-    @lru_cache(maxsize=None)
+    @lru_cache(maxsize=100)
     def get_contains(self, name: str) -> list[Item]:
         return [item for item in self.items if name.lower() in item.name.lower()]

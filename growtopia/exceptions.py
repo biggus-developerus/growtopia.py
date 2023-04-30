@@ -4,15 +4,21 @@ __all__ = (
     "UnsupportedItemsData",
 )
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from .items_data import ItemsData
     from .player_tribute import PlayerTribute
 
-    from .protocol import Packet
-
 from .constants import ignored_attributes
+
+# Exceptions that are raised by growtopia.py.
+# These exceptions can be checked for when handling errors.
+# For example:
+# try:
+#     ...
+# except UnsupportedItemsData as e: | or GrowtopiaException to catch all exceptions
+#     print(e.version)
 
 
 class GrowtopiaException(Exception):
@@ -40,29 +46,10 @@ class ParserException(GrowtopiaException):
         items_data: Optional["ItemsData"] = None,
         player_tribute: Optional["PlayerTribute"] = None,
     ):
-        self.items_data: Optional["ItemsData"] = (
-            items_data if items_data is not None else None
-        )
-        self.player_tribute: Optional["PlayerTribute"] = (
-            player_tribute if player_tribute is not None else None
-        )
-
-        self.version: Optional[int] = (
-            items_data.version if items_data is not None else None
-        )
+        self.items_data: Optional["ItemsData"] = items_data or None
+        self.player_tribute: Optional["PlayerTribute"] = player_tribute or None
+        self.version: Optional[int] = items_data.version if items_data else None
         self.supported_versions: list[int] = list(ignored_attributes.keys())
-
-        super().__init__(
-            error_name,
-            message,
-        )
-
-
-class PacketException(GrowtopiaException):
-    """An exception that's raised when a packet fails to be parsed or appears to be malformed."""
-
-    def __init__(self, error_name: str, message: str, packet: "Packet"):
-        self.packet: "Packet" = packet
 
         super().__init__(
             error_name,
@@ -85,21 +72,4 @@ class UnsupportedItemsData(ParserException):
             message,
             items_data,
             None,
-        )
-
-
-# Packet Exceptions
-
-
-class BadPacketLength(PacketException):
-    """An exception that's raised when a packet's length is not what it's supposed to be."""
-
-    def __init__(self, packet: "Packet", expected_length: Union[str, int]):
-        error_name = "BadPacketLength"
-        message = f"Packet length is not what it's supposed to be. Expected: {expected_length}, got: {len(packet.data)}"
-
-        super().__init__(
-            error_name,
-            message,
-            packet,
         )

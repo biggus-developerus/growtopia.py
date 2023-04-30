@@ -1,24 +1,35 @@
 __all__ = ("PlayerTribute",)
 
-from typing import BinaryIO, Optional, Union
+from typing import BinaryIO, Union
+from .file import File
 
-from .utils import hash_
 
+class PlayerTribute(File):
+    """
+    Represents the player_tribute.dat file. Allows for easy access to player tribute data.
 
-class PlayerTribute:
+    Parameters
+    ----------
+    data: Union[str, bytes, BinaryIO]
+        The data to parse. Can be a path to the file, bytes, or, a file-like object.
+
+    Attributes
+    ----------
+    content: bytes
+        The raw bytes of the player_tribute.dat file.
+    hash: int
+        The hash of the player_tribute.dat file.
+    """
+
     def __init__(self, data: Union[str, bytes, BinaryIO]) -> None:
-        self.content: bytes
-        self.hash: int = 0
-
-        if isinstance(data, str):
-            with open(data, "rb") as f:
-                self.content = f.read()
-        elif isinstance(data, bytes):
-            self.content = data
-        elif isinstance(data, BinaryIO):
-            self.content = data.read()
-        else:
-            raise ValueError("Invalid data type passed into initialiser.")
+        super().__init__(data)
 
     def parse(self) -> None:
-        self.hash = hash_(self.content)
+        """
+        Parses the contents passed into the initialiser.
+
+        Returns
+        -------
+        None
+        """
+        self.hash()
