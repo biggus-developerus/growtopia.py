@@ -171,7 +171,30 @@ class ItemsData(File):
         self.hash_file()
 
     @lru_cache(maxsize=100)
-    def get_item(self, item_id: int = None, name: str = None) -> Optional[Item]:
+    def get_item(
+        self, item_id: Optional[int] = None, name: Optional[str] = None
+    ) -> Optional[Item]:
+        """
+        Fetches an item from the items list. It is recommended to use the item's ID to fetch the item, as it is faster.
+
+        Parameters
+        ----------
+        item_id: Optional[int]
+            The ID of the item to fetch.
+        name: Optional[str]
+            The name of the item to fetch.
+
+        Returns
+        -------
+        Optional[Item]
+            The item that was fetched. If no item was found, returns None.
+
+        Examples
+        --------
+        >>> from growtopia import ItemsData
+        >>> items = ItemsData("items.dat")
+        >>> items.get_item(1)
+        """
         if item_id is not None and item_id < len(self.items):
             return self.items[item_id]
 
@@ -183,15 +206,72 @@ class ItemsData(File):
         return None
 
     @lru_cache(maxsize=100)
-    def get_starts_with(self, name: str) -> list[Item]:
+    def get_starts_with(self, val: str) -> list[Item]:
+        """
+        Fetches all the items that start with the value provided.
+
+        Parameters
+        ----------
+        val: str
+            The value to match the start of the item's name with.
+
+        Returns
+        -------
+        list[Item]
+            A list of all the items that start with the value provided.
+
+        Examples
+        --------
+        >>> from growtopia import ItemsData
+        >>> items = ItemsData("items.dat")
+        >>> items.get_starts_with("dirt")
+        """
         return [
-            item for item in self.items if item.name.lower().startswith(name.lower())
+            item for item in self.items if item.name.lower().startswith(val.lower())
         ]
 
     @lru_cache(maxsize=100)
-    def get_ends_with(self, name: str) -> list[Item]:
-        return [item for item in self.items if item.name.lower().endswith(name.lower())]
+    def get_ends_with(self, val: str) -> list[Item]:
+        """
+        Fetches all the items that end with the value provided.
+
+        Parameters
+        ----------
+        val: str
+            The value to match the end of the item's name with.
+
+        Returns
+        -------
+        list[Item]
+            A list of all the items that end with the value provided.
+
+        Examples
+        --------
+        >>> from growtopia import ItemsData
+        >>> items = ItemsData("items.dat")
+        >>> items.get_ends_with("lock")
+        """
+        return [item for item in self.items if item.name.lower().endswith(val.lower())]
 
     @lru_cache(maxsize=100)
-    def get_contains(self, name: str) -> list[Item]:
-        return [item for item in self.items if name.lower() in item.name.lower()]
+    def get_contains(self, val: str) -> list[Item]:
+        """
+        Fetches all the items that contain the value provided.
+
+        Parameters
+        ----------
+        val: str
+            The value to match the item's name with.
+
+        Returns
+        -------
+        list[Item]
+            A list of all the items that contain the value provided.
+
+        Examples
+        --------
+        >>> from growtopia import ItemsData
+        >>> items = ItemsData("items.dat")
+        >>> items.get_contains("dirt")
+        """
+        return [item for item in self.items if val.lower() in item.name.lower()]
