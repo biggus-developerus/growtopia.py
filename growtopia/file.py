@@ -61,7 +61,7 @@ class File:
         """
         return memoryview(self.__content)
 
-    def hash(self) -> int:
+    def hash_file(self) -> int:
         """
         Generates a hash based on the contents of the file.
 

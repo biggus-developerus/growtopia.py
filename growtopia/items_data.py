@@ -154,6 +154,8 @@ class ItemsData(File):
 
             self.items.append(item)
 
+        self.hash_file()
+
     @lru_cache(maxsize=100)
     def get_item(self, item_id: int = None, name: str = None) -> Optional[Item]:
         if item_id is not None and item_id < len(self.items):

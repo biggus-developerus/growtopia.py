@@ -1,6 +1,7 @@
 __all__ = ("PlayerTribute",)
 
 from typing import BinaryIO, Union
+
 from .file import File
 
 
@@ -32,4 +33,4 @@ class PlayerTribute(File):
         -------
         None
         """
-        self.hash()
+        self.hash_file()
