@@ -67,7 +67,8 @@ class File:
 
         Returns
         -------
-        int - The hash of the file.
+        result: int
+            The hash of the file.
 
         Examples
         --------

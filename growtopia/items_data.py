@@ -74,7 +74,21 @@ class ItemsData(File):
 
     @classmethod
     def decrypt(cls, name: str, key: int) -> str:
-        """ """
+        """
+        Decrypts the name of an item.
+
+        Parameters
+        ----------
+        name: str
+            The name of the item to decrypt.
+        key: int
+            The key to use to decrypt the name. This is usually the item's ID.
+
+        Returns
+        -------
+        result: str
+            The decrypted name.
+        """
         key %= (key_len := len("*PBG892FXX982ABC"))
         result = ""
 
