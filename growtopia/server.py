@@ -6,10 +6,12 @@ import enet
 
 from .event import Event
 from .host import Host
+from .enums import EventID
 from .player import Player
+from .dispatcher import Dispatcher
 
 
-class Server(Host):
+class Server(Host, Dispatcher):
     """
     Represents a Growtopia game server. This class uses the Host class as a base class and extends its functionality.
     This class is also used as a base class for other types of servers, such as ProxyServer and LoginServer.
@@ -34,7 +36,7 @@ class Server(Host):
     ----------
     players: dict[int, Player]
         A dictionary that has the peer id as the key and the Player object as the value.
-    players_by_tankidname: dict[str, Player]
+    players_by_name: dict[str, Player]
         A dictionary that has the tank id name (player's username) as the key and the Player object as the value.
     """
 
@@ -43,19 +45,21 @@ class Server(Host):
         address: tuple[str, int],
         **kwargs,
     ) -> None:
-        super().__init__(
+        Host.__init__(
+            self,
             enet.Address(*address),
             kwargs.get("peer_count", 32),
             kwargs.get("channel_limit", 2),
             kwargs.get("incoming_bandwidth", 0),
             kwargs.get("outgoing_bandwidth", 0),
         )
+        Dispatcher.__init__(self)
 
         self.compress_with_range_coder()
         self.checksum = enet.ENET_CRC32
 
         self.players: dict[int, Player] = {}
-        self.players_by_tankidname: dict[str, Player] = {}
+        self.players_by_name: dict[str, Player] = {}
 
     def new_player(self, peer: enet.Peer) -> Player:
         """
@@ -73,7 +77,7 @@ class Server(Host):
         """
         player = Player(peer)
         self.players[peer.connectID] = player
-        self.players_by_tankidname[player.login_info.tank_id_name] = player
+        self.players_by_name[player.login_info.tank_id_name] = player
 
         return player
 
@@ -98,7 +102,7 @@ class Server(Host):
             return self.players.get(p, None)
 
         if isinstance(p, str):
-            return self.players_by_tankidname.get(p, None)
+            return self.players_by_name.get(p, None)
 
         return None
 
@@ -115,15 +119,22 @@ class Server(Host):
         """
         if player := self.get_player(p):
             self.players.pop(player.peer.connectID, None)
-            self.players_by_tankidname.pop(player.login_info.tank_id_name, None)
+            self.players_by_name.pop(player.login_info.tank_id_name, None)
 
             if disconnect:
                 player.disconnect()
 
-    def _handle(self, event: Event) -> bool:
-        match event.type:
+    async def _handle(self, event: Event) -> bool:
+        enet_event = event.enet_event
+        match enet_event.type:
             case enet.EVENT_TYPE_CONNECT:
-                player = self.new_player(event.peer)
+                player = self.new_player(enet_event.peer)
+                self.dispatch_event(
+                    EventID.ON_CONNECT,
+                    context,
+                    player,
+                )
+
                 return True
             case enet.EVENT_TYPE_DISCONNECT:
                 return True

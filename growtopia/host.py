@@ -62,7 +62,6 @@ class Host(enet.Host):
         self.outgoing_bandwidth: int = outgoing_bandwidth
 
         self.peers: dict[int, enet.Peer] = {}
-        self.lost_events: list[enet.Event] = []
         self.__running: bool = False
 
     def start(self) -> None:
@@ -85,16 +84,13 @@ class Host(enet.Host):
         """
         self.__running = True
         while self.__running:
-            res = (
-                self._handle(event)
-                if (event := self.service(0, True))
-                else await asyncio.sleep(
-                    0
-                )  # pass control back to the event loop to prevent blocking and allow other tasks to run
-            )
+            event = self.service(0, True)
 
-            if not res and res is not None:
-                self.lost_events.append(event)
+            if event:
+                res = await self._handle(event)
+                continue
+
+            await asyncio.sleep(0)
 
     async def _handle(self, event: enet.Event) -> None:
         """
