@@ -20,8 +20,8 @@ class ItemsData(File):
 
     Attributes
     ----------
-    content: bytes
-        The raw bytes of the items.dat file.
+    content: memoryview
+        A memoryview of the raw bytes of the items.dat file.
     items: list[Item]
         A list of all the items in the items.dat file.
     item_count: int

@@ -1,9 +1,10 @@
 __all__ = ("Server",)
 
-import enet
-from .host import Host
+from typing import Optional, Union
 
-from typing import Union, Optional
+import enet
+
+from .host import Host
 
 
 class Server(Host):

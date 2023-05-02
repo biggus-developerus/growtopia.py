@@ -16,8 +16,8 @@ class PlayerTribute(File):
 
     Attributes
     ----------
-    content: bytes
-        The raw bytes of the player_tribute.dat file.
+    content: memoryview
+        A memoryview of the raw bytes of the player_tribute.dat file.
     hash: int
         The hash of the player_tribute.dat file.
     epic_players: list[str]
