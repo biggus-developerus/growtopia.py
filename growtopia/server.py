@@ -4,12 +4,12 @@ from typing import Optional, Union
 
 import enet
 
+from .context import Context
+from .dispatcher import Dispatcher
+from .enums import EventID
 from .event import Event
 from .host import Host
-from .enums import EventID
 from .player import Player
-from .dispatcher import Dispatcher
-from .context import Context
 
 
 class Server(Host, Dispatcher):
