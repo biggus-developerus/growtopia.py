@@ -9,6 +9,7 @@ from .host import Host
 from .enums import EventID
 from .player import Player
 from .dispatcher import Dispatcher
+from .context import Context
 
 
 class Server(Host, Dispatcher):
@@ -125,14 +126,18 @@ class Server(Host, Dispatcher):
                 player.disconnect()
 
     async def _handle(self, event: Event) -> bool:
+        context = Context()
+        context.server = self
+        context.event = event
+
         enet_event = event.enet_event
+
         match enet_event.type:
             case enet.EVENT_TYPE_CONNECT:
-                player = self.new_player(enet_event.peer)
+                context.player = self.new_player(enet_event.peer)
                 self.dispatch_event(
                     EventID.ON_CONNECT,
                     context,
-                    player,
                 )
 
                 return True
