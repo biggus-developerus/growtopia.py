@@ -3,6 +3,8 @@ __all__ = ("Server",)
 import enet
 from .host import Host
 
+from typing import Union, Optional
+
 
 class Server(Host):
     """
@@ -28,7 +30,9 @@ class Server(Host):
     Attributes
     ----------
     players: dict[int, Player]
-        A dictionary of all the players connected to the server.
+        A dictionary that has the peer id as the key and the Player object as the value.
+    players_by_tankidname: dict[str, Player]
+        A dictionary that has the tank id name (player's username) as the key and the Player object as the value.
     """
 
     def __init__(
@@ -44,4 +48,50 @@ class Server(Host):
             kwargs.get("outgoing_bandwidth", 0),
         )
 
-        # self.players: dict[int, Player] = {}
+        # self.__players: dict[int, Player] = {}
+        # self.__players_by_tankidname: dict[str, Player] = {}
+
+    # TODO: Make a Player class and change return types
+
+    def new_player(self, peer: enet.Peer) -> ...:
+        """
+        Instantiates a new Player object and adds it to the players dictionary.
+
+        Parameters
+        ----------
+        peer: enet.Peer
+            The peer to create a Player object for.
+
+        Returns
+        -------
+        Player
+            The Player object that was created.
+        """
+        ...
+
+    def get_player(self, p: Union[enet.Peer, int, str]) -> Optional[int]:
+        """
+        Retrieves a player from the players dictionary.
+
+        Parameters
+        ----------
+        p: Union[enet.Peer, int, str]
+            The peer, peer id, or tank id name of the player to retrieve.
+
+        Returns
+        -------
+        Optional[Player]
+            The Player object that was retrieved, or None if nothing was found.
+        """
+        ...
+
+    def remove_player(self, p: Union[enet.Peer, int, str]) -> None:
+        """
+        Removes a player from the players dictionary.
+
+        Parameters
+        ----------
+        p: Union[enet.Peer, int, str]
+            The peer, peer id, or tank id name of the player to remove.
+        """
+        ...
