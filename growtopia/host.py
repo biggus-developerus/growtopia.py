@@ -1,9 +1,10 @@
 __all__ = ("Host",)
 
 import asyncio
-import time
 
 import enet
+
+from .event import Event
 
 
 class Host(enet.Host):
@@ -55,13 +56,6 @@ class Host(enet.Host):
             outgoing_bandwidth,
         )
 
-        self.address: enet.Address = address
-        self.peer_count: int = peer_count
-        self.channel_limit: int = channel_limit
-        self.incoming_bandwidth: int = incoming_bandwidth
-        self.outgoing_bandwidth: int = outgoing_bandwidth
-
-        self.peers: dict[int, enet.Peer] = {}
         self.__running: bool = False
 
     def start(self) -> None:
@@ -87,7 +81,7 @@ class Host(enet.Host):
             event = self.service(0, True)
 
             if event:
-                res = await self._handle(event)
+                res = await self._handle(Event(event))
                 continue
 
             await asyncio.sleep(0)

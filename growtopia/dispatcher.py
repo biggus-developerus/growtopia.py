@@ -18,7 +18,7 @@ class Dispatcher:
     """
 
     def __init__(self) -> None:
-        self.listeners: dict[EventID, Listener]
+        self.listeners: dict[EventID, Listener] = {}
 
     def listener(self, func: Callable) -> Callable:
         """
@@ -71,7 +71,7 @@ class Dispatcher:
         for listener in listeners:
             del self.listeners[listener.id]
 
-    async def dispatch_event(self, event_id: EventID, *args, **kwargs) -> None:
+    async def dispatch_event(self, event_id: EventID, *args, **kwargs) -> bool:
         """
         Dispatches an event to a Listener object.
 
@@ -86,5 +86,8 @@ class Dispatcher:
         """
         listener = self.listeners.get(event_id, None)
 
-        if listener is not None:
-            await listener(*args, **kwargs)
+        if listener is None:
+            return False
+
+        await listener(*args, **kwargs)
+        return True

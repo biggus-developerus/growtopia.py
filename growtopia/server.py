@@ -148,15 +148,38 @@ class Server(Host, Dispatcher):
         match enet_event.type:
             case enet.EVENT_TYPE_CONNECT:
                 context.player = self.new_player(enet_event.peer)
-                self.dispatch_event(
+                found = await self.dispatch_event(
                     EventID.ON_CONNECT,
                     context,
                 )
 
+                if not found:
+                    return False
+
                 return True
             case enet.EVENT_TYPE_DISCONNECT:
+                context.player = self.get_player(enet_event.peer)
+
+                found = await self.dispatch_event(
+                    EventID.ON_DISCONNECT,
+                    context,
+                )
+
+                if not found:
+                    return False
+
                 return True
             case enet.EVENT_TYPE_RECEIVE:
+                context.player = self.get_player(enet_event.peer)
+
+                found = await self.dispatch_event(
+                    EventID.ON_RECEIVE,
+                    context,
+                )
+
+                if not found:
+                    return False
+
                 return True
 
         return False
