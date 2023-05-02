@@ -7,6 +7,22 @@ from .enums import EventID
 
 
 class Listener:
+    """
+    Represents a coroutine function that can be dispatched by an event dispatcher.
+
+    Parameters
+    ----------
+    callback: Callable
+        The coroutine function that will be dispatched.
+
+    Attributes
+    ----------
+    id: EventID
+        The ID of the listener. This attribute can either be set manually or automatically by the function's name.
+    callback: Callable
+        The coroutine function that will be dispatched.
+    """
+
     def __init__(self, callback: Callable) -> None:
         if not asyncio.iscoroutinefunction(callback):
             raise TypeError("Callback must be a coroutine function.")

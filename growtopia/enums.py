@@ -4,27 +4,11 @@ from enum import Enum
 
 
 class EventID(Enum):
-    UNKNOWN = "on_unknown"
+    """
+    An enumeration of all dispatchable events.
+    """
 
     # ENet events
-
-    CONNECT = "on_connect"
-    DISCONNECT = "on_disconnect"
-    RECEIVE = "on_receive"
-
-    # Server events
-    SERVER_READY = "on_server_ready"
-    SERVER_CLEANUP = "on_server_cleanup"  # called when server is shutting down
-
-    # Client events
-    CLIENT_READY = "on_client_ready"
-    CLIENT_CLEANUP = "on_client_cleanup"  # called when client is shutting down
-
-    # Packet events
-    HELLO = "on_hello"
-    LOGIN_REQUEST = "on_login_request"
-    QUIT = "on_quit"
-
-    @classmethod
-    def _missing_(cls, _):
-        return cls.UNKNOWN
+    ON_CONNECT = "on_connect"
+    ON_DISCONNECT = "on_disconnect"
+    ON_RECEIVE = "on_receive"

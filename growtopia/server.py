@@ -1,88 +1,133 @@
 __all__ = ("Server",)
 
-import asyncio
-from typing import Optional
+from typing import Optional, Union
 
 import enet
 
-from .context import Context
-from .enums import EventID
-from .event_pool import EventPool
-from .items_data import ItemsData
-from .player_pool import PlayerPool
-from .player_tribute import PlayerTribute
-from .protocol import Packet
-from .utils import identify_packet
+from .event import Event
+from .host import Host
+from .player import Player
 
 
-class Server(EventPool, PlayerPool, enet.Host):
+class Server(Host):
+    """
+    Represents a Growtopia game server. This class uses the Host class as a base class and extends its functionality.
+    This class is also used as a base class for other types of servers, such as ProxyServer and LoginServer.
+
+    Parameters
+    ----------
+    address: tuple[str, int]
+        The address to bind the server to.
+
+    Kwarg Parameters
+    ----------------
+    peer_count: int
+        The maximum amount of peers that can connect to the server.
+    channel_limit: int
+        The maximum amount of channels that can be used.
+    incoming_bandwidth: int
+        The maximum incoming bandwidth.
+    outgoing_bandwidth: int
+        The maximum outgoing bandwidth.
+
+    Attributes
+    ----------
+    players: dict[int, Player]
+        A dictionary that has the peer id as the key and the Player object as the value.
+    players_by_tankidname: dict[str, Player]
+        A dictionary that has the tank id name (player's username) as the key and the Player object as the value.
+    """
+
     def __init__(
         self,
         address: tuple[str, int],
-        items_data: Optional[ItemsData] = None,
-        player_tribute: Optional[PlayerTribute] = None,
         **kwargs,
     ) -> None:
-        EventPool.__init__(self)
-        PlayerPool.__init__(self)
-        enet.Host.__init__(
-            self,
+        super().__init__(
             enet.Address(*address),
-            kwargs.get("max_peers", 32),
-            kwargs.get("channels", 2),
-            kwargs.get("in_bandwidth", 0),
-            kwargs.get("out_bandwidth", 0),
+            kwargs.get("peer_count", 32),
+            kwargs.get("channel_limit", 2),
+            kwargs.get("incoming_bandwidth", 0),
+            kwargs.get("outgoing_bandwidth", 0),
         )
 
         self.compress_with_range_coder()
         self.checksum = enet.ENET_CRC32
 
-        self.items_data: Optional[ItemsData] = items_data or None
-        self.player_tribute: Optional[PlayerTribute] = player_tribute or None
+        self.players: dict[int, Player] = {}
+        self.players_by_tankidname: dict[str, Player] = {}
 
-        self.__running: bool = True
+    def new_player(self, peer: enet.Peer) -> Player:
+        """
+        Instantiates a new Player object and adds it to the players dictionary.
 
-    def start(self) -> None:
-        self.__running = True
-        self._event_loop.run_until_complete(self.run())
+        Parameters
+        ----------
+        peer: enet.Peer
+            The peer to create a Player object for.
 
-    def stop(self) -> None:
-        self.__running = False
+        Returns
+        -------
+        Player
+            The Player object that was created.
+        """
+        player = Player(peer)
+        self.players[peer.connectID] = player
+        self.players_by_tankidname[player.login_info.tank_id_name] = player
 
-    async def run(self) -> None:
-        (ctx := Context()).server = self
-        await self._dispatch(EventID.SERVER_READY, ctx)
+        return player
 
-        while self.__running:
-            event = self.service(0, True)
+    def get_player(self, p: Union[enet.Peer, int, str]) -> Optional[Player]:
+        """
+        Retrieves a player from the players dictionary.
 
-            if event is None:
-                await asyncio.sleep(0)  # pass control back to the event loop
-                continue
+        Parameters
+        ----------
+        p: Union[enet.Peer, int, str]
+            The peer, peer id, or tank id name of the player to retrieve.
 
-            ctx = Context()
+        Returns
+        -------
+        Optional[Player]
+            The Player object that was retrieved, or None if nothing was found.
+        """
+        if isinstance(p, enet.Peer):
+            return self.players.get(p.connectID, None)
 
-            ctx.event = event
-            ctx.server = self
+        if isinstance(p, int):
+            return self.players.get(p, None)
 
-            if event.type == enet.EVENT_TYPE_CONNECT:
-                ctx.player = self.new_player(event.peer)
-                ctx.peer = event.peer
+        if isinstance(p, str):
+            return self.players_by_tankidname.get(p, None)
 
-                await self._dispatch(EventID.CONNECT, ctx)
+        return None
 
-            elif event.type == enet.EVENT_TYPE_RECEIVE:
-                ctx.peer = event.peer
-                ctx.enet_packet = event.packet
-                ctx.player = self.get_player(str(event.peer.address))
+    def remove_player(
+        self, p: Union[enet.Peer, int, str], disconnect: bool = False
+    ) -> None:
+        """
+        Removes a player from the players dictionary.
 
-                ctx.packet = Packet.from_bytes(event.packet.data)
+        Parameters
+        ----------
+        p: Union[enet.Peer, int, str]
+            The peer, peer id, or tank id name of the player to remove.
+        """
+        if player := self.get_player(p):
+            self.players.pop(player.peer.connectID, None)
+            self.players_by_tankidname.pop(player.login_info.tank_id_name, None)
 
-                await self._dispatch(identify_packet(ctx.packet), ctx)
-                await self._dispatch(EventID.RECEIVE, ctx)
-            elif event.type == enet.EVENT_TYPE_DISCONNECT:
-                ctx.player = self.remove_player(str(event.peer.address))
-                ctx.peer = event.peer
-                await self._dispatch(EventID.DISCONNECT, ctx)
+            if disconnect:
+                player.disconnect()
 
-        await self._dispatch(EventID.SERVER_CLEANUP, ctx)
+    def _handle(self, event: Event) -> bool:
+        match event.type:
+            case enet.EVENT_TYPE_CONNECT:
+                player = self.new_player(event.peer)
+                return True
+            case enet.EVENT_TYPE_DISCONNECT:
+                return True
+            case enet.EVENT_TYPE_RECEIVE:
+                return True
+
+        return False

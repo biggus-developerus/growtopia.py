@@ -4,19 +4,42 @@ __all__ = (
     "UnsupportedItemsData",
 )
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from .items_data import ItemsData
     from .player_tribute import PlayerTribute
 
-    from .protocol import Packet
-
 from .constants import ignored_attributes
+
+# Exceptions that are raised by growtopia.py.
+# These exceptions can be checked for when handling errors.
+# For example:
+# try:
+#     ...
+# except UnsupportedItemsData as e: | or GrowtopiaException to catch all exceptions
+#     print(e.version)
 
 
 class GrowtopiaException(Exception):
-    """Base exception class for all exceptions raised by this library."""
+    """
+    Base exception class for all exceptions raised by this library.
+    This exception can be caught to handle all exceptions raised by this library.
+
+    Parameters
+    ----------
+    error_name: str
+        The name of the error.
+    message: str
+        The message of the error.
+
+    Attributes
+    ----------
+    error_name: str
+        The name of the error.
+    message: str
+        The message of the error.
+    """
 
     def __init__(self, error_name: str, message: str):
         self.error_name: str = error_name
@@ -27,11 +50,36 @@ class GrowtopiaException(Exception):
         )
 
     def __str__(self):
-        return f"{self.message}"
+        return f"{self.error_name}: {self.message}"
 
 
 class ParserException(GrowtopiaException):
-    """An exception that's raised due to a fail in the parse function."""
+    """
+    An exception that's raised due to a fail in a file's parser.
+    This exception can be caught to handle all parser exceptions.
+
+    Parameters
+    ----------
+    error_name: str
+        The name of the error.
+    message: str
+        The message of the error.
+    items_data: Optional[ItemsData]
+        The ItemsData object that was being parsed when the error occurred.
+    player_tribute: Optional[PlayerTribute]
+        The PlayerTribute object that was being parsed when the error occurred.
+
+    Attributes
+    ----------
+    items_data: Optional[ItemsData]
+        The ItemsData object that was being parsed when the error occurred.
+    player_tribute: Optional[PlayerTribute]
+        The PlayerTribute object that was being parsed when the error occurred.
+    version: Optional[int]
+        The version of the items.dat file.
+    supported_versions: list[int]
+        A list of all the supported versions of the items.dat file.
+    """
 
     def __init__(
         self,
@@ -40,29 +88,10 @@ class ParserException(GrowtopiaException):
         items_data: Optional["ItemsData"] = None,
         player_tribute: Optional["PlayerTribute"] = None,
     ):
-        self.items_data: Optional["ItemsData"] = (
-            items_data if items_data is not None else None
-        )
-        self.player_tribute: Optional["PlayerTribute"] = (
-            player_tribute if player_tribute is not None else None
-        )
-
-        self.version: Optional[int] = (
-            items_data.version if items_data is not None else None
-        )
+        self.items_data: Optional["ItemsData"] = items_data or None
+        self.player_tribute: Optional["PlayerTribute"] = player_tribute or None
+        self.version: Optional[int] = items_data.version if items_data else None
         self.supported_versions: list[int] = list(ignored_attributes.keys())
-
-        super().__init__(
-            error_name,
-            message,
-        )
-
-
-class PacketException(GrowtopiaException):
-    """An exception that's raised when a packet fails to be parsed or appears to be malformed."""
-
-    def __init__(self, error_name: str, message: str, packet: "Packet"):
-        self.packet: "Packet" = packet
 
         super().__init__(
             error_name,
@@ -74,7 +103,23 @@ class PacketException(GrowtopiaException):
 
 
 class UnsupportedItemsData(ParserException):
-    """An exception that's raised when the items.dat file's version appears to be unsupported."""
+    """
+    An exception that's raised when the items.dat file's version appears to be unsupported.
+
+    Parameters
+    ----------
+    items_data: ItemsData
+        The ItemsData object that was being parsed when the error occurred.
+
+    Attributes
+    ----------
+    items_data: ItemsData
+        The ItemsData object that was being parsed when the error occurred.
+    version: int
+        The version of the items.dat file.
+    supported_versions: list[int]
+        A list of all the supported versions of the items.dat file.
+    """
 
     def __init__(self, items_data: "ItemsData"):
         error_name = "UnsupportedItemsData"
@@ -85,21 +130,4 @@ class UnsupportedItemsData(ParserException):
             message,
             items_data,
             None,
-        )
-
-
-# Packet Exceptions
-
-
-class BadPacketLength(PacketException):
-    """An exception that's raised when a packet's length is not what it's supposed to be."""
-
-    def __init__(self, packet: "Packet", expected_length: Union[str, int]):
-        error_name = "BadPacketLength"
-        message = f"Packet length is not what it's supposed to be. Expected: {expected_length}, got: {len(packet.data)}"
-
-        super().__init__(
-            error_name,
-            message,
-            packet,
         )

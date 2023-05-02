@@ -17,7 +17,7 @@ format-check:
 	$(python) -m black --check .
 	$(python) -m isort --check-only .
 
-_build:
+build_whl:
 	$(python) setup.py sdist bdist_wheel
 	$(python) -m build
 

@@ -5,42 +5,117 @@ from typing import BinaryIO, Optional, Union
 
 from .constants import ignored_attributes
 from .exceptions import UnsupportedItemsData
+from .file import File
 from .item import Item
-from .utils import decipher
 
 
-class ItemsData:
+class ItemsData(File):
+    """
+    Represents the items.dat file. Allows for easy access to item data.
+
+    Parameters
+    ----------
+    data: Union[str, bytes, BinaryIO]
+        The data to parse. Can be a path to the file, bytes, or a file-like object.
+
+    Attributes
+    ----------
+    content: memoryview
+        A memoryview of the raw bytes of the items.dat file.
+    items: list[Item]
+        A list of all the items in the items.dat file.
+    item_count: int
+        The amount of items in the items.dat file.
+    version: int
+        The version of the items.dat file.
+    hash: int
+        The hash of the items.dat file.
+
+    Raises
+    ------
+    ValueError
+        Invalid data type passed into initialiser.
+
+    Examples
+    --------
+    >>> from growtopia import ItemsData
+    >>> items = ItemsData("items.dat")
+    >>> items.get_item(1)
+    """
+
     def __init__(self, data: Union[str, bytes, BinaryIO]) -> None:
-        self.content: bytes
+        super().__init__(data)
+
         self.items: list[Item] = []
         self.item_count: int = 0
         self.version: int = 0
-        self.__hash: int = 0
 
-        if isinstance(data, str):
-            with open(data, "rb") as f:
-                self.content = f.read()
-        elif isinstance(data, bytes):
-            self.content = data
-        elif isinstance(data, BinaryIO):
-            self.content = data.read()
-        else:
-            raise ValueError("Invalid data type passed into initialiser.")
+    @classmethod
+    def from_bytes(cls, data: bytes) -> "ItemsData":
+        """
+        Instantiates the class with the raw bytes provided.
 
-    @property
-    def hash(self) -> int:
-        if self.__hash != 0:
-            return self.__hash
+        Parameters
+        ----------
+        data: bytes
+            The raw data of the items.dat file.
 
-        result = 0x55555555
+        Raises
+        ------
+        ValueError
+            Invalid data type passed into initialiser.
 
-        for i in self.content:
-            result = (result >> 27) + (result << 5) + i & 0xFFFFFFFF
+        Returns
+        -------
+        ItemsData
+            The instance of the class.
+        """
+        return cls(data)
 
-        self.__hash = result
-        return int(result)
+    @classmethod
+    def decrypt(cls, name: str, key: int) -> str:
+        """
+        Decrypts the name of an item.
+
+        Parameters
+        ----------
+        name: str
+            The name of the item to decrypt.
+        key: int
+            The key to use to decrypt the name. This is usually the item's ID.
+
+        Returns
+        -------
+        result: str
+            The decrypted name.
+        """
+        key %= (key_len := len("*PBG892FXX982ABC"))
+        result = ""
+
+        for i in name:
+            result += chr(ord(i) ^ ord("PBG892FXX982ABC*"[key]))
+            key += 1
+
+            if key >= key_len:
+                key = 0
+
+        return result
 
     def parse(self) -> None:
+        """
+        Parses the contents passed into the initialiser.
+        This method is better called once, as it is quite slow.
+        Try to store the instance of this class somewhere and reuse it.
+
+        Raises
+        ------
+        UnsupportedItemsData
+            The items.dat file is not supported by this library. Raised when the version of the items.dat file is not supported.
+
+        Returns
+        -------
+        None
+        """
         data, offset = self.content, 6
 
         self.version = int.from_bytes(data[:2], "little")
@@ -49,6 +124,7 @@ class ItemsData:
         if (
             self.version < list(ignored_attributes.keys())[0]
             or self.version > list(ignored_attributes.keys())[-1]
+            or self.version not in ignored_attributes
         ):
             raise UnsupportedItemsData(self)
 
@@ -72,7 +148,7 @@ class ItemsData:
                     offset += 2
 
                     if attr == "name":
-                        item.__dict__[attr] = decipher(
+                        item.__dict__[attr] = self.decrypt(
                             "".join(chr(i) for i in data[offset : offset + str_len]),
                             item.id,
                         )
@@ -91,8 +167,33 @@ class ItemsData:
 
             self.items.append(item)
 
+        self.hash_file()
+
     @lru_cache(maxsize=100)
-    def get_item(self, item_id: int = None, name: str = None) -> Optional[Item]:
+    def get_item(
+        self, item_id: Optional[int] = None, name: Optional[str] = None
+    ) -> Optional[Item]:
+        """
+        Fetches an item from the items list. It is recommended to use the item's ID to fetch the item, as it is faster.
+
+        Parameters
+        ----------
+        item_id: Optional[int]
+            The ID of the item to fetch.
+        name: Optional[str]
+            The name of the item to fetch.
+
+        Returns
+        -------
+        Optional[Item]
+            The item that was fetched. If no item was found, returns None.
+
+        Examples
+        --------
+        >>> from growtopia import ItemsData
+        >>> items = ItemsData("items.dat")
+        >>> items.get_item(1)
+        """
         if item_id is not None and item_id < len(self.items):
             return self.items[item_id]
 
@@ -104,15 +205,72 @@ class ItemsData:
         return None
 
     @lru_cache(maxsize=100)
-    def get_starts_with(self, name: str) -> list[Item]:
+    def get_starts_with(self, val: str) -> list[Item]:
+        """
+        Fetches all the items that start with the value provided.
+
+        Parameters
+        ----------
+        val: str
+            The value to match the start of the item's name with.
+
+        Returns
+        -------
+        list[Item]
+            A list of all the items that start with the value provided.
+
+        Examples
+        --------
+        >>> from growtopia import ItemsData
+        >>> items = ItemsData("items.dat")
+        >>> items.get_starts_with("dirt")
+        """
         return [
-            item for item in self.items if item.name.lower().startswith(name.lower())
+            item for item in self.items if item.name.lower().startswith(val.lower())
         ]
 
     @lru_cache(maxsize=100)
-    def get_ends_with(self, name: str) -> list[Item]:
-        return [item for item in self.items if item.name.lower().endswith(name.lower())]
+    def get_ends_with(self, val: str) -> list[Item]:
+        """
+        Fetches all the items that end with the value provided.
+
+        Parameters
+        ----------
+        val: str
+            The value to match the end of the item's name with.
+
+        Returns
+        -------
+        list[Item]
+            A list of all the items that end with the value provided.
+
+        Examples
+        --------
+        >>> from growtopia import ItemsData
+        >>> items = ItemsData("items.dat")
+        >>> items.get_ends_with("lock")
+        """
+        return [item for item in self.items if item.name.lower().endswith(val.lower())]
 
     @lru_cache(maxsize=100)
-    def get_contains(self, name: str) -> list[Item]:
-        return [item for item in self.items if name.lower() in item.name.lower()]
+    def get_contains(self, val: str) -> list[Item]:
+        """
+        Fetches all the items that contain the value provided.
+
+        Parameters
+        ----------
+        val: str
+            The value to match the item's name with.
+
+        Returns
+        -------
+        list[Item]
+            A list of all the items that contain the value provided.
+
+        Examples
+        --------
+        >>> from growtopia import ItemsData
+        >>> items = ItemsData("items.dat")
+        >>> items.get_contains("dirt")
+        """
+        return [item for item in self.items if val.lower() in item.name.lower()]
