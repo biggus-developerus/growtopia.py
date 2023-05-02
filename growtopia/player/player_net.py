@@ -1,6 +1,6 @@
 __all__ = ("PlayerNet",)
 
-from typing import Union, Optional
+from typing import Optional, Union
 
 import enet
 

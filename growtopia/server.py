@@ -10,7 +10,7 @@ from .player import Player
 
 class Server(Host):
     """
-    Represents a Growtopia server. This class uses the Host class as a base class and extends its functionality.
+    Represents a Growtopia game server. This class uses the Host class as a base class and extends its functionality.
     This class is used as a base class for other types of servers, such as ProxyServer and LoginServer.
 
     Parameters
@@ -50,8 +50,11 @@ class Server(Host):
             kwargs.get("outgoing_bandwidth", 0),
         )
 
-        self.__players: dict[int, Player] = {}
-        self.__players_by_tankidname: dict[str, Player] = {}
+        self.compress_with_range_coder()
+        self.checksum = enet.ENET_CRC32
+
+        self.players: dict[int, Player] = {}
+        self.players_by_tankidname: dict[str, Player] = {}
 
     def new_player(self, peer: enet.Peer) -> Player:
         """
@@ -68,8 +71,8 @@ class Server(Host):
             The Player object that was created.
         """
         player = Player(peer)
-        self.__players[peer.connectID] = player
-        self.__players_by_tankidname[player.login_info.tank_id_name] = player
+        self.players[peer.connectID] = player
+        self.players_by_tankidname[player.login_info.tank_id_name] = player
 
         return player
 
@@ -88,13 +91,13 @@ class Server(Host):
             The Player object that was retrieved, or None if nothing was found.
         """
         if isinstance(p, enet.Peer):
-            return self.__players.get(p.connectID, None)
+            return self.players.get(p.connectID, None)
 
         if isinstance(p, int):
-            return self.__players.get(p, None)
+            return self.players.get(p, None)
 
         if isinstance(p, str):
-            return self.__players_by_tankidname.get(p, None)
+            return self.players_by_tankidname.get(p, None)
 
         return None
 
@@ -110,8 +113,11 @@ class Server(Host):
             The peer, peer id, or tank id name of the player to remove.
         """
         if player := self.get_player(p):
-            self.__players.pop(player.peer.connectID, None)
-            self.__players_by_tankidname.pop(player.login_info.tank_id_name, None)
+            self.players.pop(player.peer.connectID, None)
+            self.players_by_tankidname.pop(player.login_info.tank_id_name, None)
 
             if disconnect:
                 player.disconnect()
+
+    def _dispatch_event(self, event: enet.Event) -> bool:
+        ...

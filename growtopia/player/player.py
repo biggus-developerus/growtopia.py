@@ -2,8 +2,8 @@ __all__ = ("Player",)
 
 import enet
 
-from .player_net import PlayerNet
 from .player_login_info import PlayerLoginInfo
+from .player_net import PlayerNet
 
 
 class Player(PlayerNet):
