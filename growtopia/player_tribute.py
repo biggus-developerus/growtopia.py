@@ -40,19 +40,6 @@ class PlayerTribute(File):
     def _parse_names(self, names: bytearray) -> list[str]:
         return [name.strip() for name in names.decode("utf-8").split(";")]
 
-    @property
-    def hash(self) -> int:
-        if self.__hash != 0:
-            return self.__hash
-
-        result = 0x55555555
-
-        for i in self.content:
-            result = (result >> 27) + (result << 5) + i & 0xFFFFFFFF
-
-        self.__hash = result
-        return int(result)
-
     def parse(self) -> None:
         """
         Parses the contents passed into the initialiser.
