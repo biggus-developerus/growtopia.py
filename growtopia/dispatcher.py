@@ -1,7 +1,6 @@
 __all__ = ("Dispatcher",)
 
 import asyncio
-
 from typing import Callable
 
 from .enums import EventID
@@ -59,3 +58,33 @@ class Dispatcher:
         """
         for listener in listeners:
             self.listeners[listener.id] = listener
+
+    def remove_listeners(self, *listeners: Listener) -> None:
+        """
+        Removes a listener from the dispatcher.
+
+        Parameters
+        ----------
+        *listeners: Listener
+            The listener(s) to remove from the dispatcher.
+        """
+        for listener in listeners:
+            del self.listeners[listener.id]
+
+    async def dispatch_event(self, event_id: EventID, *args, **kwargs) -> None:
+        """
+        Dispatches an event to a Listener object.
+
+        Parameters
+        ----------
+        event_id: EventID
+            The event ID to dispatch.
+        *args
+            The positional arguments to pass to the listener.
+        **kwargs
+            The keyword arguments to pass to the listener.
+        """
+        listener = self.listeners.get(event_id, None)
+
+        if listener is not None:
+            await listener(*args, **kwargs)

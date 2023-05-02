@@ -4,6 +4,7 @@ from typing import Optional, Union
 
 import enet
 
+from .event import Event
 from .host import Host
 from .player import Player
 
@@ -11,7 +12,7 @@ from .player import Player
 class Server(Host):
     """
     Represents a Growtopia game server. This class uses the Host class as a base class and extends its functionality.
-    This class is used as a base class for other types of servers, such as ProxyServer and LoginServer.
+    This class is also used as a base class for other types of servers, such as ProxyServer and LoginServer.
 
     Parameters
     ----------
@@ -119,5 +120,14 @@ class Server(Host):
             if disconnect:
                 player.disconnect()
 
-    def _dispatch_event(self, event: enet.Event) -> bool:
-        ...
+    def _handle(self, event: Event) -> bool:
+        match event.type:
+            case enet.EVENT_TYPE_CONNECT:
+                player = self.new_player(event.peer)
+                return True
+            case enet.EVENT_TYPE_DISCONNECT:
+                return True
+            case enet.EVENT_TYPE_RECEIVE:
+                return True
+
+        return False

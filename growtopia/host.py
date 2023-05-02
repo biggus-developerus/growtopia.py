@@ -1,12 +1,9 @@
 __all__ = ("Host",)
 
 import asyncio
+import time
 
 import enet
-
-from .context import Context
-from .enums import EventID
-from .listener import Listener
 
 
 class Host(enet.Host):
@@ -65,6 +62,7 @@ class Host(enet.Host):
         self.outgoing_bandwidth: int = outgoing_bandwidth
 
         self.peers: dict[int, enet.Peer] = {}
+        self.lost_events: list[enet.Event] = []
         self.__running: bool = False
 
     def start(self) -> None:
@@ -79,7 +77,7 @@ class Host(enet.Host):
 
     async def run(self) -> None:
         """
-        Starts an infinite asynchroneous loop that dispatches events accordingly.
+        Starts an asynchroneous loop that handles events accordingly.
 
         Returns
         -------
@@ -87,13 +85,20 @@ class Host(enet.Host):
         """
         self.__running = True
         while self.__running:
-            self._dispatch(event) if (
-                event := self.service(0, True)
-            ) else await asyncio.sleep(0)
+            res = (
+                self._handle(event)
+                if (event := self.service(0, True))
+                else await asyncio.sleep(
+                    0
+                )  # pass control back to the event loop to prevent blocking and allow other tasks to run
+            )
 
-    async def _dispatch(self, event: enet.Event) -> None:
+            if not res and res is not None:
+                self.lost_events.append(event)
+
+    async def _handle(self, event: enet.Event) -> None:
         """
-        Dispatches and handles event data accordingly.
+        Handles event data accordingly.
 
         Parameters
         ----------

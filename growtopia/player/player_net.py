@@ -31,7 +31,7 @@ class PlayerNet:
         self.last_packet_received: None = None
         # TODO: PACKET CLASS
 
-    def send(self, data: Union[str, bytes, enet.Packet]):
+    def send(self, data: Union[str, set, bytes, enet.Packet]):
         """
         Sends data to the player.
 
@@ -47,6 +47,8 @@ class PlayerNet:
         """
         if isinstance(data, str):
             self.send_log(data)
+        elif isinstance(data, set):
+            ...  # TODO: Add a new function for sending variant lists
         elif isinstance(data, enet.Packet):
             self.peer.send(0, data)
         elif isinstance(data, bytes):

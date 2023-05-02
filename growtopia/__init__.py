@@ -1,5 +1,6 @@
 from .context import *
 from .enums import *
+from .event import *
 from .exceptions import *
 from .file import *
 from .item import *
