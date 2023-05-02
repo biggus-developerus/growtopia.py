@@ -5,6 +5,7 @@ from typing import Optional, Union
 import enet
 
 from .host import Host
+from .player import Player
 
 
 class Server(Host):
@@ -49,12 +50,10 @@ class Server(Host):
             kwargs.get("outgoing_bandwidth", 0),
         )
 
-        # self.__players: dict[int, Player] = {}
-        # self.__players_by_tankidname: dict[str, Player] = {}
+        self.__players: dict[int, Player] = {}
+        self.__players_by_tankidname: dict[str, Player] = {}
 
-    # TODO: Make a Player class and change return types
-
-    def new_player(self, peer: enet.Peer) -> ...:
+    def new_player(self, peer: enet.Peer) -> Player:
         """
         Instantiates a new Player object and adds it to the players dictionary.
 
@@ -68,9 +67,13 @@ class Server(Host):
         Player
             The Player object that was created.
         """
-        ...
+        player = Player(peer)
+        self.__players[peer.connectID] = player
+        self.__players_by_tankidname[player.login_info.tank_id_name] = player
 
-    def get_player(self, p: Union[enet.Peer, int, str]) -> Optional[int]:
+        return player
+
+    def get_player(self, p: Union[enet.Peer, int, str]) -> Optional[Player]:
         """
         Retrieves a player from the players dictionary.
 
@@ -84,9 +87,20 @@ class Server(Host):
         Optional[Player]
             The Player object that was retrieved, or None if nothing was found.
         """
-        ...
+        if isinstance(p, enet.Peer):
+            return self.__players.get(p.connectID, None)
 
-    def remove_player(self, p: Union[enet.Peer, int, str]) -> None:
+        if isinstance(p, int):
+            return self.__players.get(p, None)
+
+        if isinstance(p, str):
+            return self.__players_by_tankidname.get(p, None)
+
+        return None
+
+    def remove_player(
+        self, p: Union[enet.Peer, int, str], disconnect: bool = False
+    ) -> None:
         """
         Removes a player from the players dictionary.
 
@@ -95,4 +109,9 @@ class Server(Host):
         p: Union[enet.Peer, int, str]
             The peer, peer id, or tank id name of the player to remove.
         """
-        ...
+        if player := self.get_player(p):
+            self.__players.pop(player.peer.connectID, None)
+            self.__players_by_tankidname.pop(player.login_info.tank_id_name, None)
+
+            if disconnect:
+                player.disconnect()

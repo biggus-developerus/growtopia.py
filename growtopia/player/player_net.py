@@ -1,6 +1,6 @@
 __all__ = ("PlayerNet",)
 
-from typing import Union
+from typing import Union, Optional
 
 import enet
 
@@ -65,3 +65,17 @@ class PlayerNet:
         """
         # TODO: PACKET CLASS!!!!!!!!!!!
         ...
+
+    def disconnect(self, text: Optional[str] = None):
+        """
+        Disconnects the player.
+
+        Parameters
+        ----------
+        text: str
+            The text to send to the player before disconnecting them.
+        """
+        if text:
+            self.send_log(text)
+
+        self.peer.disconnect()
