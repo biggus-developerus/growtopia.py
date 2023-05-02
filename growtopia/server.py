@@ -126,6 +126,19 @@ class Server(Host, Dispatcher):
                 player.disconnect()
 
     async def _handle(self, event: Event) -> bool:
+        """
+        Handles a given event.
+
+        Parameters
+        ----------
+        event: Event
+            The event to handle.
+
+        Returns
+        -------
+        bool
+            Whether or not the event has been handled by a Listener.
+        """
         context = Context()
         context.server = self
         context.event = event
