@@ -37,18 +37,6 @@ class TextPacket(Packet):
 
         # TODO: Parse text packets properly
 
-    def identify(self) -> EventID:
-        """
-        Identify the packet based on its contents.
-
-        Returns
-        -------
-        EventID
-            The event ID responsible for handling the packet.
-        """
-        if "requestedName" in self.text:
-            return EventID.ON_REQUEST_LOGIN
-
     def set_text(self, text: str) -> None:
         """
         Sets the text of the packet.
@@ -120,3 +108,15 @@ class TextPacket(Packet):
                 ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
 
             self.text = data[4:-1].decode("utf-8")
+
+    def identify(self) -> EventID:
+        """
+        Identify the packet based on its contents.
+
+        Returns
+        -------
+        EventID
+            The event ID responsible for handling the packet.
+        """
+        if "requestedName" in self.text:
+            return EventID.ON_REQUEST_LOGIN
