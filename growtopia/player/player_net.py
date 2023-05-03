@@ -4,6 +4,8 @@ from typing import Optional, Union
 
 import enet
 
+from ..protocol import Packet
+
 
 class PlayerNet:
     """
@@ -31,7 +33,7 @@ class PlayerNet:
         self.last_packet_received: None = None
         # TODO: PACKET CLASS
 
-    def send(self, data: Union[str, set, bytes, enet.Packet]):
+    def send(self, data: Union[str, set, bytes, enet.Packet, Packet]):
         """
         Sends data to the player.
 
@@ -53,6 +55,8 @@ class PlayerNet:
             self.peer.send(0, data)
         elif isinstance(data, bytes):
             self.peer.send(0, enet.Packet(data, enet.PACKET_FLAG_RELIABLE))
+        elif isinstance(data, Packet):
+            self.peer.send(0, data.enet_packet)
         else:
             raise TypeError("Invalid data type passed.")
 
