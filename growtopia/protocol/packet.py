@@ -1,6 +1,6 @@
 __all__ = ("Packet",)
 
-from typing import Optional, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Union
 
 import enet
 
@@ -29,10 +29,6 @@ class Packet:
         The enet.Packet object created from the raw data.
     type: PacketType
         The type of the packet.
-    text: str
-        The decoded text that the packet contains. Set by the TextPacket class.
-    received_from: Optional[Player]
-        The player that sent the packet.
     """
 
     def __init__(self, data: Optional[Union[bytes, enet.Packet]] = None) -> None:
@@ -42,34 +38,9 @@ class Packet:
         self.data: bytes = data or b""
         self.type: PacketType = PacketType(0)
 
-        self.text: str  # set by TextPacket class
-
-        self.received_from: Optional[Player] = None
-
-        if len(self.data) >= 4:
-            self.deserialise()
-
     @property
     def enet_packet(self) -> enet.Packet:
         return enet.Packet(self.data, enet.PACKET_FLAG_RELIABLE)
-
-    @classmethod
-    def from_bytes(cls, data: bytes) -> "Packet":
-        """
-        Create a Packet object from bytes.
-
-        Parameters
-        ----------
-        data: bytes
-            The raw data to create the Packet object from.
-
-        Returns
-        -------
-        Packet
-            The Packet object created from the raw data.
-        """
-
-        return cls(data)
 
     @classmethod
     def get_type(cls, data: bytes) -> PacketType:

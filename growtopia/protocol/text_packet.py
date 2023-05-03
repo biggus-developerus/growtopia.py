@@ -32,9 +32,20 @@ class TextPacket(Packet):
         self.type: PacketType = PacketType.TEXT
         self.text: str = ""
 
+        if len(self.data) >= 4:
+            self.deserialise()
+
         # TODO: Parse text packets properly
 
     def identify(self) -> EventID:
+        """
+        Identify the packet based on its contents.
+
+        Returns
+        -------
+        EventID
+            The event ID responsible for handling the packet.
+        """
         if "requestedName" in self.text:
             return EventID.ON_REQUEST_LOGIN
 
