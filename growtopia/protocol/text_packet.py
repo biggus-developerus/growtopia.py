@@ -59,7 +59,9 @@ class TextPacket(Packet):
             The text to append to the packet.
         """
 
-        self.text += text[:-1] + "\n"
+        self.text = (
+            self.text[:-1] + text + "\n"
+        )  # Remove the last \n from the text, then append the new text and add a new \n
 
     def serialise(self) -> bytes:
         """

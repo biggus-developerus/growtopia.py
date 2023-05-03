@@ -15,6 +15,10 @@ def test_text_packet() -> None:
     assert packet.type == protocol.PacketType.TEXT
     assert packet.text == "Hello, world!\n"
 
+    packet.append_text("\nHello, world!")
+
+    assert packet.text == "Hello, world!\nHello, world!\n"
+
 
 if __name__ == "__main__":
     test_packet()
