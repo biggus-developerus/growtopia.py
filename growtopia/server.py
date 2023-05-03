@@ -170,7 +170,7 @@ class Server(Host, Dispatcher):
                     enet_event.packet.data
                 ):  # We do this to avoid creating the wrong packet object (e.g. Packet instead of TextPacket)
                     case PacketType.TEXT:
-                        context.packet = TextPacket.from_bytes(enet_event.packet.data)
+                        context.packet = TextPacket(enet_event.packet.data)
 
                 event_id = (
                     context.packet.identify() if context.packet else EventID.ON_RECEIVE
