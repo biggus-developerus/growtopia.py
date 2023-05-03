@@ -160,9 +160,9 @@ class ItemsData(File):
                     offset += str_len
 
                 elif isinstance(item.__dict__[attr], bytearray):
-                    item.__dict__[attr] = data[
-                        offset : offset + len(item.__dict__[attr])
-                    ]
+                    item.__dict__[attr] = bytearray(
+                        data[offset : offset + len(item.__dict__[attr])]
+                    )  # create a new bytearray object to avoid users modifying the original bytearray that the memoryview object is referencing.
                     offset += len(item.__dict__[attr])
 
             self.items.append(item)
