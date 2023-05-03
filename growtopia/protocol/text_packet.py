@@ -1,12 +1,10 @@
 __all__ = ("TextPacket",)
 
-from typing import Union
+from typing import Optional, Union
+
 from .packet import Packet, PacketType
-
-from typing import Union, Optional
-
-# TODO: Whilst deserialising the packet, we **must** ensure that the packet type matches the packet type of the class (text).
-# We could do that by raising an Exception
+from ..error_manager import ErrorManager
+from ..exceptions import PacketTypeDoesNotMatchContent
 
 
 class TextPacket(Packet):
@@ -96,3 +94,6 @@ class TextPacket(Packet):
         if len(data) >= 4:
             self.type = PacketType(int.from_bytes(data[:4], "little"))
             self.text = data[4:-1].decode("utf-8")
+
+            if self.type != PacketType.TEXT:
+                ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from .items_data import ItemsData
+    from .protocol import Packet
     from .player_tribute import PlayerTribute
 
 from .constants import ignored_attributes
@@ -51,6 +52,31 @@ class GrowtopiaException(Exception):
 
     def __str__(self):
         return f"{self.error_name}: {self.message}"
+
+
+class PacketException(GrowtopiaException):
+    """
+    An exception that's raised due to a fail in the Packet's child class.
+    This exception can be caught to handle all packet exceptions.
+
+    Parameters
+    ----------
+    error_name: str
+        The name of the error.
+    message: str
+        The message of the error.
+    packet: Optional[Packet]
+        The Packet object that was being handled when the error occurred.
+
+    Attributes
+    ----------
+    packet: Optional[Packet]
+        The Packet object that was being handled when the error occurred.
+    """
+
+    def __init__(self, error_name: str, message: str, packet: Optional["Packet"]):
+        self.packet: Optional["Packet"] = packet
+        super().__init__(error_name, message)
 
 
 class ParserException(GrowtopiaException):
@@ -130,4 +156,30 @@ class UnsupportedItemsData(ParserException):
             message,
             items_data,
             None,
+        )
+
+
+class PacketTypeDoesNotMatchContent(PacketException):
+    """
+    An exception that's raised when the Packet being handled does not match the content of the Packet.
+
+    Parameters
+    ----------
+    packet: Packet
+        The Packet object that was being handled when the error occurred.
+
+    Attributes
+    ----------
+    packet: Packet
+        The Packet object that was being handled when the error occurred.
+    """
+
+    def __init__(self, packet: "Packet"):
+        error_name = "PacketTypeDoesNotMatchContent"
+        message = f"Packet type does not match content. Packet type: {packet.packet_type}, packet type from content: {packet.data[:4]}"
+
+        super().__init__(
+            error_name,
+            message,
+            packet,
         )

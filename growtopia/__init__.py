@@ -1,5 +1,6 @@
 from .context import *
 from .enums import *
+from .error_manager import *
 from .event import *
 from .exceptions import *
 from .file import *
