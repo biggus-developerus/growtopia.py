@@ -35,33 +35,6 @@ class TextPacket(Packet):
         if len(self.data) >= 4:
             self.deserialise()
 
-        # TODO: Parse text packets properly
-
-    def set_text(self, text: str) -> None:
-        """
-        Sets the text of the packet.
-
-        Parameters
-        ----------
-        text: str
-            The text to set the packet's text to.
-        """
-        self.text = text + "\n"
-
-    def append_text(self, text: str) -> None:
-        """
-        Appends text to the packet.
-
-        Parameters
-        ----------
-        text: str
-            The text to append to the packet.
-        """
-
-        self.text = (
-            self.text[:-1] + text + "\n"
-        )  # Remove the last \n from the text, then append the new text and add a new \n
-
     def serialise(self) -> bytes:
         """
         Serialise the packet.
@@ -78,7 +51,9 @@ class TextPacket(Packet):
         """
 
         self.data = bytearray(int.to_bytes(self.type, 4, "little"))
-        self.data += self.text[:-1].encode("utf-8")
+        self.data += self.text.encode("utf-8") + (
+            b"\n" if not self.text.endswith(b"\n") else b""
+        )
 
         return self.data
 
