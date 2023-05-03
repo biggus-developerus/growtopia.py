@@ -139,9 +139,16 @@ class Server(Host, Dispatcher):
         bool
             Whether or not the event has been handled by a Listener.
         """
+
         context = Context()
         context.server = self
         context.event = event
+
+        if event is None:
+            return await self.dispatch_event(
+                EventID.ON_CLEANUP,
+                context,
+            )
 
         enet_event = event.enet_event
 
