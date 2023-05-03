@@ -1,14 +1,11 @@
 __all__ = ("Packet",)
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import Optional, Union
 
 import enet
 
 from ..enums import EventID
 from .enums import PacketType
-
-if TYPE_CHECKING:
-    from ..player import Player
 
 
 class Packet:
