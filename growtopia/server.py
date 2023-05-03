@@ -125,14 +125,14 @@ class Server(Host, Dispatcher):
             if disconnect:
                 player.disconnect()
 
-    async def _handle(self, event: Event) -> bool:
+    async def _handle(self, event: Optional[Event]) -> bool:
         """
         Handles a given event.
 
         Parameters
         ----------
-        event: Event
-            The event to handle.
+        event: Optional[Event]
+            The event to handle. Could be None if the event emitted is on_cleanup.
 
         Returns
         -------

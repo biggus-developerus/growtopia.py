@@ -15,12 +15,12 @@ class Event:
 
     Parameters
     ----------
-    enet_event: enet.Event
-        The ENet event that was emitted.
+    enet_event: Optional[enet.Event]
+        The ENet event that was emitted. This could be None if the event to be emitted is on_cleanup.
 
     Attributes
     ----------
-    enet_event: enet.Event
+    enet_event: Optional[enet.Event]
         The ENet event that was emitted.
     timestamp: float
         The timestamp of when the event was emitted.
@@ -28,9 +28,7 @@ class Event:
         Whether or not the event has been handled.
     """
 
-    def __init__(self, enet_event: enet.Event) -> None:
-        self.enet_event: enet.Event = enet_event
+    def __init__(self, enet_event: Optional[enet.Event]) -> None:
+        self.enet_event: Optional[enet.Event] = enet_event
         self.timestamp: float = time.time()
-
         self.handled: bool = False
-        self.sent_to: Optional["Player"] = None

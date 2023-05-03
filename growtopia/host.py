@@ -1,6 +1,7 @@
 __all__ = ("Host",)
 
 import asyncio
+from typing import Optional
 
 import enet
 
@@ -26,18 +27,7 @@ class Host(enet.Host):
 
     Attributes
     ----------
-    address: enet.Address
-        The address that the host is bound to.
-    peer_count: int
-        The maximum amount of peers that can connect to the host.
-    channel_limit: int
-        The maximum amount of channels that can be used.
-    incoming_bandwidth: int
-        The maximum incoming bandwidth.
-    outgoing_bandwidth: int
-        The maximum outgoing bandwidth.
-    peers: dict[int, enet.Peer]
-        A dictionary that keeps track of all connected peers. Connection IDs are used as keys and enet.Peer objects are used as values.
+    None (enet.Host)
     """
 
     def __init__(
@@ -60,7 +50,7 @@ class Host(enet.Host):
 
     def start(self) -> None:
         """
-        Run the asyncio event loop.
+        Runs the coroutine that starts the asynchronous loop.
 
         Returns
         -------
@@ -68,9 +58,21 @@ class Host(enet.Host):
         """
         asyncio.run(self.run())
 
+    def stop(self) -> None:
+        """
+        Stops the running asynchronous loop and dispatches the on_cleanup event.
+
+        Returns
+        -------
+        None
+        """
+
+        self.__running = False
+        self._handle(Event(None))
+
     async def run(self) -> None:
         """
-        Starts an asynchroneous loop that handles events accordingly.
+        Starts an asynchronous loop that handles events accordingly.
 
         Returns
         -------
@@ -86,13 +88,13 @@ class Host(enet.Host):
 
             await asyncio.sleep(0)
 
-    async def _handle(self, event: enet.Event) -> None:
+    async def _handle(self, event: Optional[Event]) -> None:
         """
         Handles event data accordingly.
 
         Parameters
         ----------
-        event: enet.Event
+        event: Optional[Event]
             The event to dispatch.
 
         Returns
