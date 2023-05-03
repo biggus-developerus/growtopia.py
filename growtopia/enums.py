@@ -15,3 +15,6 @@ class EventID(Enum):
     ON_CONNECT = "on_connect"
     ON_DISCONNECT = "on_disconnect"
     ON_RECEIVE = "on_receive"
+
+    # Packet events
+    ON_REQUEST_LOGIN = "on_request_login"

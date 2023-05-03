@@ -1,7 +1,5 @@
 """Test the Server class."""
 
-import os
-
 from growtopia import Server, Context
 
 

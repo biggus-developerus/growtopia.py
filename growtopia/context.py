@@ -7,6 +7,7 @@ import enet
 if TYPE_CHECKING:
     from .event import Event
     from .player import Player
+    from .protocol import Packet
     from .server import Server
 
 
@@ -25,3 +26,4 @@ class Context:
         # Other objects (Player, World, Event, etc.)
         self.player: Optional["Player"] = None
         self.event: Optional["Event"] = None
+        self.packet: Optional["Packet"] = None

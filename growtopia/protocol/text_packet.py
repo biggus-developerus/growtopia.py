@@ -2,9 +2,12 @@ __all__ = ("TextPacket",)
 
 from typing import Optional, Union
 
-from .packet import Packet, PacketType
+import enet
+
+from ..enums import EventID
 from ..error_manager import ErrorManager
 from ..exceptions import PacketTypeDoesNotMatchContent
+from .packet import Packet, PacketType
 
 
 class TextPacket(Packet):
@@ -13,7 +16,7 @@ class TextPacket(Packet):
 
     Parameters
     ----------
-    data: Union[bytes, Packet]
+    data: Optional[Union[bytes, Packet]]
         The raw data of the packet.
 
     Attributes
@@ -23,11 +26,17 @@ class TextPacket(Packet):
 
     """
 
-    def __init__(self, data: Union[bytes, Packet]) -> None:
+    def __init__(self, data: Optional[Union[bytes, enet.Packet]] = None) -> None:
         super().__init__(data)
 
         self.type: PacketType = PacketType.TEXT
         self.text: str = ""
+
+        # TODO: Parse text packets properly
+
+    def identify(self) -> EventID:
+        if "requestedName" in self.text:
+            return EventID.ON_REQUEST_LOGIN
 
     def set_text(self, text: str) -> None:
         """
@@ -93,7 +102,8 @@ class TextPacket(Packet):
 
         if len(data) >= 4:
             self.type = PacketType(int.from_bytes(data[:4], "little"))
-            self.text = data[4:-1].decode("utf-8")
 
             if self.type != PacketType.TEXT:
                 ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
+
+            self.text = data[4:-1].decode("utf-8")

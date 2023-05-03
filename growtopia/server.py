@@ -10,6 +10,7 @@ from .enums import EventID
 from .event import Event
 from .host import Host
 from .player import Player
+from .protocol import Packet, PacketType, TextPacket
 
 
 class Server(Host, Dispatcher):
@@ -151,25 +152,30 @@ class Server(Host, Dispatcher):
             )
 
         enet_event = event.enet_event
+        event_id = None
 
         match enet_event.type:
             case enet.EVENT_TYPE_CONNECT:
                 context.player = self.new_player(enet_event.peer)
-                return await self.dispatch_event(
-                    EventID.ON_CONNECT,
-                    context,
-                )
+                event_id = EventID.ON_CONNECT
+
             case enet.EVENT_TYPE_DISCONNECT:
                 context.player = self.get_player(enet_event.peer)
-                return await self.dispatch_event(
-                    EventID.ON_DISCONNECT,
-                    context,
-                )
+                event_id = EventID.ON_DISCONNECT
             case enet.EVENT_TYPE_RECEIVE:
                 context.player = self.get_player(enet_event.peer)
-                return await self.dispatch_event(
-                    EventID.ON_RECEIVE,
-                    context,
+                event_id = EventID.ON_RECEIVE
+
+                match Packet.get_type(
+                    enet_event.packet.data
+                ):  # We do this to avoid creating the wrong packet object (e.g. Packet instead of TextPacket)
+                    case PacketType.TEXT:
+                        context.packet = TextPacket.from_bytes(enet_event.packet.data)
+
+                event_id = (
+                    context.packet.identify() if context.packet else EventID.ON_RECEIVE
                 )
             case _:
                 return False
+
+        return await self.dispatch_event(event_id, context)

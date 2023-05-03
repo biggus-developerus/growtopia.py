@@ -30,7 +30,7 @@ jobs:
         python -m pip install .
     - name: Run pytest
       run: |
-        pytest ./tests -s
+        pytest ./tests -vv -s
 
   test-ubuntu:
     runs-on: ubuntu-latest
@@ -53,4 +53,4 @@ jobs:
         python -m pip install -e .
     - name: Run pytest
       run: |
-        pytest ./tests -s
+        pytest ./tests -vv -s
