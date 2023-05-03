@@ -3,17 +3,14 @@
 [![Discord server](https://discord.com/api/guilds/1009905646897999913/embed.png)](https://discord.gg/3RYSVwBCQC)
 [![PyPI version](https://img.shields.io/pypi/v/growtopia.py.svg?style=flat-square)](https://pypi.org/project/growtopia.py/)
 [![Python versions](https://img.shields.io/pypi/pyversions/growtopia.py.svg?style=flat-square)](https://pypi.org/project/growtopia.py/)
-[![License](https://img.shields.io/github/license/kajob-dev/growtopia.py.svg?style=flat-square)](LICENSE)
 
 A simple asynchronous API for Growtopia, capable of creating servers, clients, and more!
-
-Check out the [examples](examples) folder for examples on how to use this library.
 
 ## Installation
 
 ### Requirements
 
-- [Python 3.9 or above](https://www.python.org/downloads/)
+- [Python 3.10 or above](https://www.python.org/downloads/)
 - [PyENet](https://github.com/kajob-dev/pyenet) (If installing growtopia.py from PyPI)
 
 ### Installing from source
