@@ -1,4 +1,4 @@
-__all__ = ("TextPacket",)
+__all__ = ("GameMessagePacket",)
 
 from typing import Optional, Union
 
@@ -10,9 +10,9 @@ from ..exceptions import PacketTypeDoesNotMatchContent
 from .packet import Packet, PacketType
 
 
-class TextPacket(Packet):
+class GameMessagePacket(Packet):
     """
-    Represents a text packet. A packet that contains text. Uses the Packet class as a base.
+    Represents a game message packet. A packet that contains a game message (basically text). Uses the Packet class as a base.
 
     Parameters
     ----------
@@ -21,15 +21,15 @@ class TextPacket(Packet):
 
     Attributes
     ----------
-    text: str
-        The decoded text found in the packet.
+    game_message: str
+        The decoded game message found in the packet.
     """
 
     def __init__(self, data: Optional[Union[bytes, enet.Packet]] = None) -> None:
         super().__init__(data)
 
-        self.type: PacketType = PacketType.TEXT
-        self.text: str = ""
+        self.type: PacketType = PacketType.GAME_MESSAGE
+        self.game_message: str = ""
 
         if len(self.data) >= 4:
             self.deserialise()
@@ -45,8 +45,8 @@ class TextPacket(Packet):
         """
 
         self.data = bytearray(int.to_bytes(self.type, 4, "little"))
-        self.data += self.text.encode("utf-8") + (
-            b"\n" if not self.text.endswith(b"\n") else b""
+        self.data += self.game_message.encode("utf-8") + (
+            b"\n" if not self.game_message.endswith(b"\n") else b""
         )
 
         return self.data
@@ -68,10 +68,10 @@ class TextPacket(Packet):
         if len(data) >= 4:
             self.type = PacketType(int.from_bytes(data[:4], "little"))
 
-            if self.type != PacketType.TEXT:
+            if self.type != PacketType.GAME_MESSAGE:
                 ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
 
-            self.text = data[4:-1].decode("utf-8")
+            self.game_message = data[4:-1].decode("utf-8")
 
     def identify(self) -> EventID:
         """
@@ -82,5 +82,5 @@ class TextPacket(Packet):
         EventID
             The event ID responsible for handling the packet.
         """
-        if "requestedName" in self.text:
+        if "requestedName" in self.game_message:
             return EventID.ON_REQUEST_LOGIN
