@@ -1,6 +1,6 @@
 """Test the Server class."""
 
-from growtopia import Server, Context
+from growtopia import Context, Server
 
 
 def test_server() -> None:

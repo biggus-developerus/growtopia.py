@@ -10,7 +10,7 @@ from .enums import EventID
 from .event import Event
 from .host import Host
 from .player import Player
-from .protocol import Packet, PacketType, TextPacket
+from .protocol import GameMessagePacket, Packet, PacketType, TextPacket
 
 
 class Server(Host, Dispatcher):
@@ -109,7 +109,7 @@ class Server(Host, Dispatcher):
         return None
 
     def remove_player(
-        self, p: Union[enet.Peer, int, str], disconnect: bool = False
+        self, p: Union[enet.Peer, int, str], disconnect: Optional[bool] = False
     ) -> None:
         """
         Removes a player from the players dictionary.
@@ -154,28 +154,30 @@ class Server(Host, Dispatcher):
         enet_event = event.enet_event
         event_id = None
 
-        match enet_event.type:
-            case enet.EVENT_TYPE_CONNECT:
-                context.player = self.new_player(enet_event.peer)
-                event_id = EventID.ON_CONNECT
+        if enet_event.type == enet.EVENT_TYPE_CONNECT:
+            context.player = self.new_player(enet_event.peer)
+            event_id = EventID.ON_CONNECT
 
-            case enet.EVENT_TYPE_DISCONNECT:
-                context.player = self.get_player(enet_event.peer)
-                event_id = EventID.ON_DISCONNECT
-            case enet.EVENT_TYPE_RECEIVE:
-                context.player = self.get_player(enet_event.peer)
-                event_id = EventID.ON_RECEIVE
+        elif enet_event.type == enet.EVENT_TYPE_DISCONNECT:
+            context.player = self.get_player(enet_event.peer)
+            event_id = EventID.ON_DISCONNECT
 
-                match Packet.get_type(
-                    enet_event.packet.data
-                ):  # We do this to avoid creating the wrong packet object (e.g. Packet instead of TextPacket)
-                    case PacketType.TEXT:
-                        context.packet = TextPacket(enet_event.packet.data)
+            self.remove_player(enet_event.peer)
 
-                event_id = (
-                    context.packet.identify() if context.packet else EventID.ON_RECEIVE
-                )
-            case _:
-                return False
+        elif enet_event.type == enet.EVENT_TYPE_RECEIVE:
+            context.player = self.get_player(enet_event.peer)
+            event_id = EventID.ON_RECEIVE
+
+            if Packet.get_type(enet_event.packet.data) == PacketType.TEXT:
+                context.packet = TextPacket(enet_event.packet.data)
+            elif Packet.get_type(enet_event.packet.data) == PacketType.GAME_MESSAGE:
+                context.packet = GameMessagePacket(enet_event.packet.data)
+
+            event_id = (
+                context.packet.identify() if context.packet else EventID.ON_RECEIVE
+            )
+
+        if event_id is None:
+            return False
 
         return await self.dispatch_event(event_id, context)

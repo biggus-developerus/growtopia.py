@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 import enet
 
-from ..protocol import Packet
+from ..protocol import GameMessagePacket, Packet, TextPacket
 
 
 class PlayerNet:
@@ -33,7 +33,9 @@ class PlayerNet:
         self.last_packet_received: None = None
         # TODO: PACKET CLASS
 
-    def send(self, data: Union[str, set, bytes, enet.Packet, Packet]):
+    def send(
+        self, data: Union[str, set, tuple, list, bytes, enet.Packet, Packet]
+    ) -> None:
         """
         Sends data to the player.
 
@@ -47,20 +49,25 @@ class PlayerNet:
         TypeError
             Invalid data type passed into the function.
         """
+
         if isinstance(data, str):
-            self.send_log(data)
-        elif isinstance(data, set):
-            ...  # TODO: Add a new function for sending variant lists
-        elif isinstance(data, enet.Packet):
-            self.peer.send(0, data)
-        elif isinstance(data, bytes):
-            self.peer.send(0, enet.Packet(data, enet.PACKET_FLAG_RELIABLE))
-        elif isinstance(data, Packet):
-            self.peer.send(0, data.enet_packet)
+            return self.send_log(data)
+
+        # elif isinstance(data, set) or isinstance(data, tuple) or isinstance(data, list):
+        #    ...  TODO: Add a new function for sending variant lists
+
+        if isinstance(data, enet.Packet):
+            data = data
+        elif isinstance(data, (bytes, bytearray)):
+            data = enet.Packet(data, enet.PACKET_FLAG_RELIABLE)
+        elif isinstance(data, (Packet, TextPacket, GameMessagePacket)):
+            data = data.enet_packet
         else:
             raise TypeError("Invalid data type passed.")
 
-    def send_log(self, text: str):
+        self.peer.send(0, data)
+
+    def send_log(self, text: str) -> None:
         """
         Sends a log message to the player.
 
@@ -69,10 +76,9 @@ class PlayerNet:
         text: str
             The text to send to the player.
         """
-        # TODO: PACKET CLASS!!!!!!!!!!!
-        ...
+        return
 
-    def disconnect(self, text: Optional[str] = None):
+    def disconnect(self, text: Optional[str] = None) -> None:
         """
         Disconnects the player.
 

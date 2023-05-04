@@ -28,15 +28,25 @@ class Packet:
         The type of the packet.
     """
 
-    def __init__(self, data: Optional[Union[bytes, enet.Packet]] = None) -> None:
+    def __init__(
+        self, data: Optional[Union[bytes, bytearray, enet.Packet]] = None
+    ) -> None:
         if isinstance(data, enet.Packet):
             data = data.data
 
-        self.data: bytes = data or b""
+        self.data: bytearray = bytearray(data) if data is not None else bytearray()
         self.type: PacketType = PacketType(0)
 
     @property
     def enet_packet(self) -> enet.Packet:
+        """
+        Create a new enet.Packet object from the raw data.
+
+        Returns
+        -------
+        enet.Packet
+            The enet.Packet object created from the raw data.
+        """
         return enet.Packet(self.data, enet.PACKET_FLAG_RELIABLE)
 
     @classmethod
@@ -99,6 +109,12 @@ class Packet:
         ------
         NotImplementedError
             This method must be implemented in the child class.
+        PacketTypeDoesNotMatchContent
+            The packet type does not match the content of the packet.
+
+        Returns
+        -------
+        None
         """
 
         raise NotImplementedError

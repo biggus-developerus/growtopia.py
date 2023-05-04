@@ -25,7 +25,9 @@ class TextPacket(Packet):
         The decoded text found in the packet.
     """
 
-    def __init__(self, data: Optional[Union[bytes, enet.Packet]] = None) -> None:
+    def __init__(
+        self, data: Optional[Union[bytes, bytearray, enet.Packet]] = None
+    ) -> None:
         super().__init__(data)
 
         self.type: PacketType = PacketType.TEXT
@@ -34,7 +36,20 @@ class TextPacket(Packet):
         if len(self.data) >= 4:
             self.deserialise()
 
-    def serialise(self) -> bytes:
+    @property
+    def enet_packet(self) -> enet.Packet:
+        """
+        Create a new enet.Packet object from the raw data.
+
+        Returns
+        -------
+        enet.Packet
+            The enet.Packet object created from the raw data.
+        """
+
+        return enet.Packet(self.serialise(), enet.PACKET_FLAG_RELIABLE)
+
+    def serialise(self) -> bytearray:
         """
         Serialise the packet.
 
@@ -46,7 +61,7 @@ class TextPacket(Packet):
 
         self.data = bytearray(int.to_bytes(self.type, 4, "little"))
         self.data += self.text.encode("utf-8") + (
-            b"\n" if not self.text.endswith(b"\n") else b""
+            b"\n" if not self.text.endswith("\n") else b""
         )
 
         return self.data
@@ -60,6 +75,15 @@ class TextPacket(Packet):
         data: Optional[bytes]
             The data to deserialise. If this isn't provided,
             the data attribute will be used instead.
+
+        Raises
+        ------
+        PacketTypeDoesNotMatchContent
+            The packet type does not match the content of the packet.
+
+        Returns
+        -------
+        None
         """
 
         if data is None:

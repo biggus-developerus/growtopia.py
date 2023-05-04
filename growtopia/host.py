@@ -1,6 +1,7 @@
 __all__ = ("Host",)
 
 import asyncio
+import time
 from typing import Optional
 
 import enet
@@ -83,7 +84,8 @@ class Host(enet.Host):
             event = self.service(0, True)
 
             if event:
-                res = await self._handle(Event(event))
+                if await self._handle((ev := Event(event))):
+                    ev.handled = True
                 continue
 
             await asyncio.sleep(0)

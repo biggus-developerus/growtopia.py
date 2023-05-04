@@ -1,6 +1,7 @@
 __all__ = ("EventID",)
 
 from enum import Enum
+from typing import Any
 
 
 class EventID(Enum):
@@ -9,6 +10,7 @@ class EventID(Enum):
     """
 
     # General events (not related to ENet / Growtopia)
+    ON_UNHANDLED = "on_unhandled"
     ON_CLEANUP = "on_cleanup"
 
     # ENet events
@@ -18,3 +20,8 @@ class EventID(Enum):
 
     # Packet events
     ON_REQUEST_LOGIN = "on_request_login"
+    ON_ACTION_QUIT = "on_quit"
+
+    @classmethod
+    def _missing_(cls, _: object) -> Any:
+        return cls("on_unhandled")
