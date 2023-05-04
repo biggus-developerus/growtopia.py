@@ -74,7 +74,7 @@ class File:
         --------
         >>> from growtopia import File
         >>> file = File("items.dat")
-        >>> file.hash()
+        >>> file.hash_file()
         """
         result = 0x55555555
 
