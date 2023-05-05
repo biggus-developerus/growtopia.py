@@ -15,17 +15,21 @@ class Packet:
 
     Parameters
     ----------
-    data: Optional[Union[bytes, enet.Packet]]
+    data: Optional[Union[bytes, bytearray, enet.Packet]]
         The raw data of the packet.
 
     Attributes
     ----------
-    data: bytes
+    data: bytearray
         The raw data of the packet.
     enet_packet: enet.Packet
         The enet.Packet object created from the raw data.
     type: PacketType
         The type of the packet.
+    text: str
+        The text found in the text packet. This attribute is only available in the TextPacket class.
+    game_message: str
+        The game message found in the game message packet. This attribute is only available in the GameMessagePacket class.
     """
 
     def __init__(
@@ -36,6 +40,9 @@ class Packet:
 
         self.data: bytearray = bytearray(data) if data is not None else bytearray()
         self.type: PacketType = PacketType(0)
+
+        self.text: str = ""
+        self.game_message: str = ""
 
     @property
     def enet_packet(self) -> enet.Packet:

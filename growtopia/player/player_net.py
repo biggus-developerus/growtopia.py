@@ -76,7 +76,10 @@ class PlayerNet:
         text: str
             The text to send to the player.
         """
-        return
+        packet = GameMessagePacket()
+        packet.game_message = "action|log\nmsg|" + text
+
+        self.send(packet)
 
     def disconnect(self, text: Optional[str] = None) -> None:
         """
