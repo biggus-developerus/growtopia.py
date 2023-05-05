@@ -26,6 +26,18 @@ def test_text_packet() -> None:
         packet.text == "Hello, world!\nHello, world!"
     )  # without the last \n because we remove it in the deserialise function
 
+    packet = protocol.TextPacket()
+    packet.text = "tankIDName|.\ntankIDPass|.\nrequestedName|.\n"
+
+    packet = protocol.TextPacket(packet.serialise())
+
+    assert packet.type == protocol.PacketType.TEXT
+    assert packet.kvps == {
+        "tankIDName": ".",
+        "tankIDPass": ".",
+        "requestedName": ".",
+    }
+
 
 if __name__ == "__main__":
     test_packet()
