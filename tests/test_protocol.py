@@ -19,6 +19,13 @@ def test_text_packet() -> None:
 
     assert packet.text == "Hello, world!\nHello, world!\n"
 
+    packet = protocol.TextPacket(packet.serialise())
+
+    assert packet.type == protocol.PacketType.TEXT
+    assert (
+        packet.text == "Hello, world!\nHello, world!"
+    )  # without the last \n because we remove it in the deserialise function
+
 
 if __name__ == "__main__":
     test_packet()
