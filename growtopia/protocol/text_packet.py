@@ -21,8 +21,14 @@ class TextPacket(Packet):
 
     Attributes
     ----------
+    data: bytearray
+        The raw data of the packet.
+    type: PacketType
+        The type of the packet.
     text: str
         The decoded text found in the packet.
+    kvps: dict[str, str]
+        Key value pairs from text. (e.g `action|log\nmsg|Hello -> {"action": "log", "msg": "Hello"}`)
     """
 
     def __init__(
@@ -32,6 +38,7 @@ class TextPacket(Packet):
 
         self.type: PacketType = PacketType.TEXT
         self.text: str = ""
+        self.kvps: dict[str, str] = {}  # key value pairs
 
         if len(self.data) >= 4:
             self.deserialise()
@@ -96,6 +103,13 @@ class TextPacket(Packet):
                 ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
 
             self.text = data[4:-1].decode("utf-8")
+
+            if self.text.startswith("action") or "requestedName" in self.text:
+                self.kvps = {
+                    kvp[0]: kvp[-1]
+                    for i in self.text.split()
+                    if (kvp := (i.split("|")))
+                }
 
     def identify(self) -> EventID:
         """

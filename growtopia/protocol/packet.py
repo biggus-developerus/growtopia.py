@@ -30,6 +30,8 @@ class Packet:
         The text found in the text packet. This attribute is only available in the TextPacket class.
     game_message: str
         The game message found in the game message packet. This attribute is only available in the GameMessagePacket class.
+    kvps: dict[str, str]
+        Key value pairs from text. (e.g `action|log\nmsg|Hello -> {"action": "log", "msg": "Hello"}`)
     """
 
     def __init__(
@@ -43,6 +45,7 @@ class Packet:
 
         self.text: str = ""
         self.game_message: str = ""
+        self.kvps: dict[str, str] = {}
 
     @property
     def enet_packet(self) -> enet.Packet:

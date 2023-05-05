@@ -21,8 +21,14 @@ class GameMessagePacket(Packet):
 
     Attributes
     ----------
+    data: bytearray
+        The raw data of the packet.
+    type: PacketType
+        The type of the packet.
     game_message: str
         The decoded game message found in the packet.
+    kvps: dict[str, str]
+        Key value pairs from text. (e.g `action|log\nmsg|Hello -> {"action": "log", "msg": "Hello"}`)
     """
 
     def __init__(
@@ -32,6 +38,7 @@ class GameMessagePacket(Packet):
 
         self.type: PacketType = PacketType.GAME_MESSAGE
         self.game_message: str = ""
+        self.kvps: dict[str, str] = {}  # key value pairs
 
         if len(self.data) >= 4:
             self.deserialise()
@@ -96,6 +103,13 @@ class GameMessagePacket(Packet):
                 ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
 
             self.game_message = data[4:-1].decode("utf-8")
+
+            if self.game_message.startswith("action"):
+                self.kvps = {
+                    kvp[0]: kvp[-1]
+                    for i in self.text.split()
+                    if (kvp := (i.split("|")))
+                }
 
     def identify(self) -> EventID:
         """
