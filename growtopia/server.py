@@ -166,7 +166,6 @@ class Server(Host, Dispatcher):
 
         elif enet_event.type == enet.EVENT_TYPE_RECEIVE:
             context.player = self.get_player(enet_event.peer)
-            event_id = EventID.ON_RECEIVE
 
             if Packet.get_type(enet_event.packet.data) == PacketType.TEXT:
                 context.packet = TextPacket(enet_event.packet.data)
