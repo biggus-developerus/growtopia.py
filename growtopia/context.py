@@ -13,7 +13,8 @@ if TYPE_CHECKING:
 
 class Context:
     """
-    A class that is instantiated when a proper event is emitted. This class is used to store data that is passed to the event handler.
+    A class that is instantiated when a proper event is emitted. This class is used to store data that is passed to
+    the event handler.  
 
     Attributes
     ----------
