@@ -121,4 +121,4 @@ class GameMessagePacket(Packet):
             The event ID responsible for handling the packet.
         """
         if self.game_message.startswith("action"):
-            return EventID(f"on_{self.game_message.split('|')[1].lower()}")
+            return EventID(f"on_{self.kvps['action'].lower()}")

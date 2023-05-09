@@ -122,3 +122,5 @@ class TextPacket(Packet):
         """
         if "requestedName" in self.text:
             return EventID.ON_REQUEST_LOGIN
+        elif self.text.startswith("action"):
+            return EventID(f"on_{self.kvps['action'].lower()}")
