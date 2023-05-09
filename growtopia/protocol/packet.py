@@ -31,7 +31,7 @@ class Packet:
     game_message: str
         The game message found in the game message packet. This attribute is only available in the GameMessagePacket class.
     kvps: dict[str, str]
-        Key value pairs from text. (e.g `action|log\nmsg|Hello -> {"action": "log", "msg": "Hello"}`)
+        Key value pairs from text. (e.g `action|log\\nmsg|Hello -> {"action": "log", "msg": "Hello"}`)
     """
 
     def __init__(
