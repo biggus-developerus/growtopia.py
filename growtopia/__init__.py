@@ -11,3 +11,7 @@ from .player import *
 from .player_tribute import *
 from .protocol import *
 from .server import *
+
+
+class Config:
+    redis_namespace: str = "growtopia:"

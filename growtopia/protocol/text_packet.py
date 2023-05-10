@@ -121,6 +121,6 @@ class TextPacket(Packet):
             The event ID responsible for handling the packet.
         """
         if "requestedName" in self.text:
-            return EventID.ON_REQUEST_LOGIN
+            return EventID.ON_LOGIN_REQUEST
         elif self.text.startswith("action"):
             return EventID(f"on_{self.kvps['action'].lower()}")

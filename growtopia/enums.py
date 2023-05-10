@@ -19,7 +19,7 @@ class EventID(Enum):
     ON_RECEIVE = "on_receive"
 
     # Packet events
-    ON_REQUEST_LOGIN = "on_request_login"
+    ON_LOGIN_REQUEST = "on_login_request"
     ON_ACTION_QUIT = "on_quit"
 
     @classmethod

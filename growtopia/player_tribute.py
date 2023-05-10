@@ -52,7 +52,7 @@ class PlayerTribute(File):
         offset = 0
 
         self.epic_players = self._parse_names(
-            bytearray(self.content[2: 2 + int.from_bytes(self.content[:2], "little")])
+            bytearray(self.content[2 : 2 + int.from_bytes(self.content[:2], "little")])
         )
 
         offset += 2 + int.from_bytes(self.content[:2], "little")
