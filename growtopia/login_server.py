@@ -17,6 +17,8 @@ class LoginServer(Server):
     This type of server is specifically used to handle login requests. You may only handle a couple of events with this server,
     like ON_CONNECT, ON_DISCONNECT, ON_RECEIVE, and ON_LOGIN_REQUEST (and stuff like refresh_item_data and refresh_player_tribute).
 
+    A login server is used to handle incoming login requests, hence the name 'login server'.
+
     Parameters
     ----------
     address: tuple[str, int]
