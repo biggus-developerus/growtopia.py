@@ -16,6 +16,14 @@ class Context:
 
     Attributes
     ----------
+    server: Optional[:class:`Server`]
+        The server that emitted the event.
+    player: Optional[:class:`Player`]
+        The player that emitted the event.
+    event: Optional[:class:`Event`]
+        The event that was emitted.
+    packet: Optional[:class:`Packet`]
+        The packet that was emitted.
     """
 
     def __init__(self) -> None:
