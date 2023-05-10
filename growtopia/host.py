@@ -11,7 +11,7 @@ from .event import Event
 
 class Host(enet.Host):
     """
-    Represents an enet.Host object. This classes uses the enet.Host class as a base class and extends its functionality.
+    Represents an enet.Host object. This class uses the enet.Host class as a base class and extends its functionality.
 
     Parameters
     ----------
