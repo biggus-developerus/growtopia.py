@@ -107,8 +107,7 @@ class GameMessagePacket(Packet):
             if self.game_message.startswith("action"):
                 self.kvps = {
                     kvp[0]: kvp[-1]
-                    for i in self.text.split()
-                    if (kvp := (i.split("|")))
+                    for kvp in (i.split("|") for i in self.game_message.split("\n"))
                 }
 
     def identify(self) -> EventID:
