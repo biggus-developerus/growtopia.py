@@ -107,7 +107,8 @@ class TextPacket(Packet):
             if self.text.startswith("action") or "requestedName" in self.text:
                 self.kvps = {
                     kvp[0]: kvp[-1]
-                    for kvp in (i.split("|") for i in self.game_message.split("\n"))
+                    for i in self.text.split("\n")
+                    if (kvp := (i.split("|")))
                 }
 
     def identify(self) -> EventID:
