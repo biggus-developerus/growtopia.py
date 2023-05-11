@@ -1,3 +1,4 @@
+from .config import *
 from .context import *
 from .enums import *
 from .error_manager import *
@@ -11,4 +12,3 @@ from .player import *
 from .player_tribute import *
 from .protocol import *
 from .server import *
-from .config import *

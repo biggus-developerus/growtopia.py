@@ -60,7 +60,9 @@ class Server(Host, Dispatcher):
         self.compress_with_range_coder()
         self.checksum = enet.ENET_CRC32
 
-        self.players: dict[int, Player] = {}
+        self.players: dict[
+            str, Player
+        ] = {}  # players by address (host:port) instead of peer connectID (temporary)
         self.players_by_name: dict[str, Player] = {}
 
     def new_player(self, peer: enet.Peer) -> Player:
@@ -78,7 +80,7 @@ class Server(Host, Dispatcher):
             The Player object that was created.
         """
         player = Player(peer)
-        self.players[peer.connectID] = player
+        self.players[str(peer.address)] = player
 
         return player
 
@@ -97,10 +99,10 @@ class Server(Host, Dispatcher):
             The Player object that was retrieved, or None if nothing was found.
         """
         if isinstance(p, enet.Peer):
-            return self.players.get(p.connectID, None)
+            return self.players.get(str(p.address), None)
 
-        if isinstance(p, int):
-            return self.players.get(p, None)
+        # if isinstance(p, int):
+        #    return self.players.get(p, None)
 
         if isinstance(p, str):
             return self.players_by_name.get(p, None)
@@ -119,7 +121,7 @@ class Server(Host, Dispatcher):
             The peer, peer id, or tank id name of the player to remove.
         """
         if player := self.get_player(p):
-            self.players.pop(player.peer.connectID, None)
+            self.players.pop(str(player.peer.address), None)
             self.players_by_name.pop(player.login_info.tank_id_name, None)
 
             if disconnect:
