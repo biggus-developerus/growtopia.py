@@ -79,7 +79,6 @@ class Server(Host, Dispatcher):
         """
         player = Player(peer)
         self.players[peer.connectID] = player
-        self.players_by_name[player.login_info.tank_id_name] = player
 
         return player
 
