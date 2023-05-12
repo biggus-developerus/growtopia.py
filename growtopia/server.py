@@ -193,10 +193,13 @@ class Server(Host, Dispatcher):
                 elif Packet.get_type(event.packet.data) == PacketType.GAME_MESSAGE:
                     context.packet = GameMessagePacket(event.packet.data)
 
-                await self.dispatch_event(
+                if not await self.dispatch_event(
                     context.packet.identify() if context.packet else EventID.ON_RECEIVE,
                     context,
-                )
+                ):
+                    await self.dispatch_event(
+                        EventID.ON_RECEIVE, context
+                    )  # dispatch the ON_RECEIVE event if the packet isn't handled by the user
 
         await self.dispatch_event(
             EventID.ON_CLEANUP,
