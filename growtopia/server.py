@@ -198,8 +198,8 @@ class Server(Host, Dispatcher):
                     context,
                 ):
                     await self.dispatch_event(
-                        EventID.ON_RECEIVE, context
-                    )  # dispatch the ON_RECEIVE event if the packet isn't handled by the user
+                        EventID.ON_UNHANDLED, context
+                    )  # dispatch the ON_UNHANDLED event if the packet isn't handled by the user
 
         await self.dispatch_event(
             EventID.ON_CLEANUP,
