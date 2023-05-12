@@ -12,3 +12,4 @@ from .player import *
 from .player_tribute import *
 from .protocol import *
 from .server import *
+from .dialog import Dialog
