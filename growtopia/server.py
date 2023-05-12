@@ -1,5 +1,6 @@
 __all__ = ("Server",)
 
+import asyncio
 from typing import Optional, Union
 
 import enet
@@ -7,10 +8,12 @@ import enet
 from .context import Context
 from .dispatcher import Dispatcher
 from .enums import EventID
-from .event import Event
 from .host import Host
 from .player import Player
 from .protocol import GameMessagePacket, Packet, PacketType, TextPacket
+
+# TODO:
+# - Find a better way to ID peers. We used to ID peers by their connectID, but for some reason the attribute resets to 0 when the EVENT_TYPE_DISCONNECT event is emitted.
 
 
 class Server(Host, Dispatcher):
@@ -127,57 +130,75 @@ class Server(Host, Dispatcher):
             if disconnect:
                 player.disconnect()
 
-    async def _handle(self, event: Optional[Event]) -> bool:
+    def start(self) -> None:
         """
-        Handles a given event.
-
-        Parameters
-        ----------
-        event: Optional[Event]
-            The event to handle. Could be None if the event emitted is on_cleanup.
+        Starts the server.
 
         Returns
         -------
-        bool
-            Whether or not the event has been handled by a Listener.
+        None
         """
+        self.__running = True
+        asyncio.run(self.run())
 
-        context = Context()
-        context.server = self
-        context.event = event
+    def stop(self) -> None:
+        """
+        Stops the server.
 
-        if event is None:
-            return await self.dispatch_event(
-                EventID.ON_CLEANUP,
-                context,
-            )
+        Returns
+        -------
+        None
+        """
+        self.__running = False
 
-        enet_event = event.enet_event
-        event_id = None
+    async def run(self) -> None:
+        """
+        Starts the asynchronous loop that handles events accordingly.
 
-        if enet_event.type == enet.EVENT_TYPE_CONNECT:
-            context.player = self.new_player(enet_event.peer)
-            event_id = EventID.ON_CONNECT
+        Returns
+        -------
+        None
+        """
+        self.__running = True
+        while self.__running:
+            event = self.service(0, True)
 
-        elif enet_event.type == enet.EVENT_TYPE_DISCONNECT:
-            context.player = self.get_player(enet_event.peer)
-            event_id = EventID.ON_DISCONNECT
+            if event is None:
+                await asyncio.sleep(0)
+                continue
 
-            self.remove_player(enet_event.peer)
+            context = Context()
+            context.server = self
+            context.enet_event = event
 
-        elif enet_event.type == enet.EVENT_TYPE_RECEIVE:
-            context.player = self.get_player(enet_event.peer)
+            if event.type == enet.EVENT_TYPE_CONNECT:
+                context.player = self.new_player(event.peer)
+                await self.dispatch_event(EventID.ON_CONNECT, context)
 
-            if Packet.get_type(enet_event.packet.data) == PacketType.TEXT:
-                context.packet = TextPacket(enet_event.packet.data)
-            elif Packet.get_type(enet_event.packet.data) == PacketType.GAME_MESSAGE:
-                context.packet = GameMessagePacket(enet_event.packet.data)
+                continue
 
-            event_id = (
-                context.packet.identify() if context.packet else EventID.ON_RECEIVE
-            )
+            elif event.type == enet.EVENT_TYPE_DISCONNECT:
+                context.player = self.get_player(event.peer)
 
-        if event_id is None:
-            return False
+                await self.dispatch_event(EventID.ON_DISCONNECT, context)
+                self.remove_player(event.peer)
 
-        return await self.dispatch_event(event_id, context)
+                continue
+
+            elif event.type == enet.EVENT_TYPE_RECEIVE:
+                context.player = self.get_player(event.peer)
+
+                if Packet.get_type(event.packet.data) == PacketType.TEXT:
+                    context.packet = TextPacket(event.packet.data)
+                elif Packet.get_type(event.packet.data) == PacketType.GAME_MESSAGE:
+                    context.packet = GameMessagePacket(event.packet.data)
+
+                await self.dispatch_event(
+                    context.packet.identify() if context.packet else EventID.ON_RECEIVE,
+                    context,
+                )
+
+        await self.dispatch_event(
+            EventID.ON_CLEANUP,
+            context,
+        )

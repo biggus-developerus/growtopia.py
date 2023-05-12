@@ -1,12 +1,9 @@
 __all__ = ("Host",)
 
-import asyncio
-import time
-from typing import Optional
-
 import enet
 
-from .event import Event
+# TODO:
+# - Implement some concrete methods for the Host class. (e.g override broadcast to send protocol.Packet objects, strings or bytes instead of enet.Packet objects)
 
 
 class Host(enet.Host):
@@ -28,7 +25,6 @@ class Host(enet.Host):
 
     Attributes
     ----------
-    None (enet.Host)
     """
 
     def __init__(
@@ -47,8 +43,6 @@ class Host(enet.Host):
             outgoing_bandwidth,
         )
 
-        self.__running: bool = False
-
     def start(self) -> None:
         """
         Runs the coroutine that starts the asynchronous loop.
@@ -56,8 +50,12 @@ class Host(enet.Host):
         Returns
         -------
         None
+
+        NotImplementedError
+            If this method is not overridden. (e.g not implemented in a subclass)
         """
-        asyncio.run(self.run())
+
+        raise NotImplementedError
 
     def stop(self) -> None:
         """
@@ -66,38 +64,16 @@ class Host(enet.Host):
         Returns
         -------
         None
+
+        NotImplementedError
+            If this method is not overridden. (e.g not implemented in a subclass)
         """
 
-        self.__running = False
-        self._handle(Event(None))
+        raise NotImplementedError
 
     async def run(self) -> None:
         """
         Starts an asynchronous loop that handles events accordingly.
-
-        Returns
-        -------
-        None
-        """
-        self.__running = True
-        while self.__running:
-            event = self.service(0, True)
-
-            if event:
-                if await self._handle((ev := Event(event))):
-                    ev.handled = True
-                continue
-
-            await asyncio.sleep(0)
-
-    async def _handle(self, event: Optional[Event]) -> None:
-        """
-        Handles event data accordingly.
-
-        Parameters
-        ----------
-        event: Optional[Event]
-            The event to dispatch.
 
         Returns
         -------
@@ -108,4 +84,5 @@ class Host(enet.Host):
         NotImplementedError
             If this method is not overridden. (e.g not implemented in a subclass)
         """
+
         raise NotImplementedError

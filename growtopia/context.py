@@ -2,8 +2,9 @@ __all__ = ("Context",)
 
 from typing import TYPE_CHECKING, Optional
 
+import enet
+
 if TYPE_CHECKING:
-    from .event import Event
     from .player import Player
     from .protocol import Packet
     from .server import Server
@@ -20,7 +21,7 @@ class Context:
         The server that emitted the event.
     player: Optional[:class:`Player`]
         The player that emitted the event.
-    event: Optional[:class:`Event`]
+    enet_event: Optional[:class:`Event`]
         The event that was emitted.
     packet: Optional[:class:`Packet`]
         The packet that was emitted.
@@ -30,7 +31,7 @@ class Context:
         # Servers (main game server, login server, proxy server, etc.)
         self.server: Optional["Server"] = None
 
-        # Other objects (Player, World, Event, etc.)
+        # Other objects (Player, World, enet.Event, etc.)
         self.player: Optional["Player"] = None
-        self.event: Optional["Event"] = None
+        self.enet_event: Optional[enet.Event] = None
         self.packet: Optional["Packet"] = None
