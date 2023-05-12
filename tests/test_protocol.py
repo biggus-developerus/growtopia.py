@@ -1,6 +1,12 @@
 """Test the protocol package."""
 
-from growtopia import protocol
+import pytest
+from growtopia import (
+    protocol,
+    ErrorManager,
+    PacketTypeDoesNotMatchContent,
+    PacketTooSmall,
+)
 
 
 def test_packet() -> None:
@@ -37,6 +43,16 @@ def test_text_packet() -> None:
         "tankIDPass": ".",
         "requestedName": ".",
     }
+
+    ErrorManager.catch_exceptions = False
+
+    with pytest.raises(PacketTypeDoesNotMatchContent):
+        protocol.TextPacket(protocol.GameMessagePacket().serialise())
+
+    with pytest.raises(PacketTooSmall):
+        protocol.TextPacket(
+            b"b"
+        ).deserialise()  # call the deserialise method manually since we don't call it when we instantiate a packet with data with length < 4
 
 
 if __name__ == "__main__":

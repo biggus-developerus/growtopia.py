@@ -1,7 +1,9 @@
 __all__ = (
     "GrowtopiaException",
     "ParserException",
+    "PacketException",
     "UnsupportedItemsData",
+    "PacketTypeDoesNotMatchContent",
     "PacketTooSmall",
 )
 
