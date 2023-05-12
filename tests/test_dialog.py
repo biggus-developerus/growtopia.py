@@ -2,6 +2,7 @@
 
 from growtopia import Dialog
 
+
 def test_dialog() -> None:
     """Hello Dialog"""
 
@@ -11,7 +12,11 @@ def test_dialog() -> None:
     hello.add_checkbox("test_checkbox", "Do you want to play?", False)
     hello.add_ending("test_dialog", "Back", "Enter")
 
-    print(hello) # add_textbox|Hello Player!|left|\nadd_checkbox|test_checkbox|Do you want to play?|0|\nend_dialog|test_dialog|Back|Enter|\n
+    assert (
+        hello.dialog
+        == r"add_textbox|Hello Player!|left|\nadd_checkbox|test_checkbox|Do you want to play?|0|\nend_dialog|test_dialog|Back|Enter|\n"
+    )
+
 
 if __name__ == "__main__":
     test_dialog()
