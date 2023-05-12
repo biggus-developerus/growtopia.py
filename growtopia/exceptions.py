@@ -2,6 +2,7 @@ __all__ = (
     "GrowtopiaException",
     "ParserException",
     "UnsupportedItemsData",
+    "PacketTooSmall",
 )
 
 from typing import TYPE_CHECKING, Optional
@@ -10,6 +11,8 @@ if TYPE_CHECKING:
     from .items_data import ItemsData
     from .protocol import Packet
     from .player_tribute import PlayerTribute
+    from growtopia.protocol import Packet
+
 
 from .constants import ignored_attributes
 
@@ -177,6 +180,31 @@ class PacketTypeDoesNotMatchContent(PacketException):
     def __init__(self, packet: "Packet"):
         error_name = "PacketTypeDoesNotMatchContent"
         message = f"Packet type does not match content. Packet type: {packet.type}, packet type from content: {packet.data[:4]}"
+
+        super().__init__(
+            error_name,
+            message,
+            packet,
+        )
+
+
+class PacketTooSmall(PacketException):
+    """
+    An exception that's raised when the Packet being handled is less than 4 bytes.
+
+    Parameters
+    packet: Packet
+        The Packet object that was being handled when the error occurred.
+
+    Attributes
+    ----------
+    packet: Packet
+        The Packet object that was being handled when the error occurred.
+    """
+
+    def __init__(self, packet: "Packet"):
+        error_name = "PacketTooSmall"
+        message = f"Packet is too small, required length: >=4, got: {len(packet.data)}"
 
         super().__init__(
             error_name,

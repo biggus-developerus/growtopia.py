@@ -19,6 +19,7 @@ class EventID(Enum):
     ON_RECEIVE = "on_receive"
 
     # Packet events
+    ON_MALFORMED_PACKET = "on_malformed_packet"
     ON_LOGIN_REQUEST = "on_login_request"
     ON_ACTION_QUIT = "on_quit"
 

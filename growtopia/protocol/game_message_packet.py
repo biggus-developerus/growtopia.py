@@ -6,7 +6,7 @@ import enet
 
 from ..enums import EventID
 from ..error_manager import ErrorManager
-from ..exceptions import PacketTypeDoesNotMatchContent
+from ..exceptions import PacketTooSmall, PacketTypeDoesNotMatchContent
 from .packet import Packet, PacketType
 
 
@@ -39,6 +39,8 @@ class GameMessagePacket(Packet):
         self.type: PacketType = PacketType.GAME_MESSAGE
         self.game_message: str = ""
         self.kvps: dict[str, str] = {}  # key value pairs
+
+        self.__malformed: bool = False
 
         if len(self.data) >= 4:
             self.deserialise()
@@ -96,19 +98,26 @@ class GameMessagePacket(Packet):
         if data is None:
             data = self.data
 
-        if len(data) >= 4:
-            self.type = PacketType(int.from_bytes(data[:4], "little"))
+        if len(data) < 4:
+            ErrorManager._raise_exception(PacketTooSmall(self))
+            self.__malformed = True
+            return
 
-            if self.type != PacketType.GAME_MESSAGE:
-                ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
+        self.type = PacketType(int.from_bytes(data[:4], "little"))
 
-            self.game_message = data[4:-1].decode("utf-8")
+        if self.type != PacketType.GAME_MESSAGE:
+            ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
+            self.__malformed = True
+            return
 
-            if self.game_message.startswith("action"):
-                self.kvps = {
-                    kvp[0]: kvp[-1]
-                    for kvp in (i.split("|") for i in self.game_message.split("\n"))
-                }
+        self.game_message = data[4:-1].decode("utf-8")
+
+        if self.game_message.startswith("action"):
+            self.kvps = {
+                kvp[0]: kvp[-1]
+                for i in self.text.split("\n")
+                if (kvp := (i.split("|")))
+            }
 
     def identify(self) -> EventID:
         """
@@ -119,5 +128,7 @@ class GameMessagePacket(Packet):
         EventID
             The event ID responsible for handling the packet.
         """
+        if self.__malformed:
+            return EventID.ON_MALFORMED_PACKET
         if self.game_message.startswith("action"):
             return EventID(f"on_{self.kvps['action'].lower()}")
