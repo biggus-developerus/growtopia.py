@@ -29,43 +29,26 @@ class PlayerNet:
     def __init__(self, peer: enet.Peer) -> None:
         self.peer: enet.Peer = peer
 
-        self.last_packet_sent: None = None
-        self.last_packet_received: None = None
-        # TODO: PACKET CLASS
+        self.last_packet_sent: Optional[Packet] = None
+        self.last_packet_received: Optional[Packet] = None
 
-    def send(
-        self, data: Union[str, set, tuple, list, bytes, enet.Packet, Packet]
-    ) -> None:
+    def _send(self, data: bytes, flags: int = enet.PACKET_FLAG_RELIABLE) -> None:
+        self.peer.send(0, enet.Packet(data, flags))
+
+    def send_packet(self, packet: Packet) -> None:
         """
-        Sends data to the player.
+        Sends a packet to the player.
 
         Parameters
         ----------
-        data: Union[str, bytes, enet.Packet]
-            The data to send to the player. Can be a string, bytes, or an enet.Packet object.
-
-        Raises
-        ------
-        TypeError
-            Invalid data type passed into the function.
+        packet: Packet | Any subclass of Packet
+            The packet to send to the player.
         """
+        if not isinstance(packet, Packet):
+            raise TypeError("Invalid packet type passed.")
 
-        if isinstance(data, str):
-            return self.send_log(data)
-
-        # elif isinstance(data, set) or isinstance(data, tuple) or isinstance(data, list):
-        #    ...  TODO: Add a new function for sending variant lists
-
-        if isinstance(data, enet.Packet):
-            data = data
-        elif isinstance(data, (bytes, bytearray)):
-            data = enet.Packet(data, enet.PACKET_FLAG_RELIABLE)
-        elif isinstance(data, (Packet, TextPacket, GameMessagePacket)):
-            data = data.enet_packet
-        else:
-            raise TypeError("Invalid data type passed.")
-
-        self.peer.send(0, data)
+        self._send(packet.serialise())
+        self.last_packet_sent = packet
 
     def send_log(self, text: str) -> None:
         """
@@ -79,7 +62,8 @@ class PlayerNet:
         packet = GameMessagePacket()
         packet.game_message = "action|log\nmsg|" + text
 
-        self.send(packet)
+        self._send(packet.serialise())
+        self.last_packet_sent = packet
 
     def disconnect(self, text: Optional[str] = None) -> None:
         """

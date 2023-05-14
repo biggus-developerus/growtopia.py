@@ -201,6 +201,8 @@ class Server(Host, Dispatcher):
                         EventID.ON_UNHANDLED, context
                     )  # dispatch the ON_UNHANDLED event if the packet isn't handled by the user
 
+                context.player.last_packet_received = context.packet
+
         await self.dispatch_event(
             EventID.ON_CLEANUP,
             context,
