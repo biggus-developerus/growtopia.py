@@ -204,9 +204,9 @@ class PacketTooSmall(PacketException):
         The Packet object that was being handled when the error occurred.
     """
 
-    def __init__(self, packet: "Packet"):
+    def __init__(self, packet: "Packet", size_required: str = ">=4"):
         error_name = "PacketTooSmall"
-        message = f"Packet is too small, required length: >=4, got: {len(packet.data)}"
+        message = f"Packet is too small, required length: {size_required}, got: {len(packet.data)}"
 
         super().__init__(
             error_name,
