@@ -178,6 +178,7 @@ class GameUpdatePacket(Packet):
 
         if len(data) < 52:
             ErrorManager._raise_exception(PacketTooSmall(self, ">=52"))
+            self.__malformed = True
             return
 
         self.update_type = GameUpdatePacketType(int.from_bytes(data[4:5], "little"))
@@ -206,6 +207,7 @@ class GameUpdatePacket(Packet):
         if self.flags == GameUpdatePacketFlags.EXTRA_DATA:
             if len(data) < 60:
                 ErrorManager._raise_exception(PacketTooSmall(self, ">=60"))
+                self.__malformed = True
                 return
 
             self.extra_data_size = int.from_bytes(data[56:60], "little")
