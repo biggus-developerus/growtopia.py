@@ -33,8 +33,8 @@ class VariantType(IntEnum):
     UINT = 8
     INT = 9
 
-    # Custom variant types. Not related to Growtopia.
-    DIALOG = 10
+    # Custom variant type aliases.
+    DIALOG = 2  # str
 
     @classmethod
     def _missing_(cls, _):

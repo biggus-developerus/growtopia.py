@@ -52,3 +52,9 @@ class Dialog:
 
     def __str__(self):
         return self.dialog
+
+    def __len__(self):
+        return len(self.dialog)
+
+    def encode(self):
+        return self.dialog.encode("utf-8")
