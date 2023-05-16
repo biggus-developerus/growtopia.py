@@ -14,7 +14,7 @@ def test_dialog() -> None:
 
     assert (
         hello.dialog
-        == r"add_textbox|Hello Player!|left|\nadd_checkbox|test_checkbox|Do you want to play?|0|\nend_dialog|test_dialog|Back|Enter|\n"
+        == "add_textbox|Hello Player!|left|\nadd_checkbox|test_checkbox|Do you want to play?|0|\nend_dialog|test_dialog|Back|Enter|\n"
     )
 
 

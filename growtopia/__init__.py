@@ -1,6 +1,6 @@
 from .config import *
 from .context import *
-from .dialog import Dialog
+from .dialog import *
 from .enums import *
 from .error_manager import *
 from .exceptions import *
