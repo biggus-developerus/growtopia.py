@@ -87,6 +87,9 @@ class TextPacket(Packet):
 
         Raises
         ------
+        PacketTooSmall
+            The packet is too small to be deserialised.
+
         PacketTypeDoesNotMatchContent
             The packet type does not match the content of the packet.
 
