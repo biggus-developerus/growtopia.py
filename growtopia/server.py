@@ -68,6 +68,8 @@ class Server(Host, Dispatcher):
         ] = {}  # players by address (host:port) instead of peer connectID (temporary)
         self.players_by_name: dict[str, Player] = {}
 
+        self.__running: bool = False
+
     def new_player(self, peer: enet.Peer) -> Player:
         """
         Instantiates a new Player object and adds it to the players dictionary.
@@ -188,9 +190,9 @@ class Server(Host, Dispatcher):
             elif event.type == enet.EVENT_TYPE_RECEIVE:
                 context.player = self.get_player(event.peer)
 
-                if Packet.get_type(event.packet.data) == PacketType.TEXT:
+                if (type_ := Packet.get_type(event.packet.data)) == PacketType.TEXT:
                     context.packet = TextPacket(event.packet.data)
-                elif Packet.get_type(event.packet.data) == PacketType.GAME_MESSAGE:
+                elif type_ == PacketType.GAME_MESSAGE:
                     context.packet = GameMessagePacket(event.packet.data)
 
                 if not await self.dispatch_event(
