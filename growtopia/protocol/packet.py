@@ -40,8 +40,8 @@ class Packet:
         if isinstance(data, enet.Packet):
             data = data.data
 
-        self.data: bytearray = bytearray(data) if data is not None else bytearray()
-        self.type: PacketType = PacketType(0)
+        self.data: bytearray = bytearray(data or b"")
+        self.type: PacketType = PacketType(1)  # assume it's a HELLO packet
 
         self.text: str = ""
         self.game_message: str = ""

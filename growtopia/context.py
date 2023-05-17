@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional
 import enet
 
 if TYPE_CHECKING:
+    from .client import Client
     from .player import Player
     from .protocol import Packet
     from .server import Server
@@ -30,6 +31,9 @@ class Context:
     def __init__(self) -> None:
         # Servers (main game server, login server, proxy server, etc.)
         self.server: Optional["Server"] = None
+
+        # Clients (main game client, proxy client, etc.)
+        self.client: Optional["Client"] = None
 
         # Other objects (Player, World, enet.Event, etc.)
         self.player: Optional["Player"] = None
