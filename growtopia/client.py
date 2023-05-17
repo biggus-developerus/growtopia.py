@@ -12,14 +12,35 @@ from .protocol import GameMessagePacket, HelloPacket, Packet, PacketType, TextPa
 
 
 class Client(Host, Dispatcher):
+    """
+    Represents a Growtopia game client. This class uses the Host class as base and extends its functionality.
+    This class can also be used as a base class for other types of clients (e.g proxy client (redirects packets to server)).
+
+    Parameters
+    ----------
+    address: tuple[str, int]
+        The address of the server to connect to.
+
+    Kwarg Parameters
+    ----------------
+    peer_count: int
+        The maximum amount of peers that can connect to the server.
+    channel_limit: int
+        The maximum amount of channels that can be used.
+    incoming_bandwidth: int
+        The maximum incoming bandwidth.
+    outgoing_bandwidth: int
+        The maximum outgoing bandwidth.
+    """
+
     def __init__(self, address: tuple[str, int], **kwargs) -> None:
         Host.__init__(
             self,
             None,
-            kwargs.get("max_peers", 1),
-            kwargs.get("channels", 2),
-            kwargs.get("in_bandwidth", 0),
-            kwargs.get("out_bandwidth", 0),
+            kwargs.get("peer_count", 1),
+            kwargs.get("channel_limit", 2),
+            kwargs.get("incoming_bandwidth", 0),
+            kwargs.get("outgoing_bandwidth", 0),
         )
         Dispatcher.__init__(self)
 
