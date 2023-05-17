@@ -8,8 +8,7 @@ from .context import Context
 from .dispatcher import Dispatcher
 from .enums import EventID
 from .host import Host
-from .protocol import (GameMessagePacket, HelloPacket, Packet, PacketType,
-                       TextPacket)
+from .protocol import GameMessagePacket, HelloPacket, Packet, PacketType, TextPacket
 
 
 class Client(Host, Dispatcher):
