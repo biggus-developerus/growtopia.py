@@ -63,6 +63,31 @@ class Client(Host, Dispatcher):
         self.__peer = super().connect(enet.Address(*self.__address), 2, 0)
         return self.__peer
 
+    def disconnect(self, send_quit: bool = True) -> None:
+        """
+        Disconnects from the server.
+
+        Parameters
+        ----------
+        send_quit: bool
+            Whether to send the quit packet to the server.
+
+        Returns
+        -------
+        None
+        """
+        if self.__peer is None:
+            return
+
+        if send_quit:
+            packet = GameMessagePacket()
+            packet.game_message = "action|quit\n"
+
+            self.send(packet=packet)
+
+        self.__peer.disconnect_now(0)
+        self.__peer = None
+
     def send(self, packet: Packet = None, data: bytes = None) -> None:
         if data is not None:
             packet = Packet(data)
@@ -137,3 +162,8 @@ class Client(Host, Dispatcher):
                     context,
                 ):
                     await self.dispatch_event(EventID.ON_UNHANDLED, context)
+
+        await self.dispatch_event(
+            EventID.ON_CLEANUP,
+            context,
+        )
