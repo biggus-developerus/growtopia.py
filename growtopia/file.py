@@ -1,6 +1,8 @@
 __all__ = ("File",)
 
-from typing import BinaryIO, Union
+from typing import Union
+
+import aiofiles
 
 
 class File:
@@ -29,20 +31,31 @@ class File:
     >>> file = File("items.dat")
     """
 
-    def __init__(self, data: Union[str, bytes, BinaryIO]) -> None:
+    def __init__(self, data: Union[str, bytes]) -> None:
         self.__content: bytearray = bytearray()
+        self.__path: str = ""
 
         self.hash: int = 0
 
         if isinstance(data, str):
-            with open(data, "rb") as f:
-                self.__content = bytearray(f.read())
+            self.__path = data
         elif isinstance(data, bytes):
             self.__content = bytearray(data)
-        elif isinstance(data, BinaryIO):
-            self.__content = bytearray(data.read())
         else:
             raise ValueError("Invalid data type passed into initialiser.")
+
+    async def read_file(self) -> None:
+        """
+        Reads the file and stores the data in memory.
+
+        Examples
+        --------
+        >>> from growtopia import File
+        >>> file = File("items.dat")
+        >>> await file.read_file()
+        """
+        async with aiofiles.open(self.__path, "rb") as f:
+            self.__content = bytearray(await f.read())
 
     @property
     def content(self) -> memoryview:

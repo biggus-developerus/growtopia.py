@@ -101,7 +101,7 @@ class ItemsData(File):
 
         return result
 
-    def parse(self) -> None:
+    async def parse(self) -> None:
         """
         Parses the contents passed into the initialiser.
         This method is better called once, as it is quite slow.
@@ -116,6 +116,9 @@ class ItemsData(File):
         -------
         None
         """
+        if not self.content:
+            await self.read_file()
+
         data, offset = self.content, 6
 
         self.version = int.from_bytes(data[:2], "little")

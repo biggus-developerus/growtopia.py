@@ -40,7 +40,7 @@ class PlayerTribute(File):
     def _parse_names(self, names: bytearray) -> list[str]:
         return [name.strip() for name in names.decode("utf-8").split(";")]
 
-    def parse(self) -> None:
+    async def parse(self) -> None:
         """
         Parses the contents passed into the initialiser.
 
@@ -48,6 +48,8 @@ class PlayerTribute(File):
         -------
         None
         """
+        if not self.content:
+            await self.read_file()
 
         offset = 0
 
