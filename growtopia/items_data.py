@@ -1,7 +1,7 @@
 __all__ = ("ItemsData",)
 
 from functools import lru_cache
-from typing import BinaryIO, Optional, Union
+from typing import Optional, Union
 
 from .constants import ignored_attributes
 from .exceptions import UnsupportedItemsData
@@ -15,8 +15,8 @@ class ItemsData(File):
 
     Parameters
     ----------
-    data: Union[str, bytes, BinaryIO]
-        The data to parse. Can be a path to the file, bytes, or a file-like object.
+    data: Union[str, bytes]
+        The data to parse. Can be a path to the file or bytes.
 
     Attributes
     ----------
@@ -43,7 +43,7 @@ class ItemsData(File):
     >>> items.get_item(1)
     """
 
-    def __init__(self, data: Union[str, bytes, BinaryIO]) -> None:
+    def __init__(self, data: Union[str, bytes]) -> None:
         super().__init__(data)
 
         self.items: list[Item] = []

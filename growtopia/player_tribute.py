@@ -1,6 +1,6 @@
 __all__ = ("PlayerTribute",)
 
-from typing import BinaryIO, Union
+from typing import Union
 
 from .file import File
 
@@ -11,8 +11,8 @@ class PlayerTribute(File):
 
     Parameters
     ----------
-    data: Union[str, bytes, BinaryIO]
-        The data to parse. Can be a path to the file, bytes, or, a file-like object.
+    data: Union[str, bytes]
+        The data to parse. Can be a path to the file or bytes.
 
     Attributes
     ----------
@@ -28,7 +28,7 @@ class PlayerTribute(File):
         A dictionary that has years as keys and a list of names as values.
     """
 
-    def __init__(self, data: Union[str, bytes, BinaryIO]) -> None:
+    def __init__(self, data: Union[str, bytes]) -> None:
         super().__init__(data)
 
         self.version: int = 0
