@@ -11,7 +11,7 @@ class PlayerPool:
     def __init__(self) -> None:
         self.__players: dict[str, Player] = {}
     
-    def get_players(self):
+    def get_players(self) -> dict[str, Player]:
         return self.__players
 
     def new_player(self, peer: enet.Peer) -> Player:
