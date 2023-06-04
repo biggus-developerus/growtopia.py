@@ -10,7 +10,7 @@ from .player import Player
 class PlayerPool:
     def __init__(self) -> None:
         self.__players: dict[str, Player] = {}
-    
+
     def get_players(self) -> dict[str, Player]:
         return self.__players
 
