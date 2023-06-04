@@ -10,6 +10,9 @@ from .player import Player
 class PlayerPool:
     def __init__(self) -> None:
         self.__players: dict[str, Player] = {}
+    
+    def get_players(self):
+        return self.__players
 
     def new_player(self, peer: enet.Peer) -> Player:
         self.__players[str(peer.address)] = (plyr := Player(peer))
