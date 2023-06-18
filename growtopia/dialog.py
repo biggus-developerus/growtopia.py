@@ -33,10 +33,10 @@ class Dialog:
         self.dialog += f"add_item_picker|{name}|{text}|{headertext}|\n"
 
     def add_label_with_icon_big(self, text: str, itemid: int):
-        self.dialog += f"add_label_with_icon|big|{text}|left|{str(itemid)}|\n"
+        self.dialog += f"add_label_with_icon|big|{text}|left|{itemid}|\n"
 
     def add_label_with_icon_small(self, text: str, itemid: int):
-        self.dialog += f"add_label_with_icon|small|{text}|left|{str(itemid)}|\n"
+        self.dialog += f"add_label_with_icon|small|{text}|left|{itemid}|\n"
 
     def add_checkbox(self, name: str, text: str, checked: bool):
         self.dialog += f"add_checkbox|{name}|{text}|{int(checked)}|\n"
