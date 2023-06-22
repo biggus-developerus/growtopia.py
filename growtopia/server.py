@@ -191,6 +191,7 @@ class Server(Host, Dispatcher):
                 elif type_ == PacketType.GAME_MESSAGE:
                     context.packet = GameMessagePacket(event.packet.data)
 
+                context.packet.sender = context.player
                 event = context.packet.identify() if context.packet else EventID.ON_RECEIVE
 
                 if event == EventID.ON_LOGIN_REQUEST:
