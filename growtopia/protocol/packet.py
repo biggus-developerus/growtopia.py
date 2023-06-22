@@ -1,5 +1,6 @@
 __all__ = ("Packet",)
 
+from abc import ABC, abstractmethod
 from typing import Optional, Union
 
 import enet
@@ -8,10 +9,9 @@ from ..enums import EventID
 from .enums import PacketType
 
 
-class Packet:
+class Packet(ABC):
     """
     A base class for different packet types, such as Text, Game message, Game update, etc.
-    This class can also be used to create custom packets.
 
     Parameters
     ----------
@@ -77,6 +77,7 @@ class Packet:
 
         return PacketType(int.from_bytes(data[:4], "little"))
 
+    @abstractmethod
     def identify(self) -> EventID:
         """
         Identify the packet based on its contents.
@@ -88,6 +89,7 @@ class Packet:
         """
         raise NotImplementedError
 
+    @abstractmethod
     def serialise(self) -> bytes:
         """
         Serialise the packet.
@@ -105,6 +107,7 @@ class Packet:
 
         raise NotImplementedError
 
+    @abstractmethod
     def deserialise(self, data: Optional[bytes] = None) -> None:
         """
         Deserialise the packet.
