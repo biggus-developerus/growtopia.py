@@ -31,9 +31,7 @@ class GameMessagePacket(Packet):
         Key value pairs from text. (e.g `action|log\nmsg|Hello -> {"action": "log", "msg": "Hello"}`)
     """
 
-    def __init__(
-        self, data: Optional[Union[bytearray, bytes, enet.Packet]] = None
-    ) -> None:
+    def __init__(self, data: Optional[Union[bytearray, bytes, enet.Packet]] = None) -> None:
         super().__init__(data)
 
         self.type: PacketType = PacketType.GAME_MESSAGE
@@ -69,9 +67,7 @@ class GameMessagePacket(Packet):
         """
 
         self.data = bytearray(int.to_bytes(self.type, 4, "little"))
-        self.data += self.game_message.encode("utf-8") + (
-            b"\n" if not self.game_message.endswith("\n") else b""
-        )
+        self.data += self.game_message.encode("utf-8") + (b"\n" if not self.game_message.endswith("\n") else b"")
 
         return self.data
 
@@ -116,10 +112,7 @@ class GameMessagePacket(Packet):
         self.game_message = data[4:-1].decode("utf-8")
 
         if self.game_message.startswith("action"):
-            self.kvps = {
-                kvp[0]: kvp[-1]
-                for kvp in (i.split("|") for i in self.game_message.split("\n"))
-            }
+            self.kvps = {kvp[0]: kvp[-1] for kvp in (i.split("|") for i in self.game_message.split("\n"))}
 
     def identify(self) -> EventID:
         """

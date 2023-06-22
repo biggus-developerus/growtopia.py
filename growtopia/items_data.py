@@ -140,9 +140,7 @@ class ItemsData(File):
 
                 if isinstance(item.__dict__[attr], int):
                     size = item.__dict__[attr]
-                    item.__dict__[attr] = int.from_bytes(
-                        data[offset : offset + size], "little"
-                    )
+                    item.__dict__[attr] = int.from_bytes(data[offset : offset + size], "little")
                     if attr == "break_hits":
                         item.__dict__[attr] = item.__dict__[attr] / 6
                     offset += size
@@ -156,9 +154,7 @@ class ItemsData(File):
                             item.id,
                         )
                     else:
-                        item.__dict__[attr] = "".join(
-                            chr(i) for i in data[offset : offset + str_len]
-                        )
+                        item.__dict__[attr] = "".join(chr(i) for i in data[offset : offset + str_len])
 
                     offset += str_len
 
@@ -173,9 +169,7 @@ class ItemsData(File):
         self.hash_file()
 
     @lru_cache(maxsize=100)
-    def get_item(
-        self, item_id: Optional[int] = None, name: Optional[str] = None
-    ) -> Optional[Item]:
+    def get_item(self, item_id: Optional[int] = None, name: Optional[str] = None) -> Optional[Item]:
         """
         Fetches an item from the items list. It is recommended to use the item's ID to fetch the item, as it is faster.
 
@@ -228,9 +222,7 @@ class ItemsData(File):
         >>> items = ItemsData("items.dat")
         >>> items.get_starts_with("dirt")
         """
-        return [
-            item for item in self.items if item.name.lower().startswith(val.lower())
-        ]
+        return [item for item in self.items if item.name.lower().startswith(val.lower())]
 
     @lru_cache(maxsize=100)
     def get_ends_with(self, val: str) -> list[Item]:

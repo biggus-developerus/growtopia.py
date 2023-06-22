@@ -26,3 +26,6 @@ dependencies = [
 [project.urls]
 "Homepage" = "https://github.com/kaJob-dev/growtopia.py"
 "Bug Tracker" = "https://github.com/kaJob-dev/growtopia.py/issues"
+
+[tool.black]
+line-length = 120

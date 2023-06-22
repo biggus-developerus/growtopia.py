@@ -31,9 +31,7 @@ class TextPacket(Packet):
         Key value pairs from text. (e.g `action|log\nmsg|Hello -> {"action": "log", "msg": "Hello"}`)
     """
 
-    def __init__(
-        self, data: Optional[Union[bytes, bytearray, enet.Packet]] = None
-    ) -> None:
+    def __init__(self, data: Optional[Union[bytes, bytearray, enet.Packet]] = None) -> None:
         super().__init__(data)
 
         self.type: PacketType = PacketType.TEXT
@@ -69,9 +67,7 @@ class TextPacket(Packet):
         """
 
         self.data = bytearray(int.to_bytes(self.type, 4, "little"))
-        self.data += self.text.encode("utf-8") + (
-            b"\n" if not self.text.endswith("\n") else b""
-        )
+        self.data += self.text.encode("utf-8") + (b"\n" if not self.text.endswith("\n") else b"")
 
         return self.data
 
@@ -116,11 +112,7 @@ class TextPacket(Packet):
         self.text = data[4:-1].decode("utf-8")
 
         if self.text.startswith("action") or "requestedName" in self.text:
-            self.kvps = {
-                kvp[0]: kvp[-1]
-                for i in self.text.split("\n")
-                if (kvp := (i.split("|")))
-            }
+            self.kvps = {kvp[0]: kvp[-1] for i in self.text.split("\n") if (kvp := (i.split("|")))}
 
     def identify(self) -> EventID:
         """

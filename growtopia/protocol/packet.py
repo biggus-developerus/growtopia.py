@@ -34,9 +34,7 @@ class Packet(ABC):
         Key value pairs from text. (e.g `action|log\\nmsg|Hello -> {"action": "log", "msg": "Hello"}`)
     """
 
-    def __init__(
-        self, data: Optional[Union[bytes, bytearray, enet.Packet]] = None
-    ) -> None:
+    def __init__(self, data: Optional[Union[bytes, bytearray, enet.Packet]] = None) -> None:
         if isinstance(data, enet.Packet):
             data = data.data
 

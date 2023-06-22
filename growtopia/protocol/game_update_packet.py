@@ -32,16 +32,12 @@ class GameUpdatePacket(Packet):
         The type of the packet.
     """
 
-    def __init__(
-        self, data: Optional[Union[bytearray, bytes, enet.Packet]] = None
-    ) -> None:
+    def __init__(self, data: Optional[Union[bytearray, bytes, enet.Packet]] = None) -> None:
         super().__init__(data)
 
         self.type: PacketType = PacketType.GAME_UPDATE
 
-        self.update_type: GameUpdatePacketType = (
-            GameUpdatePacketType.UNKNOWN
-        )  # uint8 - size ONE!
+        self.update_type: GameUpdatePacketType = GameUpdatePacketType.UNKNOWN  # uint8 - size ONE!
 
         self.object_type: int = 0  # uint8
         self.count1: int = 0  # uint8

@@ -27,9 +27,7 @@ class HelloPacket(Packet):
         The type of the packet.
     """
 
-    def __init__(
-        self, data: Optional[Union[bytearray, bytes, enet.Packet]] = None
-    ) -> None:
+    def __init__(self, data: Optional[Union[bytearray, bytes, enet.Packet]] = None) -> None:
         super().__init__(data)
 
         self.type: PacketType = PacketType.HELLO
