@@ -25,6 +25,10 @@ class PacketType(IntEnum):
 
 
 class VariantType(IntEnum):
+    """
+    An integer enumeration of all variant types.
+    """
+
     NONE = 0
     FLOAT = 1
     STR = 2
@@ -42,6 +46,10 @@ class VariantType(IntEnum):
 
 
 class GameUpdatePacketFlags(IntEnum):
+    """
+    An integer enumeration of all game update packet flags.
+    """
+
     UNKNOWN = -1
     EXTRA_DATA = 8
 
@@ -51,6 +59,10 @@ class GameUpdatePacketFlags(IntEnum):
 
 
 class GameUpdatePacketType(IntEnum):
+    """
+    An integer enumeration of all game update packet types.
+    """
+
     UNKNOWN = -1
     STATE = 0
     CALL_FUNCTION = 1
