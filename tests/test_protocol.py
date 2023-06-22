@@ -22,10 +22,7 @@ def test_game_update_packet() -> None:
     assert packet.flags == protocol.GameUpdatePacketFlags.EXTRA_DATA
 
     assert packet.extra_data_size == 41
-    assert (
-        packet.extra_data
-        == b"\x02\x00\x02\x10\x00\x00\x00OnConsoleMessage\x01\x02\x0c\x00\x00\x00Hello World!"
-    )
+    assert packet.extra_data == b"\x02\x00\x02\x10\x00\x00\x00OnConsoleMessage\x01\x02\x0c\x00\x00\x00Hello World!"
 
     assert (
         packet.serialise()
