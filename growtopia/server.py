@@ -63,9 +63,7 @@ class Server(Host, Dispatcher):
         self.compress_with_range_coder()
         self.checksum = enet.ENET_CRC32
 
-        self.players: dict[
-            str, Player
-        ] = {}  # players by address (host:port) instead of peer connectID (temporary)
+        self.players: dict[str, Player] = {}  # players by address (host:port) instead of peer connectID (temporary)
         self.players_by_name: dict[str, Player] = {}
 
         self.__running: bool = False
@@ -114,9 +112,7 @@ class Server(Host, Dispatcher):
 
         return None
 
-    def remove_player(
-        self, p: Union[enet.Peer, int, str], disconnect: Optional[bool] = False
-    ) -> None:
+    def remove_player(self, p: Union[enet.Peer, int, str], disconnect: Optional[bool] = False) -> None:
         """
         Removes a player from the players dictionary.
 
@@ -195,10 +191,12 @@ class Server(Host, Dispatcher):
                 elif type_ == PacketType.GAME_MESSAGE:
                     context.packet = GameMessagePacket(event.packet.data)
 
-                if not await self.dispatch_event(
-                    context.packet.identify() if context.packet else EventID.ON_RECEIVE,
-                    context,
-                ):
+                event = context.packet.identify() if context.packet else EventID.ON_RECEIVE
+
+                if event == EventID.ON_LOGIN_REQUEST:
+                    context.player.login_info.set_attrs(context.packet.kvps)
+
+                if not await self.dispatch_event(event, context):
                     await self.dispatch_event(
                         EventID.ON_UNHANDLED, context
                     )  # dispatch the ON_UNHANDLED event if the packet isn't handled by the user
