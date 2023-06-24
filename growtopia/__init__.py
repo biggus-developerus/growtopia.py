@@ -1,4 +1,5 @@
 from .client import *
+from .collection import *
 from .context import *
 from .dialog import *
 from .enums import *
