@@ -1,7 +1,7 @@
 """Test the items.dat and player_tribute.dat file parsers."""
 
-import os
 import asyncio
+import os
 
 from growtopia import ItemsData, PlayerTribute
 
