@@ -9,7 +9,7 @@ from .context import Context
 from .dispatcher import Dispatcher
 from .enums import EventID
 from .host import Host
-from .player import Player
+from .player import Player, PlayerLoginInfo
 from .protocol import GameMessagePacket, Packet, PacketType, TextPacket
 
 # TODO:
@@ -195,7 +195,7 @@ class Server(Host, Dispatcher):
                 event = context.packet.identify() if context.packet else EventID.ON_RECEIVE
 
                 if event == EventID.ON_LOGIN_REQUEST:
-                    context.player.login_info.set_attrs(context.packet.kvps)
+                    context.player.login_info = PlayerLoginInfo(**context.packet.kvps)
 
                 if not await self.dispatch_event(event, context):
                     await self.dispatch_event(
