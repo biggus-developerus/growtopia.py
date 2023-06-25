@@ -66,7 +66,7 @@ class Server(Host, Dispatcher):
         self.players: dict[str, Player] = {}  # players by address (host:port) instead of peer connectID (temporary)
         self.players_by_name: dict[str, Player] = {}
 
-        self.__running: bool = False
+        self.running: bool = False
 
     def new_player(self, peer: enet.Peer) -> Player:
         """
@@ -136,7 +136,7 @@ class Server(Host, Dispatcher):
         -------
         None
         """
-        self.__running = True
+        self.running = True
         asyncio.run(self.run())
 
     def stop(self) -> None:
@@ -147,7 +147,7 @@ class Server(Host, Dispatcher):
         -------
         None
         """
-        self.__running = False
+        self.running = False
 
     async def run(self) -> None:
         """
@@ -157,8 +157,8 @@ class Server(Host, Dispatcher):
         -------
         None
         """
-        self.__running = True
-        while self.__running:
+        self.running = True
+        while self.running:
             event = self.service(0, True)
 
             if event is None:
