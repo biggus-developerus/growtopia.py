@@ -123,7 +123,7 @@ class Server(Host, Dispatcher):
         """
         if player := self.get_player(p):
             self.players.pop(str(player.peer.address), None)
-            self.players_by_name.pop(player.login_info.tank_id_name, None)
+            self.players_by_name.pop(player.login_info.tankIDName, None)
 
             if disconnect:
                 player.disconnect()
@@ -200,7 +200,7 @@ class Server(Host, Dispatcher):
                 if not await self.dispatch_event(event, context):
                     await self.dispatch_event(
                         EventID.ON_UNHANDLED, context
-                    )  # dispatch the ON_UNHANDLED event if the packet isn't handled by the user
+                    )  # dispatch the ON_UNHANDLED event if the packet isn't handled by the user but recognised by growtopia.py
 
                 context.player.last_packet_received = context.packet
 
