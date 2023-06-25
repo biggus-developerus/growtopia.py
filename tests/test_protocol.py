@@ -2,8 +2,7 @@
 
 import pytest
 
-from growtopia import (ErrorManager, PacketTooSmall,
-                       PacketTypeDoesNotMatchContent, protocol)
+from growtopia import ErrorManager, PacketTooSmall, PacketTypeDoesNotMatchContent, protocol
 
 
 def test_game_update_packet() -> None:
