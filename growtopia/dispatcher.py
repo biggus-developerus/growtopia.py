@@ -9,6 +9,7 @@ from typing import Callable
 
 from .collection import Collection
 from .enums import EventID
+from .error_manager import ErrorManager
 from .listener import Listener
 
 
@@ -20,10 +21,16 @@ class Dispatcher:
     ----------
     listeners: dict[EventID, Listener]
         A dictionary that keeps track of all listeners. Event IDs are used as keys and Listener objects are used as values.
+    collections: dict[str, Collection]
+        A dictionary that keeps track of all collections. Collection names are used as keys and Collection objects are used as values.
+    extensions: dict[str, ModuleType]
+        A dictionary that keeps track of all extensions. Module names are used as keys and ModuleType objects are used as values.
     """
 
     def __init__(self) -> None:
         self.listeners: dict[EventID, Listener] = {}
+        self.collections: dict[str, Collection] = {}
+        self.extensions: dict[str, ModuleType] = {}
 
     @classmethod
     def __get_module(cls, name: str, pck: str = None) -> tuple[ModuleType, ModuleSpec]:
@@ -91,7 +98,7 @@ class Dispatcher:
         for listener in listeners:
             del self.listeners[listener.id]
 
-    def register_collection(self, col: Collection) -> None:
+    def register_collection(self, col: Collection, *args, **kwargs) -> None:
         """
         Registers a collection of Listeners.
 
@@ -99,23 +106,37 @@ class Dispatcher:
         ----------
         col: Collection
             The collection to register.
+        *args
+            The positional arguments to pass to the collection's constructor.
+        **kwargs
+            The keyword arguments to pass to the collection's constructor.
         """
-        col = col() if isinstance(col, type) else col  # check if the class is instantiated
+        col = col(*args, **kwargs) if isinstance(col, type) else col  # check if the class is instantiated
+
+        self.collections[col.__class__.__name__] = col
+
+        print(self.collections)
+
         self.add_listeners(*list(col._listeners.values()))
 
-    def unregister_collection(self, col: Collection) -> None:
+    def unregister_collection(self, collection_name: str) -> None:
         """
         Unregisters a collection of Listeners.
 
         Parameters
         ----------
-        col: Collection
-            The collection to unregister.
+        collection_name: str
+            The name of the collection to unregister.
         """
-        col = col() if isinstance(col, type) else col  # check if the class is instantiated
+        col = self.collections.get(collection_name, None)
+
+        if not col:
+            ErrorManager._raise_exception(ValueError(f"collection {collection_name} is not registered."))
+            return
+
         self.remove_listeners(*list(col._listeners.values()))
 
-    def load_extension(self, module_name: str, package: str = None) -> None:
+    def load_extension(self, module_name: str, package: str = None, *args, **kwargs) -> None:
         """
         Loads an extension and registers its Listeners and Collections.
 
@@ -125,15 +146,21 @@ class Dispatcher:
             The name of the module to load.
         package: str
             The package to load the module from.
+        *args
+            The positional arguments to pass to the constructors of the Collections in the module.
+        **kwargs
+            The keyword arguments to pass to the constructors of the Collections in the module.
         """
         module, spec = self.__get_module(module_name, package)
         spec.loader.exec_module(module)
+
+        self.extensions[f"{package}.{module_name}"] = module
 
         for _, value in module.__dict__.items():
             if isinstance(value, Listener):
                 self.add_listeners(value)
             elif inspect.isclass(value) and issubclass(value, Collection):
-                self.register_collection(value)
+                self.register_collection(value, *args, **kwargs)
 
     def unload_extension(self, module_name: str, package: str = None) -> None:
         """
@@ -146,14 +173,17 @@ class Dispatcher:
         package: str
             The package to unload the module from.
         """
-        module, spec = self.__get_module(module_name, package)
-        spec.loader.exec_module(module)
+        module = self.extensions.get(f"{package}.{module_name}", None)
+
+        if not module:
+            ErrorManager._raise_exception(ValueError(f"extension {module_name} is not loaded."))
+            return
 
         for _, value in module.__dict__.items():
             if isinstance(value, Listener):
                 self.remove_listeners(value)
             elif inspect.isclass(value) and issubclass(value, Collection):
-                self.unregister_collection(value)
+                self.unregister_collection(value.__name__)
 
     def reload_extension(self, module_name: str, package: str = None) -> None:
         """
