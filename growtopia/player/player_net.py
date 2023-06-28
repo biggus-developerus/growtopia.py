@@ -32,8 +32,8 @@ class PlayerNet:
         self.last_packet_sent: Optional[Packet] = None
         self.last_packet_received: Optional[Packet] = None
 
-    def _send(self, data: bytes, flags: int = enet.PACKET_FLAG_RELIABLE) -> None:
-        self.peer.send(0, enet.Packet(data, flags))
+    def _send(self, data: bytes, flags: int = enet.PACKET_FLAG_RELIABLE, enet_packet: enet.Packet = None) -> None:
+        self.peer.send(0, enet_packet or enet.Packet(data, flags))
 
     def send_packet(self, packet: Packet) -> None:
         """
@@ -47,7 +47,7 @@ class PlayerNet:
         if not isinstance(packet, Packet):
             raise TypeError("Invalid packet type passed.")
 
-        self._send(packet.serialise())
+        self._send(enet_packet=packet.enet_packet)
         self.last_packet_sent = packet
 
     def send_log(self, text: str) -> None:
@@ -62,7 +62,7 @@ class PlayerNet:
         packet = GameMessagePacket()
         packet.game_message = "action|log\nmsg|" + text
 
-        self._send(packet.serialise())
+        self._send(enet_packet=packet.enet_packet)
         self.last_packet_sent = packet
 
     def disconnect(self, text: Optional[str] = None) -> None:
