@@ -37,7 +37,7 @@ class GameUpdatePacket(Packet):
 
         self.type: PacketType = PacketType.GAME_UPDATE
 
-        self.update_type: GameUpdatePacketType = GameUpdatePacketType.UNKNOWN  # uint8 - size ONE!
+        self.update_type: GameUpdatePacketType = GameUpdatePacketType.UNKNOWN  # uint8
 
         self.object_type: int = 0  # uint8
         self.count1: int = 0  # uint8
