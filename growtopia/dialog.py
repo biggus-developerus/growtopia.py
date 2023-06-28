@@ -1,5 +1,7 @@
 __all__ = ("Dialog",)
 
+from .protocol import GameUpdatePacket, GameUpdatePacketType, GameUpdatePacketFlags, VariantList
+
 
 class Dialog:
     """
@@ -58,3 +60,12 @@ class Dialog:
 
     def encode(self):
         return self.dialog.encode("utf-8")
+
+    @property
+    def packet(self) -> GameUpdatePacket:
+        packet = GameUpdatePacket()
+
+        packet.update_type = GameUpdatePacketType.CALL_FUNCTION
+        packet.set_variant_list(VariantList("OnDialogRequest", self.dialog))
+
+        return packet
