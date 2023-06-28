@@ -14,7 +14,7 @@ class Collection:
         A dictionary that keeps track of all listeners. Event IDs are used as keys and Listener objects are used as values.
     """
 
-    def __new__(cls) -> "Collection":
+    def __new__(cls, *args, **kwargs) -> "Collection":
         inst = super().__new__(cls)
         inst._listeners = {}
 
@@ -25,5 +25,5 @@ class Collection:
 
         return inst
 
-    def __init__(self) -> None:
+    def __init__(self, *args, **kwargs) -> None:
         self._listeners: dict[EventID, Listener]
