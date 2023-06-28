@@ -32,7 +32,12 @@ class PlayerNet:
         self.last_packet_sent: Optional[Packet] = None
         self.last_packet_received: Optional[Packet] = None
 
-    def _send(self, data: bytes, flags: int = enet.PACKET_FLAG_RELIABLE, enet_packet: enet.Packet = None) -> None:
+    def _send(
+        self, data: bytes = None, flags: int = enet.PACKET_FLAG_RELIABLE, enet_packet: enet.Packet = None
+    ) -> None:
+        if not data and not enet_packet:
+            raise ValueError("No data or packet was passed.")
+
         self.peer.send(0, enet_packet or enet.Packet(data, flags))
 
     def send_packet(self, packet: Packet) -> None:
