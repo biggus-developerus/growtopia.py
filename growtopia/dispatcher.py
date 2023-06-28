@@ -112,10 +112,7 @@ class Dispatcher:
             The keyword arguments to pass to the collection's constructor.
         """
         col = col(*args, **kwargs) if isinstance(col, type) else col  # check if the class is instantiated
-
         self.collections[col.__class__.__name__] = col
-
-        print(self.collections)
 
         self.add_listeners(*list(col._listeners.values()))
 
@@ -154,7 +151,7 @@ class Dispatcher:
         module, spec = self.__get_module(module_name, package)
         spec.loader.exec_module(module)
 
-        self.extensions[f"{package}.{module_name}"] = module
+        self.extensions[f"{package}.{module.__name__[:-3]}"] = module
 
         for _, value in module.__dict__.items():
             if isinstance(value, Listener):
@@ -173,6 +170,7 @@ class Dispatcher:
         package: str
             The package to unload the module from.
         """
+        module_name = module_name if not module_name.endswith(".py") else module_name[:-3]
         module = self.extensions.get(f"{package}.{module_name}", None)
 
         if not module:
