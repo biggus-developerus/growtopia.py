@@ -100,7 +100,8 @@ class Dispatcher:
         col: Collection
             The collection to register.
         """
-        self.add_listeners(*list(col()._listeners.values()))
+        col = col() if isinstance(col, type) else col  # check if the class is instantiated
+        self.add_listeners(*list(col._listeners.values()))
 
     def unregister_collection(self, col: Collection) -> None:
         """
@@ -111,7 +112,8 @@ class Dispatcher:
         col: Collection
             The collection to unregister.
         """
-        self.remove_listeners(*list(col()._listeners.values()))
+        col = col() if isinstance(col, type) else col  # check if the class is instantiated
+        self.remove_listeners(*list(col._listeners.values()))
 
     def load_extension(self, module_name: str, package: str = None) -> None:
         """
@@ -129,7 +131,7 @@ class Dispatcher:
 
         for _, value in module.__dict__.items():
             if isinstance(value, Listener):
-                self.register_listeners(value)
+                self.add_listeners(value)
             elif inspect.isclass(value) and issubclass(value, Collection):
                 self.register_collection(value)
 
@@ -149,7 +151,7 @@ class Dispatcher:
 
         for _, value in module.__dict__.items():
             if isinstance(value, Listener):
-                self.unregister_listeners(value)
+                self.remove_listeners(value)
             elif inspect.isclass(value) and issubclass(value, Collection):
                 self.unregister_collection(value)
 
