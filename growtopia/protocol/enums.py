@@ -63,7 +63,8 @@ class GameUpdatePacketType(IntEnum):
     An integer enumeration of all game update packet types.
     """
 
-    UNKNOWN = -1
+    UNKNOWN = 99
+
     STATE = 0
     CALL_FUNCTION = 1
     UPDATE_STATUS = 2
