@@ -12,6 +12,7 @@ class EventID(Enum):
     # General events (not related to ENet / Growtopia)
     ON_UNHANDLED = "on_unhandled"
     ON_CLEANUP = "on_cleanup"
+    ON_READY = "on_ready"
 
     # ENet events
     ON_CONNECT = "on_connect"

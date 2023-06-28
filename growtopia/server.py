@@ -158,6 +158,8 @@ class Server(Host, Dispatcher):
         None
         """
         self.running = True
+        self.dispatch_event(EventID.ON_READY, self)
+
         while self.running:
             event = self.service(0, True)
 
