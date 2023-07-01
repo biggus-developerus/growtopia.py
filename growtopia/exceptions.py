@@ -13,8 +13,8 @@ if TYPE_CHECKING:
     from .items_data import ItemsData
     from .protocol import Packet
     from .player_tribute import PlayerTribute
-    from growtopia.protocol import Packet
-
+    from .protocol import Packet
+    from .dialog import Dialog
 
 from .constants import ignored_attributes
 

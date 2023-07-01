@@ -8,6 +8,7 @@ import enet
 from .context import Context
 from .dispatcher import Dispatcher
 from .enums import EventID
+from .dialog import Dialog
 from .host import Host
 from .player import Player, PlayerLoginInfo
 from .protocol import GameMessagePacket, Packet, PacketType, TextPacket
@@ -128,6 +129,22 @@ class Server(Host, Dispatcher):
             if disconnect:
                 player.disconnect()
 
+    def get_dialog(self, name: str) -> Optional[Dialog]:
+        """
+        Retreives a dialog from the dialogs dictionary.
+
+        Parameters
+        ----------
+        name: str
+            The name of the dialog to retrieve.
+
+        Returns
+        -------
+        Optional[Dialog]
+            The Dialog object that was retrieved, or None if nothing was found.
+        """
+        return self.dialogs.get(name, None)
+
     def start(self) -> None:
         """
         Starts the server.
@@ -198,6 +215,16 @@ class Server(Host, Dispatcher):
 
                 if event == EventID.ON_LOGIN_REQUEST:
                     context.player.login_info = PlayerLoginInfo(**context.packet.kvps)
+                elif event == EventID.ON_DIALOG_RETURN:
+                    dialog_name, button_clicked = context.packet.kvps.get("dialog_name", None), context.packet.kvps.get(
+                        "buttonClicked", None
+                    )
+
+                    if dialog_name and button_clicked:
+                        await self.dispatch_button_click(dialog_name, button_clicked, context)
+                        context.player.last_packet_received = context.packet
+
+                        continue
 
                 if not await self.dispatch_event(event, context):
                     await self.dispatch_event(

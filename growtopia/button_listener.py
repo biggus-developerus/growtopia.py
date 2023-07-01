@@ -1,12 +1,10 @@
-__all__ = ("Listener",)
+__all__ = ("ButtonListener",)
 
 import asyncio
 from typing import Callable, Coroutine
 
-from .enums import EventID
 
-
-class Listener:
+class ButtonListener:
     """
     Represents a coroutine function that can be dispatched by an event dispatcher.
 
@@ -17,8 +15,8 @@ class Listener:
 
     Attributes
     ----------
-    id: EventID
-        The ID of the listener. This attribute can either be set manually or automatically by the function's name.
+    button_name: str
+        The name of the button that this ButtonListener handles. This attribute can either be set manually or automatically by the function's name.
     callback: Callable
         The coroutine function that will be dispatched.
     """
@@ -27,7 +25,7 @@ class Listener:
         if not asyncio.iscoroutinefunction(callback):
             raise TypeError("Callback must be a coroutine function.")
 
-        self.id: EventID = EventID(callback.__name__.lower())
+        self.button_name: str = callback.__name__
         self.callback: Callable = callback
 
         self._belongs_to: object = None

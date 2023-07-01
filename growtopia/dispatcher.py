@@ -5,9 +5,11 @@ import inspect
 from importlib.machinery import ModuleSpec
 from importlib.util import module_from_spec, spec_from_file_location
 from types import ModuleType
-from typing import Callable
+from typing import Coroutine
 
+from .button_listener import ButtonListener
 from .collection import Collection
+from .dialog import Dialog
 from .enums import EventID
 from .error_manager import ErrorManager
 from .listener import Listener
@@ -31,6 +33,7 @@ class Dispatcher:
         self.listeners: dict[EventID, Listener] = {}
         self.collections: dict[str, Collection] = {}
         self.extensions: dict[str, ModuleType] = {}
+        self.dialogs: dict[str, Dialog] = {}
 
     @classmethod
     def __get_module(cls, name: str, pck: str = None) -> tuple[ModuleType, ModuleSpec]:
@@ -47,13 +50,13 @@ class Dispatcher:
             spec,
         )
 
-    def listener(self, func: Callable) -> Callable:
+    def listener(self, func: Coroutine) -> Listener:
         """
         A decorator that registers a coroutine as a listener.
 
         Parameters
         ----------
-        func: Callable
+        func: Coroutine
             The coroutine to register.
 
         Returns
@@ -97,6 +100,29 @@ class Dispatcher:
         """
         for listener in listeners:
             del self.listeners[listener.id]
+
+    def register_dialog(self, dialog: Dialog, *args, **kwargs) -> None:
+        """
+        Registers a dialog.
+
+        Parameters
+        ----------
+        dialog: Dialog
+            The dialog to register.
+        """
+        dialog = dialog(*args, **kwargs) if isinstance(dialog, type) else dialog  # check if the class is instantiated
+        self.dialogs[dialog.name] = dialog
+
+    def unregister_dialog(self, dialog_name: str) -> None:
+        """
+        Unregisters a dialog.
+
+        Parameters
+        ----------
+        dialog_name: str
+            The name of the dialog to unregister.
+        """
+        del self.dialogs[dialog_name]
 
     def register_collection(self, col: Collection, *args, **kwargs) -> None:
         """
@@ -158,6 +184,8 @@ class Dispatcher:
                 self.add_listeners(value)
             elif inspect.isclass(value) and issubclass(value, Collection):
                 self.register_collection(value, *args, **kwargs)
+            elif inspect.isclass(value) and issubclass(value, Dialog) and value is not Dialog:
+                self.register_dialog(value, *args, **kwargs)
 
     def unload_extension(self, module_name: str, package: str = None) -> None:
         """
@@ -182,6 +210,8 @@ class Dispatcher:
                 self.remove_listeners(value)
             elif inspect.isclass(value) and issubclass(value, Collection):
                 self.unregister_collection(value.__name__)
+            elif inspect.isclass(value) and issubclass(value, Dialog):
+                self.unregister_dialog(value)
 
     def reload_extension(self, module_name: str, package: str = None) -> None:
         """
@@ -211,6 +241,35 @@ class Dispatcher:
             The keyword arguments to pass to the listener.
         """
         listener = self.listeners.get(event_id, None)
+
+        if listener is None:
+            return False
+
+        await listener(*args, **kwargs)
+        return True
+
+    async def dispatch_button_click(self, dialog_name: str, button_name: str, *args, **kwargs) -> bool:
+        """
+        Dispatches a button click event to a ButtonListener object.
+
+        Parameters
+        ----------
+        dialog_name: str
+            The name of the dialog that the button belongs to.
+        button_name: str
+            The name of the button to dispatch.
+        *args
+            The positional arguments to pass to the listener.
+        **kwargs
+            The keyword arguments to pass to the listener.
+        """
+
+        dialog = self.dialogs.get(dialog_name, None)
+
+        if dialog is None:
+            return False
+
+        listener = dialog.button_listeners.get(button_name, None)
 
         if listener is None:
             return False
