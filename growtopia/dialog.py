@@ -6,7 +6,7 @@ __all__ = (
 import asyncio
 from typing import Callable
 
-from .button_listener import ButtonListener
+from .listener import Listener
 from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
 
 
@@ -71,19 +71,19 @@ class Dialog:
         The elements that make up the dialog.
     packet: GameUpdatePacket
         The packet that can be sent to the client to display the dialog. (CALL_FUNCTION, OnDialogRequest, self.dialog)
-    button_listeners: dict[str, ButtonListener]
-        A dictionary that keeps track of all button listeners. Button names are used as keys and ButtonListener objects are used as values.
+    listeners: dict[str, ButtonListener]
+        A dictionary that keeps track of all listeners. Callback names are used as keys and Listener objects are used as values.
     """
 
     def __new__(cls, *args, **kwargs):
         inst = super().__new__(cls)
 
-        inst.button_listeners = {}
+        inst.listeners = {}
 
         for key, value in cls.__dict__.items():
-            if isinstance(value, ButtonListener):
+            if isinstance(value, Listener):
                 value._belongs_to = inst
-                inst.button_listeners[key] = value
+                inst.listeners[key] = value
 
         return inst
 
@@ -91,7 +91,7 @@ class Dialog:
         self.name: str = name
 
         self.elements: list[str] = elements or []
-        self.button_listeners: dict[str, ButtonListener]
+        self.listeners: dict[str, Listener]
 
         self.__has_ending: bool = False
 
@@ -113,19 +113,19 @@ class Dialog:
 
             self.elements.append(element)
 
-    def add_listeners(self, *listeners: ButtonListener) -> None:
+    def add_listeners(self, *listeners: Listener) -> None:
         """
         Adds a button listener to the dialog.
 
         Parameters
         ----------
-        listener: ButtonListener
+        listener: Listener
             The button listener to add.
         """
         for listener in listeners:
-            self.button_listeners[listener.button_name] = listener
+            self.listeners[listener.name] = listener
 
-    def listener(self, func: Callable) -> ButtonListener:
+    def listener(self, func: Callable) -> Listener:
         """
         Adds a button listener to the dialog.
 
@@ -137,7 +137,7 @@ class Dialog:
         if not asyncio.iscoroutinefunction(func):
             raise TypeError("callback must be a coroutine")
 
-        listener = ButtonListener(func)
+        listener = Listener(func)
         self.add_listeners(listener)
 
         return listener

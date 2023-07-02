@@ -7,7 +7,6 @@ from importlib.util import module_from_spec, spec_from_file_location
 from types import ModuleType
 from typing import Coroutine
 
-from .button_listener import ButtonListener
 from .collection import Collection
 from .dialog import Dialog
 from .enums import EventID
@@ -248,9 +247,9 @@ class Dispatcher:
         await listener(*args, **kwargs)
         return True
 
-    async def dispatch_button_click(self, dialog_name: str, button_name: str, *args, **kwargs) -> bool:
+    async def dispatch_dialog_return(self, dialog_name: str, button_name: str, *args, **kwargs) -> bool:
         """
-        Dispatches a button click event to a ButtonListener object.
+        Dispatches a dialog return event to a ButtonListener or Listener object.
 
         Parameters
         ----------
@@ -269,7 +268,7 @@ class Dispatcher:
         if dialog is None:
             return False
 
-        listener = dialog.button_listeners.get(button_name, None)
+        listener = dialog.listeners.get(button_name, None) or dialog.listeners.get("on_dialog_return", None)
 
         if listener is None:
             return False

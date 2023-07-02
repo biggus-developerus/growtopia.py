@@ -19,6 +19,8 @@ class Listener:
     ----------
     id: EventID
         The ID of the listener. This attribute can either be set manually or automatically by the function's name.
+    name: str
+        The name of the listener. This attribute can either be set manually or automatically by the function's name.
     callback: Callable
         The coroutine function that will be dispatched.
     """
@@ -28,6 +30,7 @@ class Listener:
             raise TypeError("Callback must be a coroutine function.")
 
         self.id: EventID = EventID(callback.__name__.lower())
+        self.name: str = callback.__name__
         self.callback: Callable = callback
 
         self._belongs_to: object = None

@@ -6,9 +6,9 @@ from typing import Optional, Union
 import enet
 
 from .context import Context
+from .dialog import Dialog
 from .dispatcher import Dispatcher
 from .enums import EventID
-from .dialog import Dialog
 from .host import Host
 from .player import Player, PlayerLoginInfo
 from .protocol import GameMessagePacket, Packet, PacketType, TextPacket
@@ -220,11 +220,10 @@ class Server(Host, Dispatcher):
                         "buttonClicked", None
                     )
 
-                    if dialog_name and button_clicked:
-                        await self.dispatch_button_click(dialog_name, button_clicked, context)
-                        context.player.last_packet_received = context.packet
-
-                        continue
+                    if dialog_name:
+                        if await self.dispatch_dialog_return(dialog_name, button_clicked, context):
+                            context.player.last_packet_received = context.packet
+                            continue
 
                 if not await self.dispatch_event(event, context):
                     await self.dispatch_event(
