@@ -102,13 +102,14 @@ class GameMessagePacket(Packet):
             self.__malformed = True
             return
 
-        self.type = PacketType(int.from_bytes(data[:4], "little"))
+        type = PacketType(int.from_bytes(data[:4], "little"))
 
         if self.type != PacketType.GAME_MESSAGE:
             ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
             self.__malformed = True
             return
 
+        self.type = type
         self.game_message = data[4:-1].decode("utf-8")
 
         if self.game_message.startswith("action"):

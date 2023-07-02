@@ -93,12 +93,14 @@ class HelloPacket(Packet):
             self.__malformed = True
             return
 
-        self.type = PacketType(int.from_bytes(data[:4], "little"))
+        type = PacketType(int.from_bytes(data[:4], "little"))
 
         if self.type != PacketType.HELLO:
             ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
             self.__malformed = True
             return
+
+        self.type = type
 
     def identify(self) -> EventID:
         """

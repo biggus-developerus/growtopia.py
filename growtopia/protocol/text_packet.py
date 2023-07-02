@@ -102,13 +102,14 @@ class TextPacket(Packet):
             self.__malformed = True
             return
 
-        self.type = PacketType(int.from_bytes(data[:4], "little"))
+        type = PacketType(int.from_bytes(data[:4], "little"))
 
-        if self.type != PacketType.TEXT:
+        if type != PacketType.TEXT:
             ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
             self.__malformed = True
             return
 
+        self.type = type
         self.text = data[4:-1].decode("utf-8")
 
         if self.text.startswith("action") or "requestedName" in self.text:

@@ -165,12 +165,14 @@ class GameUpdatePacket(Packet):
             self.__malformed = True
             return
 
-        self.type = PacketType(int.from_bytes(data[:4], "little"))
+        type = PacketType(int.from_bytes(data[:4], "little"))
 
         if self.type != PacketType.GAME_UPDATE:
             ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
             self.__malformed = True
             return
+
+        self.type = type
 
         if len(data) < 52:
             ErrorManager._raise_exception(PacketTooSmall(self, ">=52"))
