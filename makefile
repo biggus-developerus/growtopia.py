@@ -28,5 +28,5 @@ install2:
 	$(pip) install --no-cache-dir --no-dependencies --no-build-isolation -U .
 
 upload:
-	make _build
+	make build_whl
 	$(python) -m twine upload --repository growtopia.py  dist/*
