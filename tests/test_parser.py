@@ -1,5 +1,6 @@
 """Test the items.dat and player_tribute.dat file parsers."""
 
+import asyncio
 import os
 
 from growtopia import ItemsData, PlayerTribute
@@ -11,8 +12,7 @@ def test_parser() -> None:
     for file in os.listdir("tests/data"):
         if file.startswith("items") and file.endswith(".dat"):
             items_data = ItemsData(f"tests/data/{file}")
-
-            items_data.parse()
+            asyncio.run(items_data.parse())
 
             assert items_data.get_item(item_id=2).name.lower() == "dirt"
             assert items_data.get_item(item_id=3).name.lower() == "dirt seed"
@@ -23,8 +23,11 @@ def test_parser() -> None:
             assert items_data.get_ends_with("dirt seed")[0].id == 3
             assert len(items_data.get_contains("dirt")) > 0
 
-    player_tribute = PlayerTribute("tests/data/player_tribute.dat")
-    player_tribute.parse()
+        if file.startswith("player_tribute") and file.endswith(".dat"):
+            player_tribute = PlayerTribute(f"tests/data/{file}")
+            asyncio.run(player_tribute.parse())
+
+            assert len(player_tribute.epic_players) > 0
 
 
 if __name__ == "__main__":

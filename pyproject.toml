@@ -9,17 +9,26 @@ readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = [
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.9",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 
-version = "0.1.1"
-requires-python = ">=3.11"
+version = "0.1.2"
+requires-python = ">=3.9.0"
 
 dependencies = [
     "enet @ git+https://github.com/kajob-dev/pyenet",
+    "aiofiles",
 ]
 
 [project.urls]
 "Homepage" = "https://github.com/kaJob-dev/growtopia.py"
 "Bug Tracker" = "https://github.com/kaJob-dev/growtopia.py/issues"
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"

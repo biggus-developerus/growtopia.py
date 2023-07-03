@@ -1,28 +1,46 @@
 __all__ = ("VariantList",)
 
-from typing import Any
+from typing import Optional, Union
 
 from .variant import Variant
 
 
 class VariantList:
-    def __init__(self, *variants: Any) -> None:
+    """
+    This class is used to store, serialise, and deserialise Variants.
+
+    Parameters
+    ----------
+    *variants: Union[str, int, float]
+        The list of variant values to initialise the VariantList with.
+
+    Attributes
+    ----------
+    variants: list[Variant]
+        The list of variants.
+    data: bytearray
+        The serialised data. This is updated every time a Variant object is appended.
+    """
+
+    def __init__(self, *variants: Union[str, int, float]) -> None:
         self.variants: list[Variant] = []
         self.data = bytearray([0])
 
         for variant in variants:
             self.append(Variant(variant))
 
-    def get(self, index: int) -> Variant:
+    def get(self, index: int) -> Optional[Variant]:
         return self.variants[index] if index < len(self.variants) else None
 
     def append(self, variant: Variant) -> None:
         self.data += variant.serialise(len(self.variants))
         self.variants.append(variant)
 
+        self.data[0] = len(self.variants)
+
     def serialise(self) -> bytearray:
         self.data[0] = len(self.variants)
-        return bytearray(self.data)
+        return self.data
 
     @classmethod
     def from_bytes(cls, data: bytearray) -> "VariantList":

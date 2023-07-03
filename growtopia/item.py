@@ -3,6 +3,7 @@ __all__ = ("Item",)
 from typing import Any
 
 
+# TODO: Add docstring to the Item class
 class Item:
     def __init__(self) -> None:
         self.id: int = 4

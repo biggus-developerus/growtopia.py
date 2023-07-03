@@ -1,26 +1,34 @@
 __all__ = (
     "PacketType",
     "VariantType",
-    "GamePacketFlags",
-    "GamePacketType",
+    "GameUpdatePacketFlags",
+    "GameUpdatePacketType",
 )
 
 from enum import IntEnum
 
 
 class PacketType(IntEnum):
+    """
+    An integer enumeration of all packet types.
+    """
+
     UNKNOWN = 0
     HELLO = 1
     TEXT = 2
     GAME_MESSAGE = 3
-    GAME_PACKET = 4
+    GAME_UPDATE = 4
 
     @classmethod
-    def _missing_(cls, _):
-        return cls.UNKNOWN
+    def _missing_(cls, _: int) -> "PacketType":
+        return cls(0)
 
 
 class VariantType(IntEnum):
+    """
+    An integer enumeration of all variant types.
+    """
+
     NONE = 0
     FLOAT = 1
     STR = 2
@@ -29,12 +37,19 @@ class VariantType(IntEnum):
     UINT = 8
     INT = 9
 
+    # Custom variant type aliases.
+    DIALOG = 2  # str
+
     @classmethod
     def _missing_(cls, _):
         return cls.NONE
 
 
-class GamePacketFlags(IntEnum):
+class GameUpdatePacketFlags(IntEnum):
+    """
+    An integer enumeration of all game update packet flags.
+    """
+
     UNKNOWN = -1
     EXTRA_DATA = 8
 
@@ -43,8 +58,13 @@ class GamePacketFlags(IntEnum):
         return cls.UNKNOWN
 
 
-class GamePacketType(IntEnum):
-    UNKNOWN = -1
+class GameUpdatePacketType(IntEnum):
+    """
+    An integer enumeration of all game update packet types.
+    """
+
+    UNKNOWN = 99
+
     STATE = 0
     CALL_FUNCTION = 1
     UPDATE_STATUS = 2

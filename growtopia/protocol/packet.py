@@ -1,68 +1,138 @@
 __all__ = ("Packet",)
 
-from typing import Optional
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Optional, Union
 
 import enet
 
+from ..enums import EventID
 from .enums import PacketType
-from .game_packet import GamePacket
+
+if TYPE_CHECKING:
+    from ..player import Player
 
 
-class Packet(GamePacket):
-    def __init__(self, data: bytes = None) -> None:
-        self._data: bytearray = data or b""
+class Packet(ABC):
+    """
+    A base class for different packet types, such as Text, Game message, Game update, etc.
 
-        self.type: PacketType = PacketType.UNKNOWN
+    Parameters
+    ----------
+    data: Optional[Union[bytes, bytearray, enet.Packet]]
+        The raw data of the packet.
 
-        self.text: Optional[str] = None
-        self.game_message: Optional[str] = None
+    Attributes
+    ----------
+    data: bytearray
+        The raw data of the packet.
+    enet_packet: enet.Packet
+        The enet.Packet object created from the raw data.
+    type: PacketType
+        The type of the packet.
+    text: str
+        The text found in the text packet. This attribute is only available in the TextPacket class.
+    game_message: str
+        The game message found in the game message packet. This attribute is only available in the GameMessagePacket class.
+    kvps: dict[str, str]
+        Key value pairs from text. (e.g `action|log\\nmsg|Hello -> {"action": "log", "msg": "Hello"}`)
+    sender: Optional[Player]
+        The player that sent the packet.
+    """
 
-        super().__init__()
+    def __init__(self, data: Optional[Union[bytes, bytearray, enet.Packet]] = None) -> None:
+        if isinstance(data, enet.Packet):
+            data = data.data
 
-        if data is not None and len(data) > 0:
-            self.deserialise()
+        self.data: bytearray = bytearray(data or b"")
+        self.type: PacketType = PacketType(1)  # assume it's a HELLO packet
 
-    def serialise(self) -> bytes:
-        data = self.type.value.to_bytes(4, "little")
+        self.text: str = ""
+        self.game_message: str = ""
+        self.kvps: dict[str, str] = {}
 
-        if self.type == PacketType.TEXT:
-            data += self.text.encode() + b"\n"
-        elif self.type == PacketType.GAME_MESSAGE:
-            data += self.game_message.encode() + b"\n"
-        elif self.type == PacketType.GAME_PACKET:
-            data += self._serialise_game_packet()
-
-        return data
-
-    def deserialise(self, data: Optional[bytes] = None) -> None:
-        self._data = data or self._data
-
-        if len(self._data) < 4:
-            return
-
-        self.type = PacketType(int.from_bytes(self._data[:4], "little"))
-
-        if self.type == PacketType.TEXT:
-            self.text = self._data[4:-1].decode()
-        elif self.type == PacketType.GAME_MESSAGE:
-            self.game_message = self._data[4:-1].decode()
-        elif self.type == PacketType.GAME_PACKET:
-            self._deserialise_game_packet(self._data[4:])
-
-    def parse_login_packet(self) -> dict[str, str]:
-        if self.type != PacketType.TEXT or "requestedName" not in self.text:
-            raise ValueError(
-                "Packet is not a login packet. Call this method only upon handling the on_login_request event."
-            )
-
-        return {kvp[0]: kvp[-1] for i in self.text.split() if (kvp := (i.split("|")))}
+        self.sender: Optional["Player"] = None
 
     @property
     def enet_packet(self) -> enet.Packet:
-        return enet.Packet(self.serialise(), enet.PACKET_FLAG_RELIABLE)
+        """
+        Create a new enet.Packet object from the raw data.
+
+        Returns
+        -------
+        enet.Packet
+            The enet.Packet object created from the raw data.
+        """
+        return enet.Packet(self.data, enet.PACKET_FLAG_RELIABLE)
 
     @classmethod
-    def from_bytes(cls, data: bytearray) -> "Packet":
-        packet = cls()
-        packet.deserialise(data)
-        return packet
+    def get_type(cls, data: bytes) -> PacketType:
+        """
+        Get the type of the packet.
+
+        Parameters
+        ----------
+        data: bytes
+            The raw data of the packet.
+
+        Returns
+        -------
+        PacketType
+            The type of the packet.
+        """
+
+        return PacketType(int.from_bytes(data[:4], "little"))
+
+    @abstractmethod
+    def identify(self) -> EventID:
+        """
+        Identify the packet based on its contents.
+
+        Returns
+        -------
+        EventID
+            The event ID responsible for handling the packet.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def serialise(self) -> bytes:
+        """
+        Serialise the packet.
+
+        Returns
+        -------
+        bytes
+            The serialised packet.
+
+        Raises
+        ------
+        NotImplementedError
+            This method must be implemented in the child class.
+        """
+
+        raise NotImplementedError
+
+    @abstractmethod
+    def deserialise(self, data: Optional[bytes] = None) -> None:
+        """
+        Deserialise the packet.
+
+        Parameters
+        ----------
+        data: Optional[bytes]
+            The data to deserialise. If this isn't provided,
+            the data attribute will be used instead.
+
+        Raises
+        ------
+        NotImplementedError
+            This method must be implemented in the child class.
+        PacketTypeDoesNotMatchContent
+            The packet type does not match the content of the packet.
+
+        Returns
+        -------
+        None
+        """
+
+        raise NotImplementedError
