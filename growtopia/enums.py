@@ -7,7 +7,7 @@ from enum import Enum
 from typing import Any
 
 
-class EventID(Enum):
+class EventID(str, Enum):
     """
     An enumeration of all dispatchable events.
     """
@@ -28,6 +28,9 @@ class EventID(Enum):
     ON_LOGIN_REQUEST = "on_login_request"
     ON_ACTION_QUIT = "on_quit"
     ON_DIALOG_RETURN = "on_dialog_return"
+
+    # Call function events
+    ON_SUPER_MAIN = "on_super_main"
 
     @classmethod
     def _missing_(cls, _: object) -> Any:

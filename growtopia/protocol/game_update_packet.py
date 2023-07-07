@@ -63,6 +63,8 @@ class GameUpdatePacket(Packet):
         self.extra_data_size: int = 0  # uint32
         self.extra_data: bytes = b""  # uint8[]
 
+        self.variant_list: Optional[VariantList] = None
+
         self.__malformed: bool = False
 
         if len(self.data) >= 4:
@@ -87,11 +89,18 @@ class GameUpdatePacket(Packet):
         self.extra_data = variant_list.serialise()
         self.extra_data_size = len(self.extra_data)
 
+        self.variant_list = variant_list
+
     def get_variant_list(self) -> Optional[VariantList]:
         if self.flags != GameUpdatePacketFlags.EXTRA_DATA:
             return None
 
-        return VariantList.from_bytes(self.extra_data)
+        if self.variant_list:
+            return self.variant_list
+
+        self.variant_list = VariantList.from_bytes(self.extra_data)
+
+        return self.variant_list
 
     def serialise(self) -> bytearray:
         """
@@ -224,6 +233,13 @@ class GameUpdatePacket(Packet):
             return EventID.ON_MALFORMED_PACKET
 
         if self.update_type == GameUpdatePacketType.CALL_FUNCTION:
-            return EventID(self.get_variant_list()[0].value)
+            name = self.get_variant_list()[0].value
+
+            if (
+                "OnSuperMain" in name
+            ):  # I don't like this too... but it's better than having the user write the entire name out 💀💀💀
+                return EventID.ON_SUPER_MAIN
+
+            return EventID(name)
 
         return self.update_type
