@@ -208,10 +208,10 @@ class GameUpdatePacket(Packet):
                 self.__malformed = True
                 return
 
-            self.extra_data_size = int.from_bytes(data[56:60], "little")
-            self.extra_data = data[60 : 60 + self.extra_data_size]
+            self.extra_data = data[60:]
+            self.extra_data_size = len(self.extra_data)
 
-    def identify(self) -> GameUpdatePacketType:
+    def identify(self) -> Union[GameUpdatePacketType, EventID]:
         """
         Identify the packet based on its contents.
 
@@ -222,5 +222,8 @@ class GameUpdatePacket(Packet):
         """
         if self.__malformed:
             return EventID.ON_MALFORMED_PACKET
+
+        if self.update_type == GameUpdatePacketType.CALL_FUNCTION:
+            return EventID(self.get_variant_list()[0].value)
 
         return self.update_type
