@@ -1,13 +1,13 @@
 __all__ = ("Context",)
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 import enet
 
 if TYPE_CHECKING:
     from .client import Client
     from .player import Player
-    from .protocol import Packet
+    from .protocol import Packet, GameMessagePacket, GameUpdatePacket, TextPacket, HelloPacket
     from .server import Server
 
 
@@ -38,4 +38,12 @@ class Context:
         # Other objects (Player, World, enet.Event, etc.)
         self.player: Optional["Player"] = None
         self.enet_event: Optional[enet.Event] = None
-        self.packet: Optional["Packet"] = None
+        self.packet: Optional[
+            Union[
+                "Packet",
+                "GameUpdatePacket",
+                "GameMessagePacket",
+                "TextPacket",
+                "HelloPacket",
+            ]
+        ] = None
