@@ -7,7 +7,13 @@ import enet
 if TYPE_CHECKING:
     from .client import Client
     from .player import Player
-    from .protocol import Packet, GameMessagePacket, GameUpdatePacket, TextPacket, HelloPacket
+    from .protocol import (
+        GameMessagePacket,
+        GameUpdatePacket,
+        HelloPacket,
+        Packet,
+        TextPacket,
+    )
     from .server import Server
 
 
