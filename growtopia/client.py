@@ -8,7 +8,14 @@ from .context import Context
 from .dispatcher import Dispatcher
 from .enums import EventID
 from .host import Host
-from .protocol import GameMessagePacket, HelloPacket, Packet, PacketType, TextPacket
+from .protocol import (
+    GameMessagePacket,
+    GameUpdatePacket,
+    HelloPacket,
+    Packet,
+    PacketType,
+    TextPacket,
+)
 
 
 class Client(Host, Dispatcher):
@@ -157,6 +164,8 @@ class Client(Host, Dispatcher):
                     context.packet = TextPacket(event.packet.data)
                 elif type_ == PacketType.GAME_MESSAGE:
                     context.packet = GameMessagePacket(event.packet.data)
+                elif type_ == PacketType.GAME_UPDATE:
+                    context.packet = GameUpdatePacket(event.packet.data)
 
                 if not await self.dispatch_event(
                     context.packet.identify() if context.packet else EventID.ON_RECEIVE,

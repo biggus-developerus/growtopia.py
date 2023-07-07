@@ -11,7 +11,13 @@ from .dispatcher import Dispatcher
 from .enums import EventID
 from .host import Host
 from .player import Player, PlayerLoginInfo
-from .protocol import GameMessagePacket, Packet, PacketType, TextPacket
+from .protocol import (
+    GameMessagePacket,
+    GameUpdatePacket,
+    Packet,
+    PacketType,
+    TextPacket,
+)
 
 # TODO:
 # - Find a better way to ID peers. We used to ID peers by their connectID, but for some reason the attribute resets to 0 when the EVENT_TYPE_DISCONNECT event is emitted.
@@ -209,6 +215,8 @@ class Server(Host, Dispatcher):
                     context.packet = TextPacket(event.packet.data)
                 elif type_ == PacketType.GAME_MESSAGE:
                     context.packet = GameMessagePacket(event.packet.data)
+                elif type_ == PacketType.GAME_UPDATE:
+                    context.packet = GameUpdatePacket(event.packet.data)
 
                 context.packet.sender = context.player
                 event = context.packet.identify() if context.packet else EventID.ON_RECEIVE
