@@ -30,7 +30,7 @@ class Context:
         The player that emitted the event.
     enet_event: Optional[:class:`Event`]
         The event that was emitted.
-    packet: Optional[:class:`Packet`]
+    packet: Optional[Union["Packet","GameUpdatePacket","GameMessagePacket","TextPacket","HelloPacket"]
         The packet that was emitted.
     """
 
