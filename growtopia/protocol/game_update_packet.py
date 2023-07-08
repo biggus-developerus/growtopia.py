@@ -220,14 +220,14 @@ class GameUpdatePacket(Packet):
             self.extra_data = data[60:]
             self.extra_data_size = len(self.extra_data)
 
-    def identify(self) -> Union[GameUpdatePacketType, EventID]:
+    def identify(self) -> EventID:
         """
         Identify the packet based on its contents.
 
         Returns
         -------
-        GameUpdatePacketType
-            The game update packet type, the type can also be used to register event handlers.
+        EventID
+            The event ID responsible for handling this packet.
         """
         if self.__malformed:
             return EventID.ON_MALFORMED_PACKET
@@ -242,4 +242,4 @@ class GameUpdatePacket(Packet):
 
             return EventID(name)
 
-        return self.update_type
+        return EventID("on_" + self.update_type.name.lower())
