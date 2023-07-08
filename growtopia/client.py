@@ -155,7 +155,7 @@ class Client(Host, Dispatcher):
 
             elif event.type == enet.EVENT_TYPE_DISCONNECT:
                 await self.dispatch_event(EventID.ON_DISCONNECT, context)
-                continue
+                self.__running = False
 
             elif event.type == enet.EVENT_TYPE_RECEIVE:
                 if (type_ := Packet.get_type(event.packet.data)) == PacketType.HELLO:
