@@ -49,7 +49,7 @@ class EventID(str, Enum):
     ON_MODIFY_ITEM_INVENTORY = "on_modify_item_inventory"
     ON_ITEM_CHANGE_OBJECT = "on_item_change_object"
     ON_SEND_LOCK = "on_send_lock"
-    ON_SEND_ITEM_DATABASE_DATA = "on_send_item_database_data"
+    ON_SEND_ITEMS_DATA = "on_send_items_data"
     ON_SEND_PARTICLE_EFFECT = "on_send_particle_effect"
     ON_SET_ICON_STATE = "on_set_icon_state"
     ON_ITEM_EFFECT = "on_item_effect"

@@ -230,7 +230,7 @@ class GameUpdatePacket(Packet):
         if self.__malformed:
             return EventID.ON_MALFORMED_PACKET
 
-        if self.update_type == GameUpdatePacketType.CALL_FUNCTION:
+        if self.update_type == GameUpdatePacketType.CALL_FUNCTION and len(self.get_variant_list()) > 0:
             name = self.get_variant_list()[0].value
 
             if (
@@ -238,6 +238,8 @@ class GameUpdatePacket(Packet):
             ):  # I don't like this too... but it's better than having the user write the entire name out 💀💀💀
                 return EventID.ON_SUPER_MAIN
 
-            return EventID(name)
+            return EventID(
+                "on_" + name
+            )  # We'd prolly have to convert the function's name from PascalCase to snake_case 😤😤😤
 
         return EventID("on_" + self.update_type.name.lower())

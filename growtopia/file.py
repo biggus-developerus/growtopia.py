@@ -41,6 +41,8 @@ class File:
             self.__path = data
         elif isinstance(data, bytes):
             self.__content = bytearray(data)
+        elif isinstance(data, bytearray):
+            self.__content = data
         else:
             raise ValueError("Invalid data type passed into initialiser.")
 

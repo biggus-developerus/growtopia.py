@@ -124,11 +124,7 @@ class ItemsData(File):
         self.version = int.from_bytes(data[:2], "little")
         self.item_count = int.from_bytes(data[2:6], "little")
 
-        if (
-            self.version < list(ignored_attributes.keys())[0]
-            or self.version > list(ignored_attributes.keys())[-1]
-            or self.version not in ignored_attributes
-        ):
+        if self.version not in list(ignored_attributes.keys()):
             raise UnsupportedItemsData(self)
 
         for _ in range(self.item_count):
