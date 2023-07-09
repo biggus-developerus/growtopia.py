@@ -32,7 +32,7 @@ def test_game_update_packet() -> None:
 
     from_bytes_packet = protocol.GameUpdatePacket(packet.serialise())
 
-    assert from_bytes_packet.type == protocol.PacketType.GAME_UPDATE
+    assert from_bytes_packet._type == protocol.PacketType.GAME_UPDATE
     assert from_bytes_packet.update_type == protocol.GameUpdatePacketType.CALL_FUNCTION
     assert from_bytes_packet.flags == protocol.GameUpdatePacketFlags.EXTRA_DATA
 
@@ -48,7 +48,7 @@ def test_text_packet() -> None:
     packet = protocol.TextPacket()
     packet.text = "Hello, world!"
 
-    assert packet.type == protocol.PacketType.TEXT
+    assert packet._type == protocol.PacketType.TEXT
     assert packet.text == "Hello, world!"
 
     packet.text += "\nHello, world!\n"
@@ -57,7 +57,7 @@ def test_text_packet() -> None:
 
     packet = protocol.TextPacket(packet.serialise())
 
-    assert packet.type == protocol.PacketType.TEXT
+    assert packet._type == protocol.PacketType.TEXT
     assert (
         packet.text == "Hello, world!\nHello, world!"
     )  # without the last \n because we remove it in the deserialise function
@@ -67,7 +67,7 @@ def test_text_packet() -> None:
 
     packet = protocol.TextPacket(packet.serialise())
 
-    assert packet.type == protocol.PacketType.TEXT
+    assert packet._type == protocol.PacketType.TEXT
     assert packet.kvps == {
         "tankIDName": ".",
         "tankIDPass": ".",

@@ -23,14 +23,12 @@ class HelloPacket(Packet):
     ----------
     data: bytearray
         The raw data of the packet.
-    type: PacketType
-        The type of the packet.
     """
 
     def __init__(self, data: Optional[Union[bytearray, bytes, enet.Packet]] = None) -> None:
         super().__init__(data)
 
-        self.type: PacketType = PacketType.HELLO
+        self._type: PacketType = PacketType.HELLO
         self.__malformed: bool = False
 
         if len(self.data) >= 4:
@@ -59,7 +57,7 @@ class HelloPacket(Packet):
             The serialised packet.
         """
 
-        self.data = bytearray(int.to_bytes(self.type, 4, "little"))
+        self.data = bytearray(int.to_bytes(self._type, 4, "little"))
         return self.data
 
     def deserialise(self, data: Optional[bytes] = None) -> None:
@@ -95,12 +93,12 @@ class HelloPacket(Packet):
 
         type = PacketType(int.from_bytes(data[:4], "little"))
 
-        if self.type != PacketType.HELLO:
+        if self._type != PacketType.HELLO:
             ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
             self.__malformed = True
             return
 
-        self.type = type
+        self._type = type
 
     def identify(self) -> EventID:
         """

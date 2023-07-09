@@ -23,8 +23,6 @@ class TextPacket(Packet):
     ----------
     data: bytearray
         The raw data of the packet.
-    type: PacketType
-        The type of the packet.
     text: str
         The decoded text found in the packet.
     kvps: dict[str, str]
@@ -34,7 +32,7 @@ class TextPacket(Packet):
     def __init__(self, data: Optional[Union[bytes, bytearray, enet.Packet]] = None) -> None:
         super().__init__(data)
 
-        self.type: PacketType = PacketType.TEXT
+        self._type: PacketType = PacketType.TEXT
         self.text: str = ""
         self.kvps: dict[str, str] = {}  # key value pairs
 
@@ -66,7 +64,7 @@ class TextPacket(Packet):
             The serialised packet.
         """
 
-        self.data = bytearray(int.to_bytes(self.type, 4, "little"))
+        self.data = bytearray(int.to_bytes(self._type, 4, "little"))
         self.data += self.text.encode("utf-8") + (b"\n" if not self.text.endswith("\n") else b"")
 
         return self.data
@@ -109,7 +107,7 @@ class TextPacket(Packet):
             self.__malformed = True
             return
 
-        self.type = type
+        self._type = type
         self.text = data[4:-1].decode("utf-8")
 
         if self.text.startswith("action") or "requestedName" in self.text:

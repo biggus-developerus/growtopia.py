@@ -28,14 +28,12 @@ class GameUpdatePacket(Packet):
     ----------
     data: bytearray
         The raw data of the packet.
-    type: PacketType
-        The type of the packet.
     """
 
     def __init__(self, data: Optional[Union[bytearray, bytes, enet.Packet]] = None) -> None:
         super().__init__(data)
 
-        self.type: PacketType = PacketType.GAME_UPDATE
+        self._type: PacketType = PacketType.GAME_UPDATE
 
         self.update_type: GameUpdatePacketType = GameUpdatePacketType.UNKNOWN  # uint8
 
@@ -114,7 +112,7 @@ class GameUpdatePacket(Packet):
 
         self.data = bytearray()
 
-        self.data += self.type.to_bytes(4, "little")
+        self.data += self._type.to_bytes(4, "little")
         self.data += self.update_type.to_bytes(1, "little")
 
         self.data += self.object_type.to_bytes(1, "little")
@@ -176,12 +174,12 @@ class GameUpdatePacket(Packet):
 
         type = PacketType(int.from_bytes(data[:4], "little"))
 
-        if self.type != PacketType.GAME_UPDATE:
+        if self._type != PacketType.GAME_UPDATE:
             ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
             self.__malformed = True
             return
 
-        self.type = type
+        self._type = type
 
         if len(data) < 52:
             ErrorManager._raise_exception(PacketTooSmall(self, ">=52"))

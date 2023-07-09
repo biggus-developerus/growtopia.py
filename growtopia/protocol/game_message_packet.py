@@ -23,8 +23,6 @@ class GameMessagePacket(Packet):
     ----------
     data: bytearray
         The raw data of the packet.
-    type: PacketType
-        The type of the packet.
     game_message: str
         The decoded game message found in the packet.
     kvps: dict[str, str]
@@ -34,7 +32,7 @@ class GameMessagePacket(Packet):
     def __init__(self, data: Optional[Union[bytearray, bytes, enet.Packet]] = None) -> None:
         super().__init__(data)
 
-        self.type: PacketType = PacketType.GAME_MESSAGE
+        self._type: PacketType = PacketType.GAME_MESSAGE
         self.game_message: str = ""
         self.kvps: dict[str, str] = {}  # key value pairs
 
@@ -66,7 +64,7 @@ class GameMessagePacket(Packet):
             The serialised packet.
         """
 
-        self.data = bytearray(int.to_bytes(self.type, 4, "little"))
+        self.data = bytearray(int.to_bytes(self._type, 4, "little"))
         self.data += self.game_message.encode("utf-8") + (b"\n" if not self.game_message.endswith("\n") else b"")
 
         return self.data
@@ -104,12 +102,12 @@ class GameMessagePacket(Packet):
 
         type = PacketType(int.from_bytes(data[:4], "little"))
 
-        if self.type != PacketType.GAME_MESSAGE:
+        if self._type != PacketType.GAME_MESSAGE:
             ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
             self.__malformed = True
             return
 
-        self.type = type
+        self._type = type
         self.game_message = data[4:-1].decode("utf-8")
 
         if self.game_message.startswith("action"):

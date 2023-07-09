@@ -181,7 +181,7 @@ class PacketTypeDoesNotMatchContent(PacketException):
 
     def __init__(self, packet: "Packet"):
         error_name = "PacketTypeDoesNotMatchContent"
-        message = f"Packet type does not match content. Packet type: {packet.type}, packet type from content: {packet.data[:4]}"
+        message = f"Packet type does not match content. Packet type: {packet._type}, packet type from content: {packet.data[:4]}"
 
         super().__init__(
             error_name,

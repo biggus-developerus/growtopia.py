@@ -27,7 +27,7 @@ class Packet(ABC):
         The raw data of the packet.
     enet_packet: enet.Packet
         The enet.Packet object created from the raw data.
-    type: PacketType
+    _type: PacketType
         The type of the packet.
     text: str
         The text found in the text packet. This attribute is only available in the TextPacket class.
@@ -44,7 +44,7 @@ class Packet(ABC):
             data = data.data
 
         self.data: bytearray = bytearray(data or b"")
-        self.type: PacketType = PacketType(1)  # assume it's a HELLO packet
+        self._type: PacketType = PacketType(1)  # assume it's a HELLO packet
 
         self.text: str = ""
         self.game_message: str = ""
