@@ -3,6 +3,11 @@
 [![Discord server](https://discord.com/api/guilds/1009905646897999913/embed.png)](https://discord.gg/3RYSVwBCQC)
 [![PyPI version](https://img.shields.io/pypi/v/growtopia.py.svg?style=flat-square)](https://pypi.org/project/growtopia.py/)
 [![Python versions](https://img.shields.io/pypi/pyversions/growtopia.py.svg?style=flat-square)](https://pypi.org/project/growtopia.py/)
+![Tests](https://github.com/kajob-dev/growtopia.py/actions/workflows/test.yml/badge.svg)
+![Build](https://github.com/kajob-dev/growtopia.py/actions/workflows/build.yml/badge.svg)
+![Lint](https://github.com/kajob-dev/growtopia.py/actions/workflows/lint.yml/badge.svg)
+
+
 
 A simple asynchronous API for Growtopia, capable of creating servers, clients, and more!
 
