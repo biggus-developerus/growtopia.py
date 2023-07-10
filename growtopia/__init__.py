@@ -6,6 +6,8 @@ from .enums import *
 from .error_manager import *
 from .exceptions import *
 from .file import *
+from .game_client import *
+from .inventory import *
 from .item import *
 from .items_data import *
 from .listener import *
