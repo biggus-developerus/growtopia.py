@@ -29,7 +29,7 @@ class VariantType(IntEnum):
     An integer enumeration of all variant types.
     """
 
-    NONE = 0
+    NONETYPE = 0
     FLOAT = 1
     STR = 2
     VECTOR2 = 3
@@ -42,7 +42,7 @@ class VariantType(IntEnum):
 
     @classmethod
     def _missing_(cls, _):
-        return cls.NONE
+        return cls.NONETYPE
 
 
 class GameUpdatePacketFlags(IntEnum):
