@@ -18,10 +18,10 @@ from .protocol import (
 )
 
 
-class Client(Host, Dispatcher):
+class Client(Dispatcher):
     """
-    Represents a Growtopia game client. This class uses the Host class as base and extends its functionality.
-    This class can also be used as a base class for other types of clients (e.g proxy client (redirects packets to server)).
+    Represents a client.
+    This class can also be used as a base class for other types of clients (e.g game client, proxy client (redirects packets to server)).
 
     Parameters
     ----------
@@ -41,8 +41,7 @@ class Client(Host, Dispatcher):
     """
 
     def __init__(self, address: tuple[str, int], **kwargs) -> None:
-        Host.__init__(
-            self,
+        self._host = Host(
             None,
             kwargs.get("peer_count", 1),
             kwargs.get("channel_limit", 2),
@@ -51,12 +50,13 @@ class Client(Host, Dispatcher):
         )
         Dispatcher.__init__(self)
 
-        self.compress_with_range_coder()
-        self.checksum = enet.ENET_CRC32
+        self._host.compress_with_range_coder()
+        self._host.checksum = enet.ENET_CRC32
 
-        self.__address: tuple[str, int] = address
-        self.__peer: enet.Peer = None
-        self.__running: bool = False
+        self.running: bool = False
+
+        self._address: tuple[str, int] = address
+        self._peer: enet.Peer = None
 
     def connect(self) -> enet.Peer:
         """
@@ -67,8 +67,8 @@ class Client(Host, Dispatcher):
         enet.Peer
             The peer that was used to connect to the server.
         """
-        self.__peer = super().connect(enet.Address(*self.__address), 2, 0)
-        return self.__peer
+        self._peer = self._host.connect(enet.Address(*self._address), 2, 0)
+        return self._peer
 
     def disconnect(self, send_quit: bool = True) -> None:
         """
@@ -83,7 +83,7 @@ class Client(Host, Dispatcher):
         -------
         None
         """
-        if self.__peer is None:
+        if self._peer is None:
             return
 
         if send_quit:
@@ -92,15 +92,15 @@ class Client(Host, Dispatcher):
 
             self.send(packet=packet)
 
-        self.__peer.disconnect_now(0)
-        self.__peer = None
+        self._peer.disconnect_now(0)
+        self._peer = None
 
     def send(self, packet: Packet = None, data: bytes = None) -> None:
         if data is not None:
             packet = Packet(data)
 
-        if self.__peer is not None:
-            self.__peer.send(0, packet.enet_packet)
+        if self._peer is not None:
+            self._peer.send(0, packet.enet_packet)
 
     def start(self) -> None:
         """
@@ -110,7 +110,6 @@ class Client(Host, Dispatcher):
         -------
         None
         """
-        self.__running = True
         asyncio.run(self.run())
 
     def stop(self) -> None:
@@ -121,7 +120,7 @@ class Client(Host, Dispatcher):
         -------
         None
         """
-        self.__running = False
+        self.running = False
 
     async def run(self) -> None:
         """
@@ -132,14 +131,14 @@ class Client(Host, Dispatcher):
         None
         """
 
-        if self.__peer is None:
+        if self._peer is None:
             self.connect()
 
-        self.__running = True
+        self.running = True
         await self.dispatch_event(EventID.ON_READY, self)
 
-        while self.__running:
-            event = self.service(0, True)
+        while self.running:
+            event = self._host.service(0, True)
 
             if event is None:
                 await asyncio.sleep(0)
@@ -155,7 +154,7 @@ class Client(Host, Dispatcher):
 
             elif event.type == enet.EVENT_TYPE_DISCONNECT:
                 await self.dispatch_event(EventID.ON_DISCONNECT, context)
-                self.__running = False
+                self.running = False
 
             elif event.type == enet.EVENT_TYPE_RECEIVE:
                 if (type_ := Packet.get_type(event.packet.data)) == PacketType.HELLO:
@@ -167,8 +166,10 @@ class Client(Host, Dispatcher):
                 elif type_ == PacketType.GAME_UPDATE:
                     context.packet = GameUpdatePacket(event.packet.data)
 
+                event = context.packet.identify() if context.packet else EventID.ON_RECEIVE
+
                 if not await self.dispatch_event(
-                    context.packet.identify() if context.packet else EventID.ON_RECEIVE,
+                    event,
                     context,
                 ):
                     await self.dispatch_event(EventID.ON_UNHANDLED, context)
