@@ -237,6 +237,8 @@ class GameUpdatePacket(Packet):
                 "OnSuperMain" in name
             ):  # I don't like this too... but it's better than having the user write the entire name out 💀💀💀
                 return EventID.ON_SUPER_MAIN
+            elif "OnSendToServer" in name:
+                return EventID.ON_SEND_TO_SERVER
 
             return EventID(
                 "on_" + name
