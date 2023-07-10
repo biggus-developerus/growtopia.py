@@ -7,8 +7,6 @@
 ![Build](https://github.com/kajob-dev/growtopia.py/actions/workflows/build.yml/badge.svg)
 ![Lint](https://github.com/kajob-dev/growtopia.py/actions/workflows/lint.yml/badge.svg)
 
-
-
 A simple asynchronous API for Growtopia, capable of creating servers, clients, and more!
 
 ## Installation
