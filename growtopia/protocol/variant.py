@@ -12,7 +12,9 @@ class Variant:
         VariantType.UINT: lambda data: bytearray(data.to_bytes(4, "little")),
         VariantType.FLOAT: lambda data: bytearray(struct.pack("f", data)),
         VariantType.STR: lambda data: bytearray(len(data).to_bytes(4, "little") + data.encode()),
-        VariantType.NONE: lambda _: bytearray(),
+        VariantType.VECTOR2: lambda data: bytearray(struct.pack("ff", *data)),
+        VariantType.VECTOR3: lambda data: bytearray(struct.pack("fff", *data)),
+        VariantType.NONETYPE: lambda _: bytearray(),
     }
 
     _deserialisers = {
@@ -20,7 +22,9 @@ class Variant:
         VariantType.UINT: lambda data: int.from_bytes(data[:4], "little"),
         VariantType.FLOAT: lambda data: struct.unpack("f", data[:4])[0],
         VariantType.STR: lambda data: data[4 : int.from_bytes(data[:4], "little") + 4].decode(),
-        VariantType.NONE: lambda _: None,
+        VariantType.VECTOR2: lambda data: struct.unpack("ff", data[:8]),
+        VariantType.VECTOR3: lambda data: struct.unpack("fff", data[:12]),
+        VariantType.NONETYPE: lambda _: None,
     }
 
     def __init__(self, value: Union[str, int, float], type_: VariantType = None) -> None:
