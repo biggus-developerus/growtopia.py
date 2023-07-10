@@ -28,9 +28,11 @@ class EventID(str, Enum):
     ON_LOGIN_REQUEST = "on_login_request"
     ON_ACTION_QUIT = "on_quit"
     ON_DIALOG_RETURN = "on_dialog_return"
+    ON_PLAY_SFX = "on_play_sfx"
 
     # Call function events
     ON_SUPER_MAIN = "on_super_main"
+    ON_SEND_TO_SERVER = "on_send_to_server"
 
     # Update events
     ON_STATE_UPDATE = "on_state_update"
