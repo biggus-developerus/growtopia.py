@@ -29,10 +29,16 @@ class EventID(str, Enum):
     ON_ACTION_QUIT = "on_quit"
     ON_DIALOG_RETURN = "on_dialog_return"
     ON_PLAY_SFX = "on_play_sfx"
+    ON_LOG = "on_log"
+    ON_LOGON_FAIL = "on_logon_fail"
 
     # Call function events
-    ON_SUPER_MAIN = "on_super_main"
-    ON_SEND_TO_SERVER = "on_send_to_server"
+    OnSuperMain = "on_super_main"
+    OnSendToServer = "on_send_to_server"
+    OnConsoleMessage = "on_console_message"
+    OnTradeStatus = "on_trade_status"
+    OnDialogRequest = "on_dialog_request"
+    OnRequestWorldSelectMenu = "on_request_world_select_menu"
 
     # Update events
     ON_STATE_UPDATE = "on_state_update"

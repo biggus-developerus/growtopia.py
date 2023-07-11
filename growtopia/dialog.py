@@ -1,13 +1,14 @@
 __all__ = (
     "Dialog",
     "DialogElement",
+    "DialogReturn",
 )
 
 import asyncio
 from typing import Callable
 
 from .listener import Listener
-from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
+from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList, TextPacket
 
 
 class DialogElement:
@@ -95,6 +96,20 @@ class Dialog:
 
         self.__has_ending: bool = False
 
+    @classmethod
+    def from_string(cls, data: str) -> "Dialog":
+        """ """
+        dialog = cls("unknown")
+
+        for element in data.split("\n"):
+            if "end_dialog" in element:
+                dialog.__has_ending = True
+                dialog.name = element.split("|")[1]
+
+            dialog.elements.append(element)
+
+        return dialog
+
     def add_elements(self, *elements: str) -> None:
         """
         Adds an element to the dialog.
@@ -110,6 +125,7 @@ class Dialog:
                     raise ValueError("Dialog already has an ending.")
 
                 self.__has_ending = True
+                self.name = element.split("|")[1]
 
             self.elements.append(element)
 
@@ -169,3 +185,39 @@ class Dialog:
 
     def __len__(self) -> int:
         return len(self.dialog)
+
+
+class DialogReturn:
+    """
+    This class is used to structure a dialog that's being returned to the server
+
+    Parameters
+    ----------
+    dialog: Dialog
+        The dialog that's being returned.
+
+    Attributes
+    ----------
+    dialog: Dialog
+        The dialog that's being returned.
+    filled_elements: list[str]
+        The elements that have been filled.
+    packet: TextPacket
+        The packet that can be sent to the server to return the dialog.
+    """
+
+    # TODO: Add more elements that can be filled (e.g input, checkbox, etc.)
+
+    def __init__(self, dialog: Dialog) -> None:
+        self.dialog: Dialog = dialog
+        self.filled_elements: list[str] = []
+
+    def add_button_clicked(self, button_name: str) -> None:
+        self.filled_elements.append(f"buttonClicked|{button_name}")
+
+    @property
+    def packet(self) -> TextPacket:
+        packet = TextPacket()
+        packet.text = f"action|dialog_return\ndialog_name|{self.dialog.name}\n" + "\n".join(self.filled_elements)
+
+        return packet

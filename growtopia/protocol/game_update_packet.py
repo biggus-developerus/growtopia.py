@@ -236,12 +236,8 @@ class GameUpdatePacket(Packet):
             if (
                 "OnSuperMain" in name
             ):  # I don't like this too... but it's better than having the user write the entire name out 💀💀💀
-                return EventID.ON_SUPER_MAIN
-            elif "OnSendToServer" in name:
-                return EventID.ON_SEND_TO_SERVER
+                return EventID.OnSuperMain
 
-            return EventID(
-                "on_" + name
-            )  # We'd prolly have to convert the function's name from PascalCase to snake_case 😤😤😤
+            return EventID.__members__.get(name, EventID.ON_UNHANDLED)
 
         return EventID("on_" + self.update_type.name.lower())

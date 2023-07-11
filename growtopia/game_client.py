@@ -102,7 +102,7 @@ class GameClient(Client):
 
                 event = context.packet.identify() if context.packet else EventID.ON_RECEIVE
 
-                if event == EventID.ON_SEND_TO_SERVER:
+                if event == EventID.OnSendToServer:
                     variant_list = context.packet.get_variant_list()
                     port, user, token, string, lmode = (
                         variant_list[1].value,
@@ -134,7 +134,7 @@ class GameClient(Client):
                     self.connect()
 
                 elif event == EventID.ON_SEND_INVENTORY_STATE:
-                    self.inventory = Inventory.from_bytes(context.packet.data)
+                    self.inventory = Inventory.from_bytes(context.packet.extra_data)
 
                 if not await self.dispatch_event(
                     event,
