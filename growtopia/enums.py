@@ -39,6 +39,7 @@ class EventID(str, Enum):
     OnTradeStatus = "on_trade_status"
     OnDialogRequest = "on_dialog_request"
     OnRequestWorldSelectMenu = "on_request_world_select_menu"
+    OnForceTradeEnd = "on_force_trade_end"
 
     # Update events
     ON_STATE_UPDATE = "on_state_update"
