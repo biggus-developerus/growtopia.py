@@ -87,10 +87,17 @@ class Client(Dispatcher):
             return
 
         if send_quit:
+            packet = TextPacket()
+            packet.text = "action|quit_to_exit\n"
+
+            self.send(packet=packet)
+
             packet = GameMessagePacket()
             packet.game_message = "action|quit\n"
 
             self.send(packet=packet)
+
+            self.running = False
 
         self._peer.disconnect_now(0)
         self._peer = None
