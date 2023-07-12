@@ -104,7 +104,7 @@ class GameClient(Client):
 
                 if event == EventID.OnSendToServer:
                     variant_list = context.packet.get_variant_list()
-                    port, user, token, string, lmode = (
+                    port, token, user, string, lmode = (
                         variant_list[1].value,
                         variant_list[2].value,
                         variant_list[3].value,

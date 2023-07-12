@@ -49,8 +49,8 @@ class InventoryItem:
         item = cls()
 
         item.id = int.from_bytes(data[0:2], "little")
-        item.count = data[3]
-        item.equipped = data[4]
+        item.count = int.from_bytes(data[2:3], "little")
+        item.equipped = bool.from_bytes(data[3:4], "little")
 
         return item
 
