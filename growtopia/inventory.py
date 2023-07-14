@@ -77,7 +77,7 @@ class Inventory:
     def __init__(self) -> None:
         self.version: int = 0  # uint8
         self.slots: int = 0  # uint32
-        self.item_count: int = 0  # uint16
+        self.item_count: int = 0  # uint8
 
         self.items: list[InventoryItem] = []
 
@@ -101,9 +101,9 @@ class Inventory:
 
         inventory.version = data[0]
         inventory.slots = int.from_bytes(data[1:5], "little")
-        inventory.item_count = int.from_bytes(data[5:7], "little")
+        inventory.item_count = int.from_bytes(data[5:6], "little")
 
-        offset = 7
+        offset = 6
 
         for _ in range(inventory.item_count):
             item = InventoryItem.from_bytes(data[offset : offset + 4])
