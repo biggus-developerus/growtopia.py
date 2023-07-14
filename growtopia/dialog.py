@@ -5,7 +5,7 @@ __all__ = (
 )
 
 import asyncio
-from typing import Callable
+from typing import Callable, Any
 
 from .listener import Listener
 from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList, TextPacket
@@ -214,6 +214,9 @@ class DialogReturn:
 
     def add_button_clicked(self, button_name: str) -> None:
         self.filled_elements.append(f"buttonClicked|{button_name}")
+
+    def add_text_input(self, text_input_name: str, value: Any) -> None:
+        self.filled_elements.append(f"{text_input_name}|{value}")
 
     @property
     def packet(self) -> TextPacket:
