@@ -5,10 +5,10 @@ __all__ = (
 )
 
 import asyncio
-from typing import Callable, Any
+from typing import Any, Callable
 
 from .listener import Listener
-from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList, TextPacket
+from .protocol import GameUpdatePacket, GameUpdatePacketType, TextPacket, VariantList
 
 
 class DialogElement:
@@ -98,7 +98,6 @@ class Dialog:
 
     @classmethod
     def from_string(cls, data: str) -> "Dialog":
-        """ """
         dialog = cls("unknown")
 
         for element in data.split("\n"):
@@ -167,12 +166,13 @@ class Dialog:
 
     @property
     def packet(self) -> GameUpdatePacket:
-        packet = GameUpdatePacket()
-
-        packet.update_type = GameUpdatePacketType.CALL_FUNCTION
-        packet.set_variant_list(VariantList("OnDialogRequest", self.dialog))
-
-        return packet
+        return GameUpdatePacket(
+            update_type=GameUpdatePacketType.CALL_FUNCTION,
+            variant_list=VariantList(
+                "OnDialogRequest",
+                self.dialog,
+            ),
+        )
 
     def encode(self) -> bytes:
         """
@@ -220,7 +220,4 @@ class DialogReturn:
 
     @property
     def packet(self) -> TextPacket:
-        packet = TextPacket()
-        packet.text = f"action|dialog_return\ndialog_name|{self.dialog.name}\n" + "\n".join(self.filled_elements)
-
-        return packet
+        return TextPacket(f"action|dialog_return\ndialog_name|{self.dialog.name}\n" + "\n".join(self.filled_elements))
