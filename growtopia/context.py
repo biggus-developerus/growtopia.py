@@ -1,20 +1,24 @@
-__all__ = ("Context",)
+__all__ = (
+    "Context",
+    "ServerContext",
+    "ClientContext",
+)
 
 from typing import TYPE_CHECKING, Optional, Union
 
 import enet
 
 if TYPE_CHECKING:
-    from .client import Client
+    from .clients import Client, GameClient
     from .player import Player
     from .protocol import (
         GameMessagePacket,
         GameUpdatePacket,
         HelloPacket,
-        Packet,
+        StrPacket,
         TextPacket,
     )
-    from .server import Server
+    from .servers import Server
 
 
 class Context:
@@ -30,26 +34,42 @@ class Context:
         The player that emitted the event.
     enet_event: Optional[:class:`Event`]
         The event that was emitted.
-    packet: Optional[Union["Packet","GameUpdatePacket","GameMessagePacket","TextPacket","HelloPacket"]
+    packet: Optional[Union["StrPacket","GameUpdatePacket","GameMessagePacket","TextPacket","HelloPacket"]
         The packet that was emitted.
     """
 
     def __init__(self) -> None:
-        # Servers (main game server, login server, proxy server, etc.)
-        self.server: Optional["Server"] = None
-
-        # Clients (main game client, proxy client, etc.)
-        self.client: Optional["Client"] = None
-
-        # Other objects (Player, World, enet.Event, etc.)
-        self.player: Optional["Player"] = None
         self.enet_event: Optional[enet.Event] = None
         self.packet: Optional[
             Union[
-                "Packet",
+                "StrPacket",
                 "GameUpdatePacket",
                 "GameMessagePacket",
                 "TextPacket",
                 "HelloPacket",
             ]
         ] = None
+
+
+class ClientContext(Context):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.client: Optional[Union["Client", "GameClient"]] = None
+
+    def reply(self, packet: Union["StrPacket", "GameUpdatePacket", "HelloPacket"]) -> bool:
+        return self.client.send(packet)
+
+
+class ServerContext(Context):
+    def __init__(self) -> None:
+        super().__init__()
+
+        self.server: Optional["Server"] = None
+        self.player: Optional["Player"] = None
+
+    def reply(self, packet: Union["StrPacket", "GameUpdatePacket", "HelloPacket"]) -> bool:
+        return self.player.send(packet)
+
+    def send_osm(self) -> bool:
+        ...
