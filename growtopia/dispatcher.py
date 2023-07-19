@@ -5,7 +5,7 @@ import inspect
 from importlib.machinery import ModuleSpec
 from importlib.util import module_from_spec, spec_from_file_location
 from types import ModuleType
-from typing import Coroutine
+from typing import Coroutine, Optional
 
 from .collection import Collection
 from .dialog import Dialog
@@ -111,6 +111,22 @@ class Dispatcher:
         """
         dialog = dialog(*args, **kwargs) if isinstance(dialog, type) else dialog  # check if the class is instantiated
         self.dialogs[dialog.name] = dialog
+
+    def get_dialog(self, name: str) -> Optional[Dialog]:
+        """
+        Retreives a dialog from the dialogs dictionary.
+
+        Parameters
+        ----------
+        name: str
+            The name of the dialog to retrieve.
+
+        Returns
+        -------
+        Optional[Dialog]
+            The Dialog object that was retrieved, or None if nothing was found.
+        """
+        return self.dialogs.get(name, None)
 
     def unregister_dialog(self, dialog_name: str) -> None:
         """
@@ -244,12 +260,12 @@ class Dispatcher:
         if listener is None:
             return False
 
-        await listener(*args, **kwargs)
+        asyncio.get_event_loop().create_task(listener(*args, **kwargs))
         return True
 
     async def dispatch_dialog_return(self, dialog_name: str, button_name: str, *args, **kwargs) -> bool:
         """
-        Dispatches a dialog return event to a ButtonListener or Listener object.
+        Dispatches a dialog return event to a Listener object.
 
         Parameters
         ----------
@@ -273,5 +289,5 @@ class Dispatcher:
         if listener is None:
             return False
 
-        await listener(*args, **kwargs)
+        asyncio.get_event_loop().create_task(listener(*args, **kwargs))
         return True
