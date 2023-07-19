@@ -12,18 +12,18 @@ class InventoryItem:
     Represents an inventory item.
     """
 
-    id: int = 0  # uint16
-    count: int = 0  # uint8
-    equipped: bool = False  # uint8
+    id: int = 0
+    count: int = 0
+    equipped: bool = False
 
-    def to_bytes(self) -> bytearray:
+    def serialise(self) -> bytearray:
         """
-        Converts the inventory item to bytes.
+        Serialises the inventory item.
 
         Returns
         -------
         bytearray
-            The converted inventory item.
+            The serialised inventory item.
         """
 
         return bytearray(
@@ -53,20 +53,6 @@ class InventoryItem:
         item.equipped = bool.from_bytes(data[3:4], "little")
 
         return item
-
-    def to_bytes(self) -> bytearray:
-        """
-        Converts the inventory item to bytes.
-
-        Returns
-        -------
-        bytearray
-            The converted inventory item.
-        """
-
-        return bytearray(
-            self.id.to_bytes(2, "little") + self.count.to_bytes(1, "little") + self.equipped.to_bytes(1, "little")
-        )
 
 
 class Inventory:
@@ -113,14 +99,14 @@ class Inventory:
 
         return inventory
 
-    def to_bytes(self) -> bytearray:
+    def serialise(self) -> bytearray:
         """
-        Converts the inventory to bytes.
+        Serialises the inventory.
 
         Returns
         -------
         bytearray
-            The converted inventory.
+            The serialised inventory.
         """
 
         data = bytearray(self.version.to_bytes(1, "little"))
@@ -128,6 +114,6 @@ class Inventory:
         data += bytearray(self.item_count.to_bytes(2, "little"))
 
         for item in self.items:
-            data += item.to_bytes()
+            data += item.serialise()
 
         return data
