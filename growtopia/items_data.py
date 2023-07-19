@@ -4,6 +4,7 @@ from functools import lru_cache
 from typing import Optional, Union
 
 from .constants import ignored_attributes
+from .error_manager import ErrorManager
 from .exceptions import UnsupportedItemsData
 from .file import File
 from .item import Item
@@ -125,7 +126,7 @@ class ItemsData(File):
         self.item_count = int.from_bytes(data[2:6], "little")
 
         if self.version not in list(ignored_attributes.keys()):
-            raise UnsupportedItemsData(self)
+            ErrorManager._raise_exception(UnsupportedItemsData(self))
 
         for _ in range(self.item_count):
             item = Item()
