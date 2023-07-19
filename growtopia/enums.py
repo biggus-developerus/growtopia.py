@@ -13,6 +13,7 @@ class EventID(str, Enum):
     """
 
     # General events (not related to ENet / Growtopia)
+    ON_UNKNOWN = "on_unknown"
     ON_UNHANDLED = "on_unhandled"
     ON_CLEANUP = "on_cleanup"
     ON_READY = "on_ready"
@@ -85,7 +86,7 @@ class EventID(str, Enum):
 
     @classmethod
     def _missing_(cls, _: object) -> Any:
-        return cls("on_unhandled")
+        return cls("on_unknown")
 
 
 class Colour(str, Enum):
