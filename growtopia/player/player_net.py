@@ -4,7 +4,16 @@ from typing import Optional, Union
 
 import enet
 
-from ..protocol import GameMessagePacket, Packet, TextPacket
+from ..protocol import (
+    GameMessagePacket,
+    GameUpdatePacket,
+    GameUpdatePacketType,
+    HelloPacket,
+    StrPacket,
+    VariantList,
+)
+
+from ..dialog import Dialog
 
 
 class PlayerNet:
@@ -20,55 +29,107 @@ class PlayerNet:
     ----------
     peer: enet.Peer
         The peer object of the player.
-    last_packet_sent: None
+    last_packet_sent: Union[StrPacket, GameUpdatePacket]
         The last packet that was sent to the player.
-    last_packet_received: None
+    last_packet_received: Union[StrPacket, GameUpdatePacket]
         The last packet that was received from the player.
     """
 
     def __init__(self, peer: enet.Peer) -> None:
         self.peer: enet.Peer = peer
 
-        self.last_packet_sent: Optional[Packet] = None
-        self.last_packet_received: Optional[Packet] = None
+        self.last_packet_sent: Optional[Union[StrPacket, GameUpdatePacket]] = None
+        self.last_packet_received: Optional[Union[StrPacket, GameUpdatePacket]] = None
 
     def _send(
         self, data: bytes = None, flags: int = enet.PACKET_FLAG_RELIABLE, enet_packet: enet.Packet = None
-    ) -> None:
+    ) -> bool:
         if not data and not enet_packet:
             raise ValueError("No data or packet was passed.")
 
-        self.peer.send(0, enet_packet or enet.Packet(data, flags))
+        return (
+            True
+            if self.peer.send(0, enet_packet or enet.Packet(data, flags or enet.PACKET_FLAG_RELIABLE)) == 0
+            else False
+        )
 
-    def send_packet(self, packet: Packet) -> None:
+    def send(self, packet: Union[StrPacket, GameUpdatePacket, HelloPacket]) -> bool:
         """
         Sends a packet to the player.
 
         Parameters
         ----------
-        packet: Packet | Any subclass of Packet
+        packet: Union[StrPacket, GameUpdatePacket, HelloPacket]
             The packet to send to the player.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
         """
-        if not isinstance(packet, Packet):
+        if not isinstance(packet, (StrPacket, GameUpdatePacket, HelloPacket)):
             raise TypeError("Invalid packet type passed.")
 
-        self._send(enet_packet=packet.enet_packet)
-        self.last_packet_sent = packet
+        if self._send(enet_packet=packet.enet_packet):
+            self.last_packet_sent = packet
+            return True
 
-    def send_log(self, text: str) -> None:
+        return False
+
+    def send_log(self, message: str) -> bool:
         """
-        Sends a log message to the player.
+        Logs a message to the player.
 
         Parameters
         ----------
-        text: str
-            The text to send to the player.
-        """
-        packet = GameMessagePacket()
-        packet.game_message = "action|log\nmsg|" + text
+        message: str
+            The message to log to the player.
 
-        self._send(enet_packet=packet.enet_packet)
-        self.last_packet_sent = packet
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+        return self.send(GameMessagePacket(f"action|log\nmsg|{message}").enet_packet)
+
+    def reject_login(self, *args) -> bool:
+        ...
+
+    def on_console_message(self, message: str) -> bool:
+        """
+        Sends a console message to the player.
+
+        Parameters
+        ----------
+        message: str
+            The console message.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+        return self.send(
+            GameUpdatePacket(
+                update_type=GameUpdatePacketType.CALL_FUNCTION,
+                variant_list=VariantList("OnConsoleMessage", message),
+            )
+        )
+
+    # SOON!!!!
+
+    def on_super_main(self, *args) -> bool:
+        raise NotImplementedError
+
+    def on_send_to_server(self, *args) -> bool:
+        raise NotImplementedError
+
+    def on_dialog_request(self, dialog: Dialog) -> bool:
+        raise NotImplementedError
+
+    def on_request_world_select_menu(self, *args) -> bool:
+        # TODO: new helper class, WorldSelectMenu 🤯🤯🤯🤯
+        raise NotImplementedError
 
     def disconnect(self, text: Optional[str] = None) -> None:
         """
