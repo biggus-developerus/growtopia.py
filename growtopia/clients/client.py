@@ -1,6 +1,7 @@
 __all__ = ("Client",)
 
 import asyncio
+from abc import ABC, abstractmethod
 from typing import Union
 
 import enet
@@ -12,14 +13,12 @@ from ..protocol import (
     GameMessagePacket,
     GameUpdatePacket,
     HelloPacket,
-    Packet,
-    PacketType,
     StrPacket,
     TextPacket,
 )
 
 
-class Client(Dispatcher):
+class Client(Dispatcher, ABC):
     """
     Represents a client.
     This class can also be used as a base class for other types of clients (e.g game client, proxy client (redirects packets to server)).
@@ -141,7 +140,6 @@ class Client(Dispatcher):
         -------
         None
         """
-
         if self._peer is None:
             self.connect()
 
@@ -159,33 +157,18 @@ class Client(Dispatcher):
             context.client = self
             context.enet_event = event
 
-            if event.type == enet.EVENT_TYPE_CONNECT:
-                await self.dispatch_event(EventID.ON_CONNECT, context)
-                continue
+            res = await self._handle_event(context)
 
-            elif event.type == enet.EVENT_TYPE_DISCONNECT:
-                await self.dispatch_event(EventID.ON_DISCONNECT, context)
-                self.running = False
-
-            elif event.type == enet.EVENT_TYPE_RECEIVE:
-                if (type_ := Packet.get_type(event.packet.data)) == PacketType.HELLO:
-                    context.packet = HelloPacket.from_bytes(event.packet.data)
-                elif type_ == PacketType.TEXT:
-                    context.packet = TextPacket.from_bytes(event.packet.data)
-                elif type_ == PacketType.GAME_MESSAGE:
-                    context.packet = GameMessagePacket.from_bytes(event.packet.data)
-                elif type_ == PacketType.GAME_UPDATE:
-                    context.packet = GameUpdatePacket.from_bytes(event.packet.data)
-
-                event = context.packet.identify() if context.packet else EventID.ON_RECEIVE
-
-                if not await self.dispatch_event(
-                    event,
-                    context,
-                ):
-                    await self.dispatch_event(EventID.ON_UNHANDLED, context)
+            if not res:
+                await self.dispatch_event(
+                    EventID.ON_UNHANDLED, context
+                )  # dispatch the ON_UNHANDLED event if the packet isn't handled by the user but recognised by growtopia.py
 
         await self.dispatch_event(
             EventID.ON_CLEANUP,
             context,
         )
+
+    @abstractmethod
+    async def _handle_event(self, context: ClientContext) -> None:
+        ...
