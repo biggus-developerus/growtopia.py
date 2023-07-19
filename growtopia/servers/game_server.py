@@ -1,7 +1,5 @@
 __all__ = ("GameServer",)
 
-import asyncio
-
 import enet
 
 from growtopia.context import ServerContext
@@ -11,12 +9,10 @@ from ..player import PlayerLoginInfo
 from ..protocol import (
     GameMessagePacket,
     GameUpdatePacket,
-    GameUpdatePacketType,
     HelloPacket,
     Packet,
     PacketType,
     TextPacket,
-    VariantList,
 )
 from .server import Server
 

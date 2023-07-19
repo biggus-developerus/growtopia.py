@@ -3,8 +3,6 @@ __all__ = ("GameUpdatePacket",)
 import struct
 from typing import Optional
 
-import enet
-
 from ..enums import EventID
 from ..error_manager import ErrorManager
 from ..exceptions import PacketTooSmall, PacketTypeDoesNotMatchContent

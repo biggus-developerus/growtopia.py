@@ -4,6 +4,7 @@ from typing import Optional, Union
 
 import enet
 
+from ..dialog import Dialog
 from ..protocol import (
     GameMessagePacket,
     GameUpdatePacket,
@@ -12,8 +13,6 @@ from ..protocol import (
     StrPacket,
     VariantList,
 )
-
-from ..dialog import Dialog
 
 
 class PlayerNet:
