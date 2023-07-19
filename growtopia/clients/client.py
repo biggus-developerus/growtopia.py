@@ -1,19 +1,20 @@
 __all__ = ("Client",)
 
 import asyncio
+from typing import Union
 
 import enet
 
-from .context import Context
-from .dispatcher import Dispatcher
-from .enums import EventID
-from .host import Host
-from .protocol import (
+from ..context import ClientContext
+from ..dispatcher import Dispatcher
+from ..enums import EventID
+from ..protocol import (
     GameMessagePacket,
     GameUpdatePacket,
     HelloPacket,
     Packet,
     PacketType,
+    StrPacket,
     TextPacket,
 )
 
@@ -41,7 +42,7 @@ class Client(Dispatcher):
     """
 
     def __init__(self, address: tuple[str, int], **kwargs) -> None:
-        self._host = Host(
+        self._host = enet.Host(
             None,
             kwargs.get("peer_count", 1),
             kwargs.get("channel_limit", 2),
@@ -87,27 +88,30 @@ class Client(Dispatcher):
             return
 
         if send_quit:
-            packet = TextPacket()
-            packet.text = "action|quit_to_exit\n"
-
-            self.send(packet=packet)
-
-            packet = GameMessagePacket()
-            packet.game_message = "action|quit\n"
-
-            self.send(packet=packet)
+            self.send(packet=TextPacket("action|quit_to_exit\n"))
+            self.send(packet=GameMessagePacket("action|quit\n"))
 
             self.running = False
 
         self._peer.disconnect_now(0)
         self._peer = None
 
-    def send(self, packet: Packet = None, data: bytes = None) -> None:
-        if data is not None:
-            packet = Packet(data)
+    def send(self, packet: Union[StrPacket, GameUpdatePacket, HelloPacket]) -> bool:
+        """
+        Sends a packet to the host.
 
+        Parameters
+        ----------
+        packet: Union[StrPacket, GameUpdatePacket, HelloPacket]
+            The packet to send to the host.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
         if self._peer is not None:
-            self._peer.send(0, packet.enet_packet)
+            return True if self._peer.send(0, packet.enet_packet) == 0 else False
 
     def start(self) -> None:
         """
@@ -151,7 +155,7 @@ class Client(Dispatcher):
                 await asyncio.sleep(0)
                 continue
 
-            context = Context()
+            context = ClientContext()
             context.client = self
             context.enet_event = event
 
@@ -165,13 +169,13 @@ class Client(Dispatcher):
 
             elif event.type == enet.EVENT_TYPE_RECEIVE:
                 if (type_ := Packet.get_type(event.packet.data)) == PacketType.HELLO:
-                    context.packet = HelloPacket(event.packet.data)
+                    context.packet = HelloPacket.from_bytes(event.packet.data)
                 elif type_ == PacketType.TEXT:
-                    context.packet = TextPacket(event.packet.data)
+                    context.packet = TextPacket.from_bytes(event.packet.data)
                 elif type_ == PacketType.GAME_MESSAGE:
-                    context.packet = GameMessagePacket(event.packet.data)
+                    context.packet = GameMessagePacket.from_bytes(event.packet.data)
                 elif type_ == PacketType.GAME_UPDATE:
-                    context.packet = GameUpdatePacket(event.packet.data)
+                    context.packet = GameUpdatePacket.from_bytes(event.packet.data)
 
                 event = context.packet.identify() if context.packet else EventID.ON_RECEIVE
 
