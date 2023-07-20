@@ -22,12 +22,12 @@ class VariantList:
         The serialised data. This is updated every time a Variant object is appended.
     """
 
-    def __init__(self, *variants: Union[str, int, float]) -> None:
+    def __init__(self, *variants: Union[str, int, float, Variant]) -> None:
         self.variants: list[Variant] = []
         self.data = bytearray([0])
 
         for variant in variants:
-            self.append(Variant(variant))
+            self.append(Variant(variant) if not isinstance(variant, Variant) else variant)
 
     def get(self, index: int) -> Optional[Variant]:
         return self.variants[index] if index < len(self.variants) else None
