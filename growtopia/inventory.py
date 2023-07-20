@@ -10,6 +10,15 @@ from dataclasses import dataclass
 class InventoryItem:
     """
     Represents an inventory item.
+
+    Attributes
+    ----------
+    id: int
+        The id of the item.
+    count: int
+        The count of the item.
+    equipped: bool
+        Whether the item's equipped or not.
     """
 
     id: int = 0
@@ -58,6 +67,16 @@ class InventoryItem:
 class Inventory:
     """
     Represents a client's inventory (set upon emitting ON_SEND_INVENTORY_STATE).
+
+    Attributes
+    ----------
+    version: int
+        The version of the inventory format.
+    slots: int
+        Represents the slots in the inventory (count).
+    item_count: int
+
+
     """
 
     def __init__(self) -> None:
@@ -66,6 +85,25 @@ class Inventory:
         self.item_count: int = 0  # uint8
 
         self.items: list[InventoryItem] = []
+
+    def serialise(self) -> bytearray:
+        """
+        Serialises the inventory.
+
+        Returns
+        -------
+        bytearray
+            The serialised inventory.
+        """
+
+        data = bytearray(self.version.to_bytes(1, "little"))
+        data += bytearray(self.slots.to_bytes(4, "little"))
+        data += bytearray(self.item_count.to_bytes(2, "little"))
+
+        for item in self.items:
+            data += item.serialise()
+
+        return data
 
     @classmethod
     def from_bytes(cls, data: bytearray) -> "Inventory":
@@ -98,22 +136,3 @@ class Inventory:
             offset += 4
 
         return inventory
-
-    def serialise(self) -> bytearray:
-        """
-        Serialises the inventory.
-
-        Returns
-        -------
-        bytearray
-            The serialised inventory.
-        """
-
-        data = bytearray(self.version.to_bytes(1, "little"))
-        data += bytearray(self.slots.to_bytes(4, "little"))
-        data += bytearray(self.item_count.to_bytes(2, "little"))
-
-        for item in self.items:
-            data += item.serialise()
-
-        return data
