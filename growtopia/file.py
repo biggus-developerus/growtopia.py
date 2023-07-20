@@ -12,8 +12,8 @@ class File:
 
     Parameters
     ----------
-    data: Union[str, bytes, BinaryIO]
-        The data to keep hold of, can be a path to the file, bytes, or a file-like object.
+    data: Union[str, bytes]
+        The data to keep hold of, can be a path to the file or bytes.
 
     Attributes
     ----------

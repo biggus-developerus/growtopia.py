@@ -42,7 +42,7 @@ class PlayerTribute(File):
 
     async def parse(self) -> None:
         """
-        Parses the contents passed into the initialiser.
+        Parses the file's contents.
 
         Returns
         -------
