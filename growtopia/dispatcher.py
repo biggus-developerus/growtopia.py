@@ -26,6 +26,8 @@ class Dispatcher:
         A dictionary that keeps track of all collections. Collection names are used as keys and Collection objects are used as values.
     extensions: dict[str, ModuleType]
         A dictionary that keeps track of all extensions. Module names are used as keys and ModuleType objects are used as values.
+    dialogs: dict[str, Dialog]
+        A dictionary that keeps track of all dialogs. Dialog names are used as keys and Dialog objects are used as values.
     """
 
     def __init__(self) -> None:
