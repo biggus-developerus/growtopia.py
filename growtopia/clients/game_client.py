@@ -44,13 +44,23 @@ class GameClient(Client):
         self.login_info: PlayerLoginInfo = login_info
         self.inventory: Inventory = Inventory()
 
-        # these attributes will be used when creating a new host (OnSendToServer)
-        self.__peer_count = kwargs.get("peer_count", 1)
-        self.__channel_limit = kwargs.get("channel_limit", 2)
-        self.__incoming_bandwidth = kwargs.get("incoming_bandwidth", 0)
-        self.__outgoing_bandwidth = kwargs.get("outgoing_bandwidth", 0)
+    async def send_to_server(self, port: int, token: int, user: int, string: str, lmode: bool) -> None:
+        """
+        Sends the client to a sub server.
 
-    async def send_to_server(self, port: int, token, user, string: str, lmode) -> None:
+        Parameters
+        ----------
+        port: int
+            The port of the sub server
+        token: int
+            The token that the client will be using for authentication (will be set in the login packet)
+        user: int
+            The user that the client will be using for authentication (will be set in the login packet)
+        string: str
+            The string is made up of 3 value pairs. (host|doorid|uuidtoken)
+        lmode: bool
+            Is the client being sent to this sub server whilst being in a world or not.
+        """
         self.login_info.UUIDToken = (split_str := string.split("|"))[-1]
         self.login_info.token = token
         self.login_info.lmode = lmode
@@ -61,10 +71,10 @@ class GameClient(Client):
 
         self._host = enet.Host(
             None,
-            self.__peer_count,
-            self.__channel_limit,
-            self.__incoming_bandwidth,
-            self.__outgoing_bandwidth,
+            self._host.peerCount,
+            self._host.channelLimit,
+            self._host.incomingBandwidth,
+            self._host.outgoingBandwidth,
         )
 
         self._host.compress_with_range_coder()
