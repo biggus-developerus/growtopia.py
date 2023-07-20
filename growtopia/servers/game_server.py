@@ -2,8 +2,8 @@ __all__ = ("GameServer",)
 
 import enet
 
-from growtopia.context import ServerContext
-from growtopia.enums import EventID
+from ..context import ServerContext
+from ..enums import EventID
 
 from ..player import PlayerLoginInfo
 from ..protocol import (
