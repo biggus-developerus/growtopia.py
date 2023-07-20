@@ -14,6 +14,26 @@ from ..protocol import (
 
 
 class ClientNet:
+    """
+    Helper class that provides net methods for the Client class.
+
+    Parameters
+    ----------
+    address: tuple[str, int]
+        The address that'll be used to connect the peer to. (host:port)
+
+    Kwargs
+    ------
+    peer_count: int
+        The maximum amount of peers that can connect to the server.
+    channel_limit: int
+        The maximum amount of channels that can be used.
+    incoming_bandwidth: int
+        The maximum incoming bandwidth.
+    outgoing_bandwidth: int
+        The maximum outgoing bandwidth.
+    """
+
     def __init__(
         self,
         address: tuple[str, int],
