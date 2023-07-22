@@ -44,7 +44,7 @@ class GameClient(Client):
         self.login_info: PlayerLoginInfo = login_info
         self.inventory: Inventory = Inventory()
 
-    async def send_to_server(self, port: int, token: int, user: int, string: str, lmode: bool) -> None:
+    def send_to_server(self, port: int, token: int, user: int, string: str, lmode: bool) -> None:
         """
         Sends the client to a sub server.
 
