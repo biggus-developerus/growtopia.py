@@ -31,3 +31,4 @@ class Player(PlayerNet):
         super().__init__(peer)
 
         self.login_info: PlayerLoginInfo = PlayerLoginInfo()
+        self.guest: bool = False

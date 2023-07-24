@@ -4,7 +4,6 @@ import enet
 
 from ..context import ServerContext
 from ..enums import EventID
-
 from ..player import PlayerLoginInfo
 from ..protocol import (
     GameMessagePacket,
@@ -61,6 +60,9 @@ class GameServer(Server):
 
             if event == EventID.ON_LOGIN_REQUEST:
                 context.player.login_info = PlayerLoginInfo(**context.packet.kvps)
+
+                if not context.player.login_info.tankIDName and not context.player.login_info.tankIDPass:
+                    context.player.guest = True
 
                 # I'd make it so that we send the OSM internally too, just like the hello packet.. but that might tamper with the API user's setup.
                 # E.g the API user might have to send an asynchronous request to fetch the player's data and blah blah blah, if we send the OSM
