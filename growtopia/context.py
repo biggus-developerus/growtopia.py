@@ -10,7 +10,9 @@ import enet
 
 if TYPE_CHECKING:
     from .clients import Client, GameClient
+    from .items_data import ItemsData
     from .player import Player
+    from .player_tribute import PlayerTribute
     from .protocol import (
         GameMessagePacket,
         GameUpdatePacket,
@@ -69,7 +71,17 @@ class ServerContext(Context):
         self.player: Optional["Player"] = None
 
     def reply(self, packet: Union["StrPacket", "GameUpdatePacket", "HelloPacket"]) -> bool:
-        return self.player.send(packet)
+        """
+        Replies to the player with a packet.
 
-    def send_osm(self) -> bool:
-        ...
+        Parameters
+        ----------
+        packet: Union[`StrPacket`, `GameUpdatePacket`, `HelloPacket`]
+            The packet to reply with.
+
+        Returns
+        -------
+        bool
+            Whether the packet was sent successfully.
+        """
+        return self.player.send(packet)
