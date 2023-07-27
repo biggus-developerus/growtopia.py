@@ -8,6 +8,7 @@ from .error_manager import ErrorManager
 from .exceptions import UnsupportedItemsData
 from .file import File
 from .item import Item
+from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
 
 
 class ItemsData(File):
@@ -266,3 +267,24 @@ class ItemsData(File):
         >>> items.get_contains("dirt")
         """
         return [item for item in self.items if val.lower() in item.name.lower()]
+
+    @property
+    def packet(self) -> GameUpdatePacket:
+        """
+        Returns the packet that should be sent to the client when it requests for the items.dat file.
+
+        Returns
+        -------
+        GameUpdatePacket
+            The packet that should be sent to the client when it requests for the items.dat file.
+
+        Examples
+        --------
+        >>> from growtopia import ItemsData
+        >>> items = ItemsData("items.dat")
+        >>> items.packet
+        """
+        if not self.content:
+            raise ValueError("The items.dat file has not been read yet.")
+
+        return GameUpdatePacket(update_type=GameUpdatePacketType.SEND_ITEMS_DATA, extra_data=bytes(self.content))

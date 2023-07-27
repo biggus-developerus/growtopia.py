@@ -3,6 +3,7 @@ __all__ = ("PlayerTribute",)
 from typing import Union
 
 from .file import File
+from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
 
 
 class PlayerTribute(File):
@@ -62,3 +63,26 @@ class PlayerTribute(File):
         # TODO: Parse the rest of the file (Exceptional Mentors and Charity Champions)
 
         self.hash_file()
+
+    @property
+    def packet(self) -> GameUpdatePacket:
+        """
+        Returns the packet that should be sent to the client when it requests for the player_tribute.dat file.
+
+        Returns
+        -------
+        GameUpdatePacket
+            The packet that should be sent to the client when it requests for the player_tribute.dat file.
+
+        Examples
+        --------
+        >>> from growtopia import PlayerTribute
+        >>> player_tribute = PlayerTribute("player_tribute.dat")
+        >>> player_tribute.packet
+        """
+        if not self.content:
+            raise ValueError("The items.dat file has not been read yet.")
+
+        return GameUpdatePacket(
+            update_type=GameUpdatePacketType.SEND_PLAYER_TRIBUTE_DATA, extra_data=bytes(self.content)
+        )
