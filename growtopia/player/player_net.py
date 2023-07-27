@@ -190,6 +190,7 @@ class PlayerNet:
         token: int
             The token that the client will be using for authentication.
         user: int
+            The user that the client will be using for authentication.
         string: str
             The string is made up of 3 value pairs. (host|doorid|uuidtoken)
         lmode: bool
