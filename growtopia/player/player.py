@@ -31,4 +31,15 @@ class Player(PlayerNet):
         super().__init__(peer)
 
         self.login_info: PlayerLoginInfo = PlayerLoginInfo()
-        self.guest: bool = False
+
+    @property
+    def guest(self) -> bool:
+        """
+        Returns whether the player is using a guest account or not.
+
+        Returns
+        -------
+        bool:
+            True if the player is a guest, False otherwise.
+        """
+        return not self.login_info.tankIDName and not self.login_info.tankIDPass

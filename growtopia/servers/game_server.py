@@ -61,9 +61,6 @@ class GameServer(Server):
             if event == EventID.ON_LOGIN_REQUEST:
                 context.player.login_info = PlayerLoginInfo(**context.packet.kvps)
 
-                if not context.player.login_info.tankIDName and not context.player.login_info.tankIDPass:
-                    context.player.guest = True
-
                 # I'd make it so that we send the OSM internally too, just like the hello packet.. but that might tamper with the API user's setup.
                 # E.g the API user might have to send an asynchronous request to fetch the player's data and blah blah blah, if we send the OSM
                 # before that's done, the client might send the enter_game packet and mess stuff up.
@@ -75,10 +72,10 @@ class GameServer(Server):
                 # This would happen only if the user was actually abiding by the asynchronous rules (in this case, they sent the request asynchronously.)
 
             elif event == EventID.ON_DIALOG_RETURN:
-                if dialog_name := context.packet.kvps.get("dialog_name", None):
+                if dialog_name := context.packet.arguments.get("dialog_name", None):
                     return await self.dispatch_dialog_return(
                         dialog_name,
-                        context.packet.kvps.get("buttonClicked", None),
+                        context.packet.arguments.get("buttonClicked", None),
                         context,
                     )
 
