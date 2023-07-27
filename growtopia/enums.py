@@ -32,6 +32,9 @@ class EventID(str, Enum):
     ON_PLAY_SFX = "on_play_sfx"
     ON_LOG = "on_log"
     ON_LOGON_FAIL = "on_logon_fail"
+    ON_REFRESH_ITEM_DATA = "on_refresh_item_data"
+    ON_REFRESH_PLAYER_TRIBUTE_DATA = "on_refresh_player_tribute_data"
+    ON_ENTER_GAME = "on_enter_game"
 
     # Call function events
     OnSuperMain = "on_super_main"
