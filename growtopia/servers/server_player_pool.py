@@ -6,6 +6,9 @@ import enet
 
 from ..player import Player
 
+# TODO:
+# - Find a better way to ID peers. We used to ID peers by their connectID, but for some reason the attribute resets to 0 when the EVENT_TYPE_DISCONNECT event is emitted.
+
 
 class ServerPlayerPool:
     def __init__(self) -> None:

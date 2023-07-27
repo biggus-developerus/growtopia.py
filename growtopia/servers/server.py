@@ -10,9 +10,6 @@ from ..dispatcher import Dispatcher
 from ..enums import EventID
 from .server_player_pool import ServerPlayerPool
 
-# TODO:
-# - Find a better way to ID peers. We used to ID peers by their connectID, but for some reason the attribute resets to 0 when the EVENT_TYPE_DISCONNECT event is emitted.
-
 
 class Server(enet.Host, Dispatcher, ServerPlayerPool, ABC):
     """
