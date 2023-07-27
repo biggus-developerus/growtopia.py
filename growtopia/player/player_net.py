@@ -5,6 +5,8 @@ from typing import Optional, Union
 import enet
 
 from ..dialog import Dialog
+from ..items_data import ItemsData
+from ..player_tribute import PlayerTribute
 from ..protocol import (
     GameMessagePacket,
     GameUpdatePacket,
@@ -117,11 +119,100 @@ class PlayerNet:
 
     # SOON!!!!
 
-    def on_super_main(self, *args) -> bool:
-        raise NotImplementedError
+    def on_super_main(
+        self,
+        items_data_or_hash: Union[ItemsData, int],
+        player_tribute_or_hash: Union[PlayerTribute, int],
+        cdn_host: str,
+        cdn_route: str,
+        blocked_packages: str,
+        settings: str,
+        *,
+        function_name: str = "OnSuperMainStartAcceptLogonHrdxs47254722215a",
+    ) -> bool:
+        """
+        Sends the OSM packet to the player.
 
-    def on_send_to_server(self, *args) -> bool:
-        raise NotImplementedError
+        Parameters
+        ----------
+        items_data_or_hash: Union[ItemsData, int]
+            The items data or hash.
+        player_tribute_or_hash: Union[PlayerTribute, int]
+            The player tribute or hash.
+        cdn_host: str
+            The CDN host.
+        cdn_route: str
+            The CDN route.
+        blocked_packages: str
+            The blocked packages.
+        settings: str
+            The settings.
+
+        Kwargs
+        ------
+        function_name: str
+            The function name. Could be set to communicate with older clients, as the function's name is different.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+        if isinstance(items_data_or_hash, ItemsData):
+            items_data_or_hash = items_data_or_hash.hash
+
+        if isinstance(player_tribute_or_hash, PlayerTribute):
+            player_tribute_or_hash = player_tribute_or_hash.hash
+
+        return self.send(
+            GameUpdatePacket(
+                update_type=GameUpdatePacketType.CALL_FUNCTION,
+                variant_list=VariantList(
+                    function_name,
+                    items_data_or_hash,
+                    cdn_host,
+                    cdn_route,
+                    blocked_packages,
+                    settings,
+                    player_tribute_or_hash,
+                ),
+            )
+        )
+
+    def on_send_to_server(self, port: int, token: int, user: int, string: str, lmode: bool) -> bool:
+        """
+        Sends the client to a sub server.
+
+        Parameters
+        ----------
+        port: int
+            The port of the sub server
+        token: int
+            The token that the client will be using for authentication.
+        user: int
+        string: str
+            The string is made up of 3 value pairs. (host|doorid|uuidtoken)
+        lmode: bool
+            Is the client being sent to this sub server whilst being in a world or not.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+        return self.send(
+            GameUpdatePacket(
+                update_type=GameUpdatePacketType.CALL_FUNCTION,
+                variant_list=VariantList(
+                    "OnSendToServer",
+                    port,
+                    token,
+                    user,
+                    string,
+                    lmode,
+                ),
+            )
+        )
 
     def on_dialog_request(self, dialog: Dialog) -> bool:
         raise NotImplementedError
