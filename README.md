@@ -13,7 +13,7 @@ A simple asynchronous API for Growtopia, capable of creating servers, clients, a
 
 ### Requirements
 
-- [Python 3.9 or above](https://www.python.org/downloads/)
+- [Python 3.11 or above](https://www.python.org/downloads/)
 - [PyENet](https://github.com/kajob-dev/pyenet) (If installing growtopia.py from PyPI)
 
 ### Installing from source

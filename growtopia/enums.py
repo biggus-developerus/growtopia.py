@@ -3,11 +3,11 @@ __all__ = (
     "Colour",
 )
 
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class EventID(str, Enum):
+class EventID(StrEnum):
     """
     An enumeration of all dispatchable events.
     """
@@ -92,7 +92,7 @@ class EventID(str, Enum):
         return cls("on_unknown")
 
 
-class Colour(str, Enum):
+class Colour(StrEnum):
     """
     An enumeration of all text colours that can be used.
     """
@@ -113,3 +113,4 @@ class Colour(str, Enum):
     DARK_PINK = "`#"
     PASTEL_YELLOW = "`$"
     PASTEL_GREEN = "`^"
+    DARK_BLUE = "`q"
