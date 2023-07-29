@@ -36,6 +36,7 @@ class PlayerLoginInfo:
     mac: str = ""
     wk: str = ""
     zf: str = ""
+    reconnect: str = ""
 
     # SUB SERVER KEYS
     user: str = ""
