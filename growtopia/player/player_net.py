@@ -117,8 +117,6 @@ class PlayerNet:
             )
         )
 
-    # SOON!!!!
-
     def on_super_main(
         self,
         items_data_or_hash: Union[ItemsData, int],
