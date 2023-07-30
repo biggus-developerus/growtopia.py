@@ -35,6 +35,7 @@ class EventID(StrEnum):
     ON_REFRESH_ITEM_DATA = "on_refresh_item_data"
     ON_REFRESH_PLAYER_TRIBUTE_DATA = "on_refresh_player_tribute_data"
     ON_ENTER_GAME = "on_enter_game"
+    ON_JOIN_REQUEST = "on_join_request"
 
     # Call function events
     OnSuperMain = "on_super_main"
