@@ -49,6 +49,9 @@ class DialogElement:
     def text_input(name: str, label: str, max_length: int, default_text: str = "") -> str:
         return f"add_text_input|{name}|{label}|{default_text}|{max_length}|"
 
+    def password_input(name: str, label: str, max_length: int, default_text: str = "") -> str:
+        return f"add_text_input_password|{name}|{label}|{default_text}|{max_length}|"
+
     def ending(name: str, cancel: str, accept: str) -> str:
         return f"end_dialog|{name}|{cancel}|{accept}"
 
