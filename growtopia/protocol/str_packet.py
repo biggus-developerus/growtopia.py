@@ -136,7 +136,7 @@ class StrPacket(Packet):
             return
 
         str_packet.text = data[4:-1].decode()
-        str_packet.data = data
+        str_packet.data = bytearray(data)
 
         if str_packet.text.startswith("action"):
             for i in str_packet.text.split("\n"):

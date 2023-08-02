@@ -251,6 +251,7 @@ class GameUpdatePacket(Packet):
             update_packet._malformed = True
             return
 
+        update_packet.data = bytearray(data)
         update_packet.update_type = GameUpdatePacketType(int.from_bytes(data[4:5], "little"))
 
         update_packet.object_type = int.from_bytes(data[5:6], "little")

@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 from typing import Optional
 
 from .enums import PacketType
+from ..enums import EventID
 
 
 class Packet(ABC):
@@ -54,6 +55,10 @@ class Packet(ABC):
             The type of the packet.
         """
         return PacketType(int.from_bytes(data[:4], "little"))
+
+    @abstractmethod
+    def identify(self) -> EventID:
+        ...
 
     @abstractmethod
     def serialise(self) -> bytes:

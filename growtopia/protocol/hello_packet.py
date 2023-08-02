@@ -92,6 +92,7 @@ class HelloPacket(Packet):
             packet._malformed = True
             return
 
-        packet._type = type
+        packet._type = type_
+        packet.data = bytearray(data)
 
         return packet
