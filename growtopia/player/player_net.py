@@ -93,8 +93,38 @@ class PlayerNet:
         """
         return self.send(GameMessagePacket(f"action|log\nmsg|{message}").enet_packet)
 
-    def reject_login(self, *args) -> bool:
-        ...
+    def set_url(self, url: str, label: str) -> bool:
+        """
+        Sets the URL of the big button that appears whilst the player is still logging in.
+
+        Parameters
+        ----------
+        url: str
+            The URL to set.
+        label: str
+            The label of the button.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+        return self.send(GameMessagePacket(f"action|set_url\nurl|{url}\nlabel|{label}\n"))
+
+    def reject_login(self, url: str = None, label: str = None) -> bool:
+        """
+        Rejects the player's login request.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+
+        if url and label:
+            self.set_url(url, label)
+
+        return self.send(GameMessagePacket("action|logon_fail"))
 
     def on_console_message(self, message: str) -> bool:
         """
@@ -214,7 +244,20 @@ class PlayerNet:
         )
 
     def on_dialog_request(self, dialog: Dialog) -> bool:
-        raise NotImplementedError
+        """
+        Sends a dialog to the player.
+
+        Parameters
+        ----------
+        dialog: Dialog
+            The dialog to send to the player.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+        return self.send(dialog.packet)
 
     def on_request_world_select_menu(self, *args) -> bool:
         # TODO: new helper class, WorldSelectMenu 🤯🤯🤯🤯
