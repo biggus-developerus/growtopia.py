@@ -162,6 +162,9 @@ class GameUpdatePacket(Packet):
         self.data += self.net_id.to_bytes(4, "little", signed=True)
         self.data += self.target_net_id.to_bytes(4, "little", signed=True)
 
+        if self.flags == GameUpdatePacketFlags.UNKNOWN and self.extra_data:
+            self.flags = GameUpdatePacketFlags.EXTRA_DATA
+
         self.data += self.flags.to_bytes(4, "little")
         self.data += struct.pack("f", self.float)
         self.data += self.int.to_bytes(4, "little", signed=True)
@@ -177,6 +180,9 @@ class GameUpdatePacket(Packet):
         self.data += self.int_y.to_bytes(4, "little", signed=True)
 
         if self.flags == GameUpdatePacketFlags.EXTRA_DATA:
+            if self.extra_data_size == 0:
+                self.extra_data_size = len(self.extra_data)
+
             self.data += self.extra_data_size.to_bytes(4, "little")
             self.data += self.extra_data
 
