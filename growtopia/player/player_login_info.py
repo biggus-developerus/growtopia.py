@@ -29,6 +29,7 @@ class PlayerLoginInfo:
     meta: str = ""
     fhash: str = ""
     rid: str = ""
+    gid: str = ""
     platformID: str = ""
     deviceVersion: str = ""
     country: str = ""
