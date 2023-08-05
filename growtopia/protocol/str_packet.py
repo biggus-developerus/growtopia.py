@@ -140,7 +140,10 @@ class StrPacket(Packet):
 
         if str_packet.text.startswith("action"):
             for i in str_packet.text.split("\n"):
-                if len((kvp := i.split("|"))) != 2:
+                if i.startswith("|"):
+                    i = i[1:]
+
+                if len((kvp := i.strip().split("|"))) != 2:
                     continue
 
                 key, value = kvp
