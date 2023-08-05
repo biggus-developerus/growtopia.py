@@ -43,3 +43,15 @@ class Player(PlayerNet):
             True if the player is a guest, False otherwise.
         """
         return not self.login_info.tankIDName and not self.login_info.tankIDPass
+
+    @property
+    def name(self) -> str:
+        """
+        Returns the name of the player.
+
+        Returns
+        -------
+        str:
+            The player name.
+        """
+        return self.login_info.requestedName if self.guest else self.login_info.tankIDName
