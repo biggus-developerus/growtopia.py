@@ -80,9 +80,8 @@ class Inventory:
     """
 
     def __init__(self) -> None:
-        self.version: int = 0  # uint8
-        self.slots: int = 0  # uint32
-        self.item_count: int = 0  # uint8
+        self.version: int = 20  # uint8
+        self.slots: int = 10  # uint32
 
         self.items: list[InventoryItem] = []
 
@@ -98,7 +97,7 @@ class Inventory:
 
         data = bytearray(self.version.to_bytes(1, "little"))
         data += bytearray(self.slots.to_bytes(4, "little"))
-        data += bytearray(self.item_count.to_bytes(2, "little"))
+        data += bytearray(len(self.items).to_bytes(2, "little"))
 
         for item in self.items:
             data += item.serialise()
