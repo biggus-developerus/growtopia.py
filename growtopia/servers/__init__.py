@@ -1,2 +1,2 @@
-from .game_server import GameServer
-from .server import Server
+from .game_server import *
+from .server import *
