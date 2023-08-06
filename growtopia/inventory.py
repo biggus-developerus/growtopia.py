@@ -80,8 +80,8 @@ class Inventory:
     """
 
     def __init__(self) -> None:
-        self.version: int = 0  # uint8
-        self.slots: int = 0  # uint32
+        self.version: int = 20  # uint8
+        self.slots: int = 10  # uint32
 
         self.items: list[InventoryItem] = []
 
