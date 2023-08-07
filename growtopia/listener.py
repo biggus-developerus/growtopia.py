@@ -31,15 +31,11 @@ class Listener:
 
         self.id: EventID = EventID(callback.__name__.lower())
 
-        if self.id == EventID.ON_UNKNOWN and callback.__name__ != "on_unknown":
-            raise ValueError(
-                "Callback name must be 'on_unknown' if the ID is 'EventID.ON_UNKNOWN'. This most likely happened because you're trying to register a listener that is not recognised by growtopia.py itself."
-            )
-
         self.name: str = callback.__name__
         self.callback: Callable = callback
 
         self._belongs_to: object = None
+        self._is_dialog_listener: bool = False
 
     def __call__(self, *args, **kwargs) -> Coroutine:
         if self._belongs_to is not None:

@@ -88,6 +88,15 @@ class Dispatcher:
             The listener(s) to add to the dispatcher.
         """
         for listener in listeners:
+            if (
+                listener.id == EventID.ON_UNKNOWN
+                and listener.callback.__name__ != "on_unknown"
+                and not listener._is_dialog_listener
+            ):
+                raise ValueError(
+                    "Callback name must be 'on_unknown' if the ID is 'EventID.ON_UNKNOWN'. This most likely happened because you're trying to register a listener that is not recognised by growtopia.py itself."
+                )
+
             self.listeners[listener.id] = listener
 
     def remove_listeners(self, *listeners: Listener) -> None:

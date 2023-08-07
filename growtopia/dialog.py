@@ -90,6 +90,7 @@ class Dialog:
         for key, value in cls.__dict__.items():
             if isinstance(value, Listener):
                 value._belongs_to = inst
+                value._is_dialog_listener = True
                 inst.listeners[key] = value
 
         return inst
