@@ -127,7 +127,4 @@ class Colour(StrEnum):
     VIBRANT_CYAN = "`c"
     BRIGHT_YELLOW = "`i"
 
-class Color(Colour):
-    """
-    An alias to the Colour class.
-    """
+Color = Colour # An alias to the Colour class.
