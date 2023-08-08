@@ -58,6 +58,19 @@ class DialogElement:
     def quick_exit() -> str:
         return f"add_quick_exit"
 
+    def embed_data(data: dict[str, str]) -> str:
+        """
+        (Non-Visual)
+    
+        Allows you to embed key value paired data to the dialog packet.
+    
+        Only accepts strings as value.
+    
+        Embedding data with the same keys will follow the last key's value. ({k:1,k:2,k:3} -> {k:3})
+        """
+    
+        return '\n'.join([f"embed_data|{key}|{value}" for key, value in data.items()])
+
 
 class Dialog:
     """
