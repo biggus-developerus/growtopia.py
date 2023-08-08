@@ -10,8 +10,8 @@ if TYPE_CHECKING:
 
 from typing import Optional
 
-from .enums import PacketType
 from ..enums import EventID
+from .enums import PacketType
 
 
 class Packet(ABC):

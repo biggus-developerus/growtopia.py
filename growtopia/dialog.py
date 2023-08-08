@@ -69,7 +69,7 @@ class DialogElement:
         Embedding data with the same keys will follow the last key's value. ({k:1,k:2,k:3} -> {k:3})
         """
 
-        return '\n'.join([f"embed_data|{key}|{value}" for key, value in data.items()])
+        return "\n".join([f"embed_data|{key}|{value}" for key, value in data.items()])
 
 
 class Dialog:
