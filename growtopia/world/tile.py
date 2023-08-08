@@ -15,6 +15,14 @@ class Tile:
         self.extra_data: bytes = b""
 
     def serialise(self) -> bytearray:
+        """
+        Serialises the tile.
+
+        Returns
+        -------
+        bytearray:
+            The serialised world.
+        """
         data = bytearray()
 
         data += self.foreground.to_bytes(2, "little")

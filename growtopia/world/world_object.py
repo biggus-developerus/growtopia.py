@@ -14,6 +14,14 @@ class WorldObject:
         self.data: bytearray = bytearray()
 
     def serialise(self) -> bytearray:
+        """
+        Serialises the world object.
+
+        Returns
+        -------
+        bytearray:
+            The serialised world object.
+        """
         self.data = bytearray()
 
         self.data += self.id.to_bytes(2, "little")
