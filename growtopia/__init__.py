@@ -14,3 +14,4 @@ from .player import *
 from .player_tribute import *
 from .protocol import *
 from .servers import *
+from .world import *
