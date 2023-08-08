@@ -36,6 +36,8 @@ class EventID(StrEnum):
     ON_REFRESH_PLAYER_TRIBUTE_DATA = "on_refresh_player_tribute_data"
     ON_ENTER_GAME = "on_enter_game"
     ON_JOIN_REQUEST = "on_join_request"
+    ON_QUIT_TO_EXIT = "on_quit_to_exit"
+    ON_INPUT = "on_input"
 
     # Call function events
     OnSuperMain = "on_super_main"
@@ -126,5 +128,3 @@ class Colour(StrEnum):
     MED_GREY = "`s"
     VIBRANT_CYAN = "`c"
     BRIGHT_YELLOW = "`i"
-
-Color = Colour # An alias to the Colour class.
