@@ -100,31 +100,31 @@ class Colour(StrEnum):
     An enumeration of all text colours that can be used.
     """
 
-    DEFAULT = "`0"
-    LIGHT_CYAN = "`1"
-    GREEN = "`2"
-    LIGHT_BLUE = "`3"
-    CRAZY_RED = "`4"
-    PINKY_PURPLE = "`5"
-    BROWN = "`6"
-    LIGHT_GRAY = "`7"
-    CRAZY_ORANGE = "`8"
-    YELLOW = "`9"
-    BRIGHT_CYAN = "`!"
-    BRIGHT_RED_PINK = "`@"
-    BRIGHT_PURPLE = "`#"
-    PALE_YELLOW = "`$"
-    LIGHT_GREEN = "`^"
-    VERY_PALE_PINK = "`&"
-    WHITE = "`w"
-    DREAMSICLE = "`o"
-    BLACK = "`b"
-    PINK = "`p"
-    DARK_BLUE = "`q"
-    MEDIUM_BLUE = "`e"
-    PALE_GREEN = "`r"
-    MEDIUM_GREEN = "`t"
-    DARK_GREY = "`a"
-    MED_GREY = "`s"
-    VIBRANT_CYAN = "`c"
-    BRIGHT_YELLOW = "`i"
+    White - `0
+    Pale Turquoise - `1
+    Harlequin - `2
+    Hawkes Blue - `3
+    Scarlet - `4 
+    Mauve - `5
+    Grandis - `6
+    Whisper - `7
+    Sunshade - `8
+    Witch Haze - `9
+    Light Cyan - `!
+    Cosmos - `@
+    Pale Magenta - `#
+    Lemon Chiffon - `$
+    Madang - `^
+    Selago - `&
+    White - `w
+    Moccasin - `o
+    Black - `b
+    Pig Pink - `p
+    Denim - `q
+    Deep Sky Blue - `e
+    Mantis - `r
+    Bilbao - `t
+    Matterhorn - `a
+    Nobel - `s
+    Baby Blue - `c
+    Lemon - `i
