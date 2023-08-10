@@ -1,19 +1,28 @@
 __all__ = ("World",)
 
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from ..constants import latest_game_version
-from ..player import Player
 from .tile import Tile
 from .world_net import WorldNet
 from .world_object import WorldObject
+from ..protocol import (
+    GameUpdatePacket,
+    GameUpdatePacketType,
+    GameUpdatePacketFlags,
+    Packet,
+    GameMessagePacket,
+    TextPacket,
+    VariantList,
+)
+
+if TYPE_CHECKING:
+    from ..player import Player
 
 
 class World(WorldNet):
     def __init__(self) -> None:
         super().__init__()
-
-        self.players: dict[str, Player] = {}  # players by address
 
         self.version: int = 20  # uint16
         self.flags: int = 64  # uint32
@@ -28,10 +37,78 @@ class World(WorldNet):
 
         self.data: bytearray = bytearray()
 
+        self.players: dict[int, "Player"] = {}  # players by net id
         self.tiles: list[Tile] = [Tile() for _ in range(self.width * self.height)]
         self.objects: list[WorldObject] = []
 
+        self.__net_id: int = 0  # incremented upon adding a player (never decremented or reset)
+
+    def add_player(self, player: "Player") -> bool:
+        """
+        Adds a player to the world.
+
+        Parameters
+        ----------
+        player: Player
+            The player to add to the world.
+
+        Returns
+        -------
+        bool:
+            True if the player was added, False otherwise.
+        """
+        if player.net_id in self.players:
+            return False
+
+        player.net_id = self.__net_id
+        self.players[player.net_id] = player
+
+        player._send_world(self)
+        player.on_spawn(500, 500)
+
+        self.lambda_broadcast(lambda p: p.on_spawn(500, 500, player), exclude_net_id=player.net_id)
+
+        for p in self.players.values():
+            if p.net_id == player.net_id:
+                continue
+
+            player.on_spawn(500, 500, p)
+
+        self.__net_id += 1
+
+        return True
+
+    def remove_player(self, player: "Player") -> bool:
+        """
+        Removes a player from the world.
+
+        Parameters
+        ----------
+        player: Player
+            The player to remove from the world.
+
+        Returns
+        -------
+        bool:
+            True if the player was removed, False otherwise.
+        """
+        # TODO: Send the player to the world menu.
+        return bool(self.players.pop(player.net_id, None))
+
     def serialise(self, *, game_version: float = latest_game_version) -> bytearray:
+        """
+        Serialises the world.
+
+        Keyword Arguments
+        ----------
+        game_version: float
+            The game version to serialise the world for. (default latest_game_version)
+
+        Returns
+        -------
+        bytearray:
+            The serialised world.
+        """
         self.data = bytearray()
 
         self.data += self.version.to_bytes(2, "little")
