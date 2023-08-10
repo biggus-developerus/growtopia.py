@@ -111,7 +111,7 @@ class Server(enet.Host, Dispatcher, ServerPlayerPool, ABC):
 
         await self.dispatch_event(
             EventID.ON_CLEANUP,
-            context,
+            self,
         )
 
     @abstractmethod

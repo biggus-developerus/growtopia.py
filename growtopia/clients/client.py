@@ -91,7 +91,7 @@ class Client(ClientNet, Dispatcher, ABC):
 
         await self.dispatch_event(
             EventID.ON_CLEANUP,
-            context,
+            self,
         )
 
     @abstractmethod
