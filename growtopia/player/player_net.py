@@ -1,6 +1,6 @@
 __all__ = ("PlayerNet",)
 
-from typing import Optional, Union
+from typing import Optional, Union, TYPE_CHECKING
 
 import enet
 
@@ -10,11 +10,18 @@ from ..player_tribute import PlayerTribute
 from ..protocol import (
     GameMessagePacket,
     GameUpdatePacket,
+    GameUpdatePacketFlags,
     GameUpdatePacketType,
     HelloPacket,
     StrPacket,
     VariantList,
+    Packet,
 )
+from .player_login_info import PlayerLoginInfo
+
+if TYPE_CHECKING:
+    from ..world import World
+    from .player import Player
 
 
 class PlayerNet:
@@ -41,6 +48,12 @@ class PlayerNet:
 
         self.last_packet_sent: Optional[Union[StrPacket, GameUpdatePacket]] = None
         self.last_packet_received: Optional[Union[StrPacket, GameUpdatePacket]] = None
+
+        self.net_id: int = -1
+        self.user_id: int = 0
+
+        self.login_info: PlayerLoginInfo
+        self.name: str
 
     def _send(
         self, data: bytes = None, flags: int = enet.PACKET_FLAG_RELIABLE, enet_packet: enet.Packet = None
@@ -91,7 +104,7 @@ class PlayerNet:
         bool:
             True if the packet was successfully sent, False otherwise.
         """
-        return self.send(GameMessagePacket(f"action|log\nmsg|{message}").enet_packet)
+        return self.send(GameMessagePacket(f"action|log\nmsg|{message}"))
 
     def set_url(self, url: str, label: str) -> bool:
         """
@@ -143,6 +156,7 @@ class PlayerNet:
         return self.send(
             GameUpdatePacket(
                 update_type=GameUpdatePacketType.CALL_FUNCTION,
+                net_id=self.net_id,
                 variant_list=VariantList("OnConsoleMessage", message),
             )
         )
@@ -195,6 +209,7 @@ class PlayerNet:
         return self.send(
             GameUpdatePacket(
                 update_type=GameUpdatePacketType.CALL_FUNCTION,
+                net_id=self.net_id,
                 variant_list=VariantList(
                     function_name,
                     items_data_or_hash,
@@ -232,6 +247,7 @@ class PlayerNet:
         return self.send(
             GameUpdatePacket(
                 update_type=GameUpdatePacketType.CALL_FUNCTION,
+                net_id=self.net_id,
                 variant_list=VariantList(
                     "OnSendToServer",
                     port,
@@ -240,6 +256,84 @@ class PlayerNet:
                     string,
                     lmode,
                 ),
+            )
+        )
+
+    def _send_world(self, world: "World") -> bool:
+        """
+        Sends the world to the player.
+
+        Note
+        ----
+        This method is used internally by the world and should not be called by the user, unless you know what you're doing.
+
+        Parameters
+        ----------
+        world: World
+            The world to send to the player.
+        """
+        return self.send(
+            GameUpdatePacket(
+                update_type=GameUpdatePacketType.SEND_MAP_DATA,
+                flags=GameUpdatePacketFlags.EXTRA_DATA,
+                extra_data=world.serialise(game_version=float(self.login_info.game_version)),
+            )
+        )
+
+    def on_spawn(self, x: int, y: int, player: Optional["Player"] = None) -> bool:
+        """
+        Spawns an avatar for the player.
+
+        Parameters
+        ----------
+        x: int
+            The X coordinate of the avatar.
+        y: int
+            The Y coordinate of the avatar.
+        local: bool
+            Whether the avatar is local or not.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+
+        if player:
+            return self.send(
+                GameUpdatePacket(
+                    update_type=GameUpdatePacketType.CALL_FUNCTION,
+                    variant_list=VariantList(
+                        "OnSpawn",
+                        f"spawn|avatar\nnetID|{player.net_id}\nuserID|{player.user_id}\ncolrect|0|0|20|30\nposXY|{x}|{y}\nname|{player.name}\ncountry|{player.login_info.country}\ninvis|0\nmstate|0\nsmstate|1\n",
+                    ),
+                )
+            )
+
+        return self.send(
+            GameUpdatePacket(
+                update_type=GameUpdatePacketType.CALL_FUNCTION,
+                variant_list=VariantList(
+                    "OnSpawn",
+                    f"spawn|avatar\nnetID|{self.net_id}\nuserID|{self.user_id}\ncolrect|0|0|20|30\nposXY|{x}|{y}\nname|{self.name}\ncountry|{self.login_info.country}\ninvis|0\nmstate|0\nsmstate|0\ntype|local\n",
+                ),
+            )
+        )
+
+    def on_failed_to_enter_world(self) -> bool:
+        """
+        Responds to the join_request packet with failure.
+        If the player isn't capable of joining a world, then you may use this to get rid of the "entering world..." message.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+        return self.send(
+            GameUpdatePacket(
+                update_type=GameUpdatePacketType.CALL_FUNCTION,
+                variant_list=VariantList("OnFailedToEnterWorld", 1),
             )
         )
 
