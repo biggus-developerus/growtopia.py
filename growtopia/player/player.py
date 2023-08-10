@@ -38,6 +38,7 @@ class Player(PlayerNet):
 
         self.login_info: PlayerLoginInfo = PlayerLoginInfo()
         self.world: Optional[World] = None
+        self.inventory: Optional[Inventory] = Inventory()
 
     def send_to_world(self, world: "World") -> bool:
         """
@@ -50,6 +51,18 @@ class Player(PlayerNet):
         """
         self.world = world
         return self.world.add_player(self)
+
+    def send_inventory(self, inventory: Optional[Inventory] = None) -> bool:
+        """
+        Sends the player their inventory.
+
+        Parameters
+        ----------
+        inventory: Inventory
+            The inventory to send to the player.
+        """
+        self.inventory = inventory or self.inventory
+        return self._send_inventory_state(self.inventory)
 
     @property
     def guest(self) -> bool:

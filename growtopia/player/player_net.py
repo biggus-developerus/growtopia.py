@@ -7,6 +7,7 @@ import enet
 from ..dialog import Dialog
 from ..items_data import ItemsData
 from ..player_tribute import PlayerTribute
+from ..inventory import Inventory
 from ..protocol import (
     GameMessagePacket,
     GameUpdatePacket,
@@ -277,6 +278,23 @@ class PlayerNet:
                 update_type=GameUpdatePacketType.SEND_MAP_DATA,
                 flags=GameUpdatePacketFlags.EXTRA_DATA,
                 extra_data=world.serialise(game_version=float(self.login_info.game_version)),
+            )
+        )
+
+    def _send_inventory_state(self, inventory: Inventory) -> bool:
+        """
+        Sends an Inventory object to the player.
+
+        Parameters
+        ----------
+        inventory: Inventory
+            The inventory to send to the player.
+        """
+        return self.send(
+            GameUpdatePacket(
+                update_type=GameUpdatePacketType.SEND_INVENTORY_STATE,
+                flags=GameUpdatePacketFlags.EXTRA_DATA,
+                extra_data=inventory.serialise(),
             )
         )
 
