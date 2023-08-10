@@ -14,11 +14,13 @@ from ..protocol import (
     TextPacket,
 )
 from .server import Server
+from .server_world_pool import ServerWorldPool
 
 
-class GameServer(Server):
+class GameServer(Server, ServerWorldPool):
     def __init__(self, address: tuple[str, int], **kwargs) -> None:
-        super().__init__(address, **kwargs)
+        Server.__init__(self, address, **kwargs)
+        ServerWorldPool.__init__(self)
 
         self._send_hello: bool = kwargs.get("send_hello", True)
 
