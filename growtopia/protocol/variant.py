@@ -27,7 +27,12 @@ class Variant:
         VariantType.NONETYPE: lambda _: None,
     }
 
-    def __init__(self, value: Union[str, int, float], type_: VariantType = None) -> None:
+    def __init__(
+        self, value: Union[str, int, float, tuple[int, int], tuple[int, int, int]], type_: VariantType = None
+    ) -> None:
+        if isinstance(value, tuple):
+            type_ = VariantType.VECTOR2 if len(value) == 2 else VariantType.VECTOR3
+
         self.type: VariantType = type_ or VariantType[type(value).__name__.upper()]
         self.value: Union[str, int, float] = value
         self.data: bytearray = bytearray()
