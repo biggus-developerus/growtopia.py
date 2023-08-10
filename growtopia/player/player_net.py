@@ -91,6 +91,25 @@ class PlayerNet:
 
         return False
 
+    def _play_sfx(self, file_path: str, delay: int = 0) -> bool:
+        """
+        Sends a packet that'll make the client play an audio file.
+
+        Parameters
+        ----------
+        file_path: str
+            The path of the file to play.
+
+        delay: int
+            The delay in milliseconds.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+        return self.send(GameMessagePacket(f"action|play_sfx\nfile|audio/door_shut.wav\ndelayMS|0\n"))
+
     def send_log(self, message: str) -> bool:
         """
         Logs a message to the player.
