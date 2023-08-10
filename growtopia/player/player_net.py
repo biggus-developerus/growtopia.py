@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING, Optional, Union
 import enet
 
 from ..dialog import Dialog
+from ..inventory import Inventory
 from ..items_data import ItemsData
 from ..player_tribute import PlayerTribute
-from ..inventory import Inventory
 from ..protocol import (
     GameMessagePacket,
     GameUpdatePacket,

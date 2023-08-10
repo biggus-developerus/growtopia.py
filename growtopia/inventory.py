@@ -5,6 +5,7 @@ __all__ = (
 
 from dataclasses import dataclass
 from typing import Union
+
 from .item import Item
 
 
