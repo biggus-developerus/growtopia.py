@@ -338,6 +338,29 @@ class PlayerNet:
             )
         )
 
+    def _on_remove(self, player: "Player") -> bool:
+        """
+        Removes an avatar from the player.
+
+        Parameters
+        ----------
+        player: Player
+            The player to remove.
+
+        Returns
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+        return self.send(
+            GameUpdatePacket(
+                update_type=GameUpdatePacketType.CALL_FUNCTION,
+                variant_list=VariantList(
+                    "OnRemove",
+                    f"netID|{player.net_id}\n",
+                ),
+            )
+        )
+
     def on_failed_to_enter_world(self) -> bool:
         """
         Responds to the join_request packet with failure.
