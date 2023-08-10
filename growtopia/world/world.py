@@ -95,8 +95,14 @@ class World(WorldNet):
         bool:
             True if the player was removed, False otherwise.
         """
-        # TODO: Send the player to the world menu.
-        return bool(self.players.pop(player.net_id, None))
+        if player.net_id not in self.players:
+            return False
+
+        del self.players[player.net_id]
+
+        self.lambda_broadcast(lambda p: p._on_remove(player), exclude_net_id=player.net_id)
+
+        return True
 
     def serialise(self, *, game_version: float = latest_game_version) -> bytearray:
         """
