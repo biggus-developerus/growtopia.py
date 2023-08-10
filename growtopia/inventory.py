@@ -4,6 +4,8 @@ __all__ = (
 )
 
 from dataclasses import dataclass
+from typing import Union
+from .item import Item
 
 
 @dataclass
@@ -66,7 +68,7 @@ class InventoryItem:
 
 class Inventory:
     """
-    Represents a client's inventory (set upon emitting ON_SEND_INVENTORY_STATE).
+    Represents an Inventory.
 
     Attributes
     ----------
@@ -83,7 +85,46 @@ class Inventory:
         self.version: int = 20  # uint8
         self.slots: int = 10  # uint32
 
-        self.items: list[InventoryItem] = []
+        self.items: list[InventoryItem] = []  # Should we use a dict instead for faster lookup? (item_id: InventoryItem)
+
+    def add_item(self, item_id_or_item: Union[int, Item], count: int, equipped: bool = False) -> None:
+        """
+        Adds an item to the inventory.
+
+        Parameters
+        ----------
+        item_id_or_item: Union[int, Item]
+            The id of the item or Item object to add.
+        count: int
+            The count of the item to add.
+        equipped: bool
+            Whether the item's equipped or not. (default False)
+        """
+        item_id = item_id_or_item if isinstance(item_id_or_item, int) else item_id_or_item.id
+
+        item = InventoryItem(item_id, count, equipped)
+        self.items.append(item)
+
+    def remove_item(self, item_id: int, count: int) -> None:
+        """
+        Removes an item from the inventory.
+
+        Parameters
+        ----------
+        item_id: int
+            The id of the item to remove.
+        count: int
+            The count of the item to remove.
+        """
+
+        for item in self.items:
+            if item.id == item_id:
+                item.count -= count
+
+                if item.count <= 0:
+                    self.items.remove(item)
+
+                break
 
     def serialise(self) -> bytearray:
         """
@@ -124,11 +165,11 @@ class Inventory:
 
         inventory.version = data[0]
         inventory.slots = int.from_bytes(data[1:5], "little")
-        inventory.item_count = int.from_bytes(data[5:6], "little")
 
+        item_count = int.from_bytes(data[5:6], "little")
         offset = 6
 
-        for _ in range(inventory.item_count):
+        for _ in range(item_count):
             item = InventoryItem.from_bytes(data[offset : offset + 4])
             inventory.items.append(item)
 
