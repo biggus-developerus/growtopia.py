@@ -348,6 +348,7 @@ class PlayerNet:
             The player to remove.
 
         Returns
+        -------
         bool:
             True if the packet was successfully sent, False otherwise.
         """
