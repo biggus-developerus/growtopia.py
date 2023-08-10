@@ -60,6 +60,9 @@ class World(WorldNet):
         if player.net_id in self.players:
             return False
 
+        if player.world == None:
+            player.world = self
+
         player.net_id = self.__net_id
         self.players[player.net_id] = player
 
