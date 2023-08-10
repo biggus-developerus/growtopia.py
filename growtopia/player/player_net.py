@@ -108,7 +108,7 @@ class PlayerNet:
         bool:
             True if the packet was successfully sent, False otherwise.
         """
-        return self.send(GameMessagePacket(f"action|play_sfx\nfile|audio/door_shut.wav\ndelayMS|0\n"))
+        return self.send(GameMessagePacket(f"action|play_sfx\nfile|{file_path}\ndelayMS|{delay}"))
 
     def send_log(self, message: str) -> bool:
         """
@@ -142,7 +142,7 @@ class PlayerNet:
         bool:
             True if the packet was successfully sent, False otherwise.
         """
-        return self.send(GameMessagePacket(f"action|set_url\nurl|{url}\nlabel|{label}\n"))
+        return self.send(GameMessagePacket(f"action|set_url\nurl|{url}\nlabel|{label}"))
 
     def reject_login(self, url: str = None, label: str = None) -> bool:
         """
