@@ -1,6 +1,6 @@
 __all__ = ("PlayerNet",)
 
-from typing import Optional, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Union
 
 import enet
 
@@ -13,9 +13,9 @@ from ..protocol import (
     GameUpdatePacketFlags,
     GameUpdatePacketType,
     HelloPacket,
+    Packet,
     StrPacket,
     VariantList,
-    Packet,
 )
 from .player_login_info import PlayerLoginInfo
 

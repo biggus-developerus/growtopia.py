@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional
 
 import enet
 
+from ..inventory import Inventory
 from .player_login_info import PlayerLoginInfo
 from .player_net import PlayerNet
 

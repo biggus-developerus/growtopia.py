@@ -7,8 +7,8 @@ from .collection import Collection
 from .dialog import Dialog
 from .enums import EventID
 from .error_manager import ErrorManager
-from .listener import Listener
 from .extension import Extension
+from .listener import Listener
 
 
 class Dispatcher:

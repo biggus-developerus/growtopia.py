@@ -1,20 +1,20 @@
 __all__ = ("World",)
 
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from ..constants import latest_game_version
-from .tile import Tile
-from .world_net import WorldNet
-from .world_object import WorldObject
 from ..protocol import (
-    GameUpdatePacket,
-    GameUpdatePacketType,
-    GameUpdatePacketFlags,
-    Packet,
     GameMessagePacket,
+    GameUpdatePacket,
+    GameUpdatePacketFlags,
+    GameUpdatePacketType,
+    Packet,
     TextPacket,
     VariantList,
 )
+from .tile import Tile
+from .world_net import WorldNet
+from .world_object import WorldObject
 
 if TYPE_CHECKING:
     from ..player import Player

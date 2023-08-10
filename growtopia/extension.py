@@ -1,13 +1,13 @@
 __all__ = ("Extension",)
 
 import inspect
-
 from importlib.machinery import ModuleSpec
 from importlib.util import module_from_spec, spec_from_file_location
 from types import ModuleType
+
 from .collection import Collection
-from .listener import Listener
 from .dialog import Dialog
+from .listener import Listener
 
 
 class Extension:

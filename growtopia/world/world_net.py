@@ -1,15 +1,9 @@
 __all__ = ("WorldNet",)
 
-from typing import Union, Callable
-from ..protocol import (
-    GameUpdatePacket,
-    Packet,
-    GameMessagePacket,
-    TextPacket,
-)
-
+from typing import Callable, Union
 
 from ..player import Player
+from ..protocol import GameMessagePacket, GameUpdatePacket, Packet, TextPacket
 
 
 class WorldNet:
