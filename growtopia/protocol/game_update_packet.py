@@ -73,7 +73,7 @@ class GameUpdatePacket(Packet):
         count2: Optional[int] = 0,
         net_id: Optional[int] = -1,
         target_net_id: Optional[int] = 0,
-        flags: Optional[GameUpdatePacketFlags] = GameUpdatePacketFlags.UNKNOWN,
+        flags: Optional[GameUpdatePacketFlags] = GameUpdatePacketFlags.NONE,
         float_: Optional[float] = 0.0,
         int_: Optional[int] = 0,
         vec_x: Optional[float] = 0.0,
@@ -162,7 +162,7 @@ class GameUpdatePacket(Packet):
         self.data += self.net_id.to_bytes(4, "little", signed=True)
         self.data += self.target_net_id.to_bytes(4, "little", signed=True)
 
-        if self.flags == GameUpdatePacketFlags.UNKNOWN and self.extra_data:
+        if self.flags == GameUpdatePacketFlags.NONE and self.extra_data:
             self.flags = GameUpdatePacketFlags.EXTRA_DATA
 
         self.data += self.flags.to_bytes(4, "little")
