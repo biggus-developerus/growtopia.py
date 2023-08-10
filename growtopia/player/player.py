@@ -1,9 +1,14 @@
 __all__ = ("Player",)
 
+from typing import TYPE_CHECKING, Optional
+
 import enet
 
 from .player_login_info import PlayerLoginInfo
 from .player_net import PlayerNet
+
+if TYPE_CHECKING:
+    from ..world import World
 
 
 class Player(PlayerNet):
@@ -31,6 +36,19 @@ class Player(PlayerNet):
         super().__init__(peer)
 
         self.login_info: PlayerLoginInfo = PlayerLoginInfo()
+        self.world: Optional[World] = None
+
+    def send_to_world(self, world: "World") -> bool:
+        """
+        Sends the player to a world.
+
+        Parameters
+        ----------
+        world: World
+            The world to send the player to.
+        """
+        self.world = world
+        return self.world.add_player(self)
 
     @property
     def guest(self) -> bool:
