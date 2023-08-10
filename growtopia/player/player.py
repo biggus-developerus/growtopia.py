@@ -40,7 +40,26 @@ class Player(PlayerNet):
         self.world: Optional[World] = None
         self.inventory: Optional[Inventory] = Inventory()
 
-    def send_to_world(self, world: "World") -> bool:
+    def play_audio_file(self, file_path: str, delay: int = 0) -> bool:
+        """
+        Sends a packet that'll make the client play an audio file.
+
+        Parameters
+        ----------
+        file_path: str
+            The path of the file to play.
+
+        delay: int
+            The delay in milliseconds.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+        return self._play_sfx(file_path, delay)
+
+    def send_to_world(self, world: Optional["World"]) -> bool:
         """
         Sends the player to a world.
 
@@ -49,7 +68,11 @@ class Player(PlayerNet):
         world: World
             The world to send the player to.
         """
-        self.world = world
+        self.world = world or self.world
+
+        if self.world is None:
+            return False
+
         return self.world.add_player(self)
 
     def send_inventory(self, inventory: Optional[Inventory] = None) -> bool:
@@ -62,6 +85,10 @@ class Player(PlayerNet):
             The inventory to send to the player.
         """
         self.inventory = inventory or self.inventory
+
+        if self.inventory is None:
+            return False
+
         return self._send_inventory_state(self.inventory)
 
     @property
