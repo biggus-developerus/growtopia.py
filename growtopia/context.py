@@ -21,6 +21,7 @@ if TYPE_CHECKING:
         TextPacket,
     )
     from .servers import Server
+    from .world import World
 
 
 class Context:
@@ -69,6 +70,7 @@ class ServerContext(Context):
 
         self.server: Optional["Server"] = None
         self.player: Optional["Player"] = None
+        self.world: Optional["World"] = None
 
     def reply(self, packet: Union["StrPacket", "GameUpdatePacket", "HelloPacket"]) -> bool:
         """

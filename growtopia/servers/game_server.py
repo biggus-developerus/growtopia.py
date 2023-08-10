@@ -43,6 +43,9 @@ class GameServer(Server):
             context.player = self.get_player(context.enet_event.peer)
             packet_type = Packet.get_type(context.enet_event.packet.data)
 
+            if context.player.world:
+                context.world = context.player.world
+
             if packet_type == PacketType.TEXT:
                 context.packet = TextPacket.from_bytes(context.enet_event.packet.data)
             elif packet_type == PacketType.GAME_MESSAGE:
