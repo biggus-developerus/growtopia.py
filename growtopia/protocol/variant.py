@@ -8,7 +8,7 @@ from .enums import VariantType
 
 class Variant:
     _serialisers = {
-        VariantType.INT: lambda data: bytearray(data.to_bytes(4, "little")),
+        VariantType.INT: lambda data: bytearray(data.to_bytes(4, "little", signed=True)),
         VariantType.UINT: lambda data: bytearray(data.to_bytes(4, "little")),
         VariantType.FLOAT: lambda data: bytearray(struct.pack("f", data)),
         VariantType.STR: lambda data: bytearray(len(data).to_bytes(4, "little") + data.encode()),
@@ -18,7 +18,7 @@ class Variant:
     }
 
     _deserialisers = {
-        VariantType.INT: lambda data: int.from_bytes(data[:4], "little"),
+        VariantType.INT: lambda data: int.from_bytes(data[:4], "little", signed=True),
         VariantType.UINT: lambda data: int.from_bytes(data[:4], "little"),
         VariantType.FLOAT: lambda data: struct.unpack("f", data[:4])[0],
         VariantType.STR: lambda data: data[4 : int.from_bytes(data[:4], "little") + 4].decode(),
