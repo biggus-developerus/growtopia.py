@@ -339,7 +339,7 @@ class PlayerNet:
                     update_type=GameUpdatePacketType.CALL_FUNCTION,
                     variant_list=VariantList(
                         "OnSpawn",
-                        f"spawn|avatar\nnetID|{player.net_id}\nuserID|{player.user_id}\ncolrect|0|0|20|30\nposXY|{x}|{y}\nname|{player.name}\ncountry|{player.login_info.country}\ninvis|0\nmstate|0\nsmstate|1\n",
+                        f"spawn|avatar\nnetID|{player.net_id}\nuserID|{player.user_id}\ncolrect|0|0|20|30\nposXY|{x}|{y}\nname|{player.name}\ncountry|{player.login_info.country}\ninvis|0\nmstate|0\nsmstate|0\n",
                     ),
                 )
             )
