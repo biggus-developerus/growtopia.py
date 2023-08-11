@@ -176,7 +176,6 @@ class PlayerNet:
         return self.send(
             GameUpdatePacket(
                 update_type=GameUpdatePacketType.CALL_FUNCTION,
-                net_id=self.net_id,
                 variant_list=VariantList("OnConsoleMessage", message),
             )
         )
@@ -229,7 +228,6 @@ class PlayerNet:
         return self.send(
             GameUpdatePacket(
                 update_type=GameUpdatePacketType.CALL_FUNCTION,
-                net_id=self.net_id,
                 variant_list=VariantList(
                     function_name,
                     items_data_or_hash,
@@ -267,7 +265,6 @@ class PlayerNet:
         return self.send(
             GameUpdatePacket(
                 update_type=GameUpdatePacketType.CALL_FUNCTION,
-                net_id=self.net_id,
                 variant_list=VariantList(
                     "OnSendToServer",
                     port,
