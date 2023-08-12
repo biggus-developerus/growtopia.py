@@ -86,6 +86,6 @@ class GameServer(Server, ServerWorldPool):
 
             elif event == EventID.ON_INPUT:
                 if (text := context.packet.arguments.get("text", None)) and text.startswith("/"):
-                    return await self.dispatch_command((splt_txt := text.split(" "))[0][1:], splt_txt[1:], context)
+                    await self.dispatch_command((splt_txt := text.split(" "))[0][1:], splt_txt[1:], context)
 
         return await self.dispatch_event(event, context)
