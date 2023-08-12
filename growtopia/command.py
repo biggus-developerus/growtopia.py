@@ -61,7 +61,6 @@ class Command:
 
         self._hints = get_type_hints(callback)
         self._cmd_args = {}
-        self._kwarg_only_count = self.callback.__code__.co_kwonlyargcount
 
         self._init_args()  # this will be called twice if the command is in a Collection
 
