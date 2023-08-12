@@ -4,6 +4,7 @@ import asyncio
 from typing import Coroutine, Optional
 
 from .collection import Collection
+from .command import Command
 from .dialog import Dialog
 from .enums import EventID
 from .error_manager import ErrorManager
@@ -32,6 +33,7 @@ class Dispatcher:
         self.collections: dict[str, Collection] = {}
         self.extensions: dict[str, Extension] = {}
         self.dialogs: dict[str, Dialog] = {}
+        self.commands: dict[str, Command] = {}
 
     def listener(self, func: Coroutine) -> Listener:
         """
@@ -59,6 +61,57 @@ class Dispatcher:
         self.add_listeners(listener)
 
         return listener
+
+    def command(self, func: Coroutine) -> Command:
+        """
+        A decorator that registers a coroutine as a command.
+
+        Parameters
+        ----------
+        func: Coroutine
+            The coroutine to register.
+
+        Returns
+        -------
+        Command
+            The Command object that was created.
+
+        Raises
+        ------
+        TypeError
+            The coroutine passed in is not a coroutine.
+        """
+        if not asyncio.iscoroutinefunction(func):
+            raise TypeError("callback must be a coroutine")
+
+        command = Command(func)
+        self.add_commands(command)
+
+        return command
+
+    def add_commands(self, *commands: Command) -> None:
+        """
+        Adds a command to the dispatcher.
+
+        Parameters
+        ----------
+        *commands: Command
+            The command(s) to add to the dispatcher.
+        """
+        for command in commands:
+            self.commands[command.name] = command
+
+    def remove_commands(self, *commands: Command) -> None:
+        """
+        Removes a command from the dispatcher.
+
+        Parameters
+        ----------
+        *commands: Command
+            The command(s) to remove from the dispatcher.
+        """
+        for command in commands:
+            del self.commands[command.name]
 
     def add_listeners(self, *listeners: Listener) -> None:
         """
@@ -151,6 +204,7 @@ class Dispatcher:
         self.collections[col.__class__.__name__] = col
 
         self.add_listeners(*list(col._listeners.values()))
+        self.add_commands(*list(col._commands.values()))
 
         return col
 
@@ -170,6 +224,7 @@ class Dispatcher:
             return
 
         self.remove_listeners(*list(col._listeners.values()))
+        self.remove_commands(*list(col._commands.values()))
 
     def load_extension(self, module_name: str, package: str = ".", *args, **kwargs) -> None:
         """
@@ -191,8 +246,8 @@ class Dispatcher:
 
         self.extensions[f"{ext.module.__name__[:-3]}"] = ext
 
-        for listener in ext.listeners:
-            self.add_listeners(listener)
+        self.add_listeners(*ext.listeners)
+        self.add_commands(*ext.commands)
 
         for collection in ext.collections:
             self.register_collection(collection, *args, **kwargs)
@@ -268,6 +323,25 @@ class Dispatcher:
             return False
 
         asyncio.get_event_loop().create_task(listener(*args, **kwargs))
+        return True
+
+    async def dispatch_command(self, command_name: str, command_args: list[str], *args, **kwargs) -> bool:
+        """
+        Dispatches a command.
+
+        Parameters
+        ----------
+        command_name: str
+            The name of the command to dispatch.
+        command_args: list[str]
+            The arguments to pass to the command.
+        """
+        command = self.commands.get(command_name, None)
+
+        if command is None:
+            return False
+
+        asyncio.get_event_loop().create_task(command(command_args, *args, **kwargs))
         return True
 
     async def dispatch_dialog_return(self, dialog_name: str, button_name: str, *args, **kwargs) -> bool:
