@@ -60,25 +60,30 @@ class Command:
         self._is_dialog_listener: bool = False
 
         self._hints = get_type_hints(callback)
-        self._cmd_args = {}
+        self._cmd_params = {}
 
         self._init_args()  # this will be called twice if the command is in a Collection
 
     def _init_args(self) -> None:
-        self._cmd_args.clear()  # reset cmd args (in case the command is in a Collection and needs to get rid of the second arg as well (ctx))
+        self._cmd_params = (
+            {}
+        )  # reset cmd args (in case the command is in a Collection and needs to get rid of the second arg as well (ctx))
 
         varnames = self.callback.__code__.co_varnames[
             2 if self._belongs_to is not None else 1 :
         ]  # get rid of self and Context
 
+        varnames = varnames[: len(self._hints) - 2]  # -2 to get rid of the ctx and the hinting of the return value
+        # we're also getting rid of every other varname after the amount of hints we have, as the rest are just variables within the function.
+
         for arg in varnames:
-            self._cmd_args[arg] = self._hints.get(arg, str)
+            self._cmd_params[arg] = self._hints.get(arg, str)
 
     def _parse_args(self, command_args: list[str]) -> list:
         args_from_text = []
 
         for arg in command_args:
-            if len(args_from_text) == (len(self._cmd_args) - 1) and self.callback.__code__.co_kwonlyargcount != 0:
+            if len(args_from_text) == (len(self._cmd_params) - 1) and self.callback.__code__.co_kwonlyargcount != 0:
                 args_from_text.append(" ".join(command_args[len(args_from_text) :]))
                 break
 
@@ -91,7 +96,8 @@ class Command:
         cmd_args = self._parse_args(command_args)
 
         for index, cmd_arg in enumerate(cmd_args):
-            kwargs[list(self._cmd_args.keys())[index]] = self._cmd_args[list(self._cmd_args.keys())[index]](cmd_arg)
+            caster = self._hints[list(self._cmd_params.keys())[index]]
+            kwargs[list(self._cmd_params.keys())[index]] = caster(cmd_arg)
 
         if self._belongs_to is not None:
             return self.callback(self._belongs_to, *args, **kwargs)
