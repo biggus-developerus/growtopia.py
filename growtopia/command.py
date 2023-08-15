@@ -25,9 +25,6 @@ class InvalidArg:
         self.param_name: str = param_name
         self.caster: type = caster
 
-    def __str__(self) -> str:
-        return f"{Colour.RED}COMMAND ERROR: Couldn't convert {Colour.BLUE}{self.param_name} {Colour.RED}to {Colour.LIGHT_YELLOW}{self.caster.__name__}{Colour.DEFAULT}"
-
 
 class CommandDec:
     """
