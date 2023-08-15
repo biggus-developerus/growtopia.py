@@ -6,7 +6,7 @@ __all__ = (
 import asyncio
 import inspect
 
-from typing import Callable, Coroutine, Optional, get_type_hints, Union
+from typing import Callable, Coroutine, Optional, Union
 
 from .enums import Colour
 from .dialog import Dialog, DialogElement
@@ -92,7 +92,6 @@ class CommandDec:
         self._belongs_to: object = None
         self._is_dialog_listener: bool = False
 
-        self._hints = get_type_hints(callback)
         self._cmd_params = []  # list[tuple(param_name, param_type, param_default)]
         self._kwarg_name = (
             None
@@ -117,10 +116,7 @@ class CommandDec:
                 DialogElement.smalltext(", ".join(self.aliases) if self.aliases else "None"),
                 DialogElement.spacer_small(),
                 DialogElement.label_with_icon_small("Parameter types", itemid=12526),
-                *[
-                    DialogElement.smalltext(f"{param[0]}: {self._hints.get(param[0], str).__name__}")
-                    for param in self._cmd_params
-                ],
+                *[DialogElement.smalltext(f"{param[0]}: {param[1].__name__}") for param in self._cmd_params],
             ],
         )
 
@@ -140,7 +136,13 @@ class CommandDec:
         casted_args = []
 
         for i, arg in enumerate(args_from_text):
-            if i >= len(self._cmd_params):
+            if (
+                len(casted_args) == (len(self._cmd_params) - 1) and self._kwarg_name is not None
+            ):  # if the last param is a kwarg and we're at the last arg (the kwarg denotes that the rest of the args should be joined and passed in as a single arg)
+                casted_args.append(" ".join(args_from_text[i:]))  # join the rest of the args and append it
+                break  # break out of the loop since we're done
+
+            if i >= len(self._cmd_params):  # if there are more args than params
                 break
 
             caster = self._cmd_params[i][1]
@@ -174,7 +176,9 @@ class CommandDec:
         ctx: ServerContext = args[0]
         command_args: dict[str] = self._parse_args(command_args)
 
-        if any(isinstance(arg, InvalidArg) for arg in command_args.values()):
+        if any(
+            isinstance(arg, InvalidArg) for arg in command_args.values()
+        ):  # if there are any invalid args (this includes required args that weren't passed in)
             if self.help_message:
                 if isinstance(self.help_message, Dialog):
                     ctx.player.on_dialog_request(self.help_message)
