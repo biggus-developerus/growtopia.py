@@ -100,7 +100,7 @@ class Colour(StrEnum):
     An enumeration of all text colours that can be used.
     """
 
-    DEFAULT = "`0"
+    DEFAULT = "`o"
     LIGHT_CYAN = "`1"
     GREEN = "`2"
     LIGHT_BLUE = "`3"
@@ -116,7 +116,7 @@ class Colour(StrEnum):
     VERY_LIGHT_YELLOW = "`$"
     VERY_LIGHT_GREEN = "`^"
     VERY_LIGHT_PINK = "`&"
-    WHITE = "`w"
+    WHITE = "`w"  # w and 0 are the same
     LIGHT_BEIGE = "`o"
     BLACK = "`b"
     PINK = "`p"
