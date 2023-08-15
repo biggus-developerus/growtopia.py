@@ -144,7 +144,10 @@ class Dialog:
                     raise ValueError("Dialog already has an ending.")
 
                 self.__has_ending = True
-                self.name = element.split("|")[1]
+                name = element.split("|")[1]
+
+                if name != self.name:
+                    raise ValueError("Name in the ending element does not match the Dialog's name.")
 
             self.elements.append(element)
 
