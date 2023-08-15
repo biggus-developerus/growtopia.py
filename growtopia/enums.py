@@ -127,4 +127,3 @@ class Colour(StrEnum):
     DARK_GRAY = "`a"
     GRAY = "`s"
     CYAN = "`c"
-    YELLOW = "`i"
