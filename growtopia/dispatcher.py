@@ -4,7 +4,7 @@ import asyncio
 from typing import Coroutine, Optional
 
 from .collection import Collection
-from .command import Command
+from .command import CommandDec
 from .dialog import Dialog
 from .enums import EventID
 from .error_manager import ErrorManager
@@ -33,7 +33,7 @@ class Dispatcher:
         self.collections: dict[str, Collection] = {}
         self.extensions: dict[str, Extension] = {}
         self.dialogs: dict[str, Dialog] = {}
-        self.commands: dict[str, Command] = {}
+        self.commands: dict[str, CommandDec] = {}
 
     def listener(self, func: Coroutine) -> Listener:
         """
@@ -62,7 +62,7 @@ class Dispatcher:
 
         return listener
 
-    def command(self, func: Coroutine) -> Command:
+    def command(self, func: Coroutine) -> CommandDec:
         """
         A decorator that registers a coroutine as a command.
 
@@ -84,12 +84,12 @@ class Dispatcher:
         if not asyncio.iscoroutinefunction(func):
             raise TypeError("callback must be a coroutine")
 
-        command = Command(func)
+        command = CommandDec(func)
         self.add_commands(command)
 
         return command
 
-    def add_commands(self, *commands: Command) -> None:
+    def add_commands(self, *commands: CommandDec) -> None:
         """
         Adds a command to the dispatcher.
 
@@ -99,9 +99,13 @@ class Dispatcher:
             The command(s) to add to the dispatcher.
         """
         for command in commands:
+            if len(command.aliases) > 0:
+                for alias in command.aliases:
+                    self.commands[alias] = command
+
             self.commands[command.name] = command
 
-    def remove_commands(self, *commands: Command) -> None:
+    def remove_commands(self, *commands: CommandDec) -> None:
         """
         Removes a command from the dispatcher.
 
@@ -111,6 +115,10 @@ class Dispatcher:
             The command(s) to remove from the dispatcher.
         """
         for command in commands:
+            if len(command.aliases) > 0:
+                for alias in command.aliases:
+                    del self.commands[alias]
+
             del self.commands[command.name]
 
     def add_listeners(self, *listeners: Listener) -> None:
@@ -341,7 +349,12 @@ class Dispatcher:
         if command is None:
             return False
 
-        asyncio.get_event_loop().create_task(command(command_args, *args, **kwargs))
+        c = command(command_args, *args, **kwargs)
+
+        if not c:
+            return False
+
+        asyncio.get_event_loop().create_task(c)
         return True
 
     async def dispatch_dialog_return(self, dialog_name: str, button_name: str, *args, **kwargs) -> bool:

@@ -1,6 +1,6 @@
 __all__ = ("Collection",)
 
-from .command import Command
+from .command import Command, CommandDec
 from .enums import EventID
 from .listener import Listener
 
@@ -26,7 +26,7 @@ class Collection:
                 inst._listeners[value.id] = value
                 value._belongs_to = inst
 
-            elif isinstance(value, Command):
+            elif isinstance(value, CommandDec):
                 inst._commands[value.name] = value
                 value._belongs_to = inst
                 value._init_args()

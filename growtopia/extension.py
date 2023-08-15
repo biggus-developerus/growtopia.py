@@ -6,7 +6,7 @@ from importlib.util import module_from_spec, spec_from_file_location
 from types import ModuleType
 
 from .collection import Collection
-from .command import Command
+from .command import CommandDec
 from .dialog import Dialog
 from .listener import Listener
 
@@ -22,7 +22,7 @@ class Extension:
         self.collections: list[Collection] = []
         self.listeners: list[Listener] = []
         self.dialogs: list[Dialog] = []
-        self.commands: list[Command] = []
+        self.commands: list[CommandDec] = []
 
         self._args_to_pass: tuple = args
         self._kwargs_to_pass: dict = kwargs
@@ -37,7 +37,7 @@ class Extension:
         for _, value in self.module.__dict__.items():
             if isinstance(value, Listener):
                 self.listeners.append(value)
-            elif isinstance(value, Command):
+            elif isinstance(value, CommandDec):
                 self.commands.append(value)
             elif inspect.isclass(value) and issubclass(value, Collection):
                 self.collections.append(
