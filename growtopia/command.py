@@ -5,12 +5,11 @@ __all__ = (
 
 import asyncio
 import inspect
-
 from typing import Callable, Coroutine, Optional, Union
 
-from .enums import Colour
-from .dialog import Dialog, DialogElement
 from .context import ServerContext
+from .dialog import Dialog, DialogElement
+from .enums import Colour
 
 
 class InvalidArg:
