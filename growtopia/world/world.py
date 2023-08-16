@@ -3,15 +3,6 @@ __all__ = ("World",)
 from typing import TYPE_CHECKING, Optional
 
 from ..constants import latest_game_version
-from ..protocol import (
-    GameMessagePacket,
-    GameUpdatePacket,
-    GameUpdatePacketFlags,
-    GameUpdatePacketType,
-    Packet,
-    TextPacket,
-    VariantList,
-)
 from .tile import Tile
 from .world_net import WorldNet
 from .world_object import WorldObject
@@ -155,4 +146,62 @@ class World(WorldNet):
 
     @classmethod
     def from_bytes(cls, data: bytes, *, game_version: float = latest_game_version) -> Optional["World"]:
-        raise NotImplementedError
+        """
+        Creates a world from bytes.
+
+        Parameters
+        ----------
+        data: bytes
+            The bytes to create the world from.
+
+        Keyword Arguments
+        ----------
+        game_version: float
+            The game version to create the world for. (default latest_game_version)
+
+        Returns
+        -------
+        Optional[World]:
+            The world if successful, None otherwise.
+        """
+        world = cls()
+
+        world.version = int.from_bytes(data[:2], "little")
+        world.flags = int.from_bytes(data[2:6], "little")
+
+        name_len = int.from_bytes(data[6:8], "little")
+        world.name = data[8 : 8 + name_len].decode()
+
+        world.width = int.from_bytes(data[8 + name_len : 12 + name_len], "little")
+        world.height = int.from_bytes(data[12 + name_len : 16 + name_len], "little")
+
+        tile_count = int.from_bytes(data[16 + name_len : 20 + name_len], "little")
+
+        if game_version >= 4.31:
+            data = data[20 + name_len :]
+
+            data = data[13:]
+
+        data = data[20 + name_len :]
+
+        for _ in range(tile_count):
+            tile = Tile.from_bytes(data[:20])
+            world.tiles.append(tile)
+            data = data[20:]
+
+        if game_version >= 4.31:
+            data = data[12:]
+
+        obj_count = int.from_bytes(data[:4], "little")
+
+        data = data[4:]
+
+        for _ in range(obj_count):
+            obj = WorldObject.from_bytes(data[:20])
+            world.objects.append(obj)
+            data = data[20:]
+
+        world.base_weather_id = int.from_bytes(data[:4], "little")
+        world.weather_id = int.from_bytes(data[4:8], "little")
+
+        return world

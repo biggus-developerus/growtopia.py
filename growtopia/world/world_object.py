@@ -34,4 +34,21 @@ class WorldObject:
 
     @classmethod
     def from_bytes(cls, data: bytes) -> "WorldObject":
-        raise NotImplementedError
+        """
+        Creates a world object from bytes.
+
+        Parameters
+        ----------
+        data: bytes
+            The bytes to create the world object from.
+
+        Returns
+        -------
+        WorldObject:
+            The world object.
+        """
+        obj = cls()
+
+        obj.id, obj.pos, obj.count, obj.flags, obj.object_id = struct.unpack("<HffBBi", data[:16])
+
+        return obj

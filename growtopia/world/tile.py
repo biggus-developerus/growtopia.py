@@ -3,9 +3,6 @@ __all__ = ("Tile",)
 
 class Tile:
     def __init__(self, *, foreground: int = 0, background: int = 0) -> None:
-        self.unknown: int = 0  # uint32
-        self.unknown2: int = 0  # uint8
-
         self.foreground: int = foreground  # uint16
         self.background: int = background  # uint16
 
@@ -39,4 +36,29 @@ class Tile:
 
     @classmethod
     def from_bytes(cls, data: bytes) -> "Tile":
-        raise NotImplementedError
+        """
+        Creates a tile from bytes.
+
+        Parameters
+        ----------
+        data: bytes
+            The bytes to create the tile from.
+
+        Returns
+        -------
+        Tile:
+            The tile.
+        """
+        tile = cls()
+
+        tile.foreground = int.from_bytes(data[:2], "little")
+        tile.background = int.from_bytes(data[2:4], "little")
+
+        tile.lockpos = int.from_bytes(data[4:6], "little")
+        tile.flags = int.from_bytes(data[6:8], "little")
+
+        if tile.flags != 0:  # TODO: Obviously handle the extra data.. 😢
+            tile.extra_type = int.from_bytes(data[8:9], "little")
+            tile.extra_data = data[9:]
+
+        return tile
