@@ -86,7 +86,7 @@ class CommandDec:
         self.name: str = name or callback.__name__
         self.description: Optional[str] = description or "No description provided."
         self.help_message: Optional[Union[str, Dialog]] = help_message
-        self.aliases: Optional[tuple[str]] = aliases
+        self.aliases: Optional[tuple[str]] = aliases or []
 
         self._belongs_to: object = None
         self._is_dialog_listener: bool = False
