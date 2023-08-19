@@ -31,13 +31,13 @@ class ServerWorldPool:
         World:
             The world that was created.
         """
-        world = World()
-
-        world.name = name
-        world.width = width
-        world.height = height
-        world.base_weather_id = base_weather_id
-        world.weather_id = weather_id
+        world = World(
+            name,
+            width=width,
+            height=height,
+            base_weather_id=base_weather_id,
+            weather_id=weather_id,
+        )
 
         self.worlds[name] = world
 

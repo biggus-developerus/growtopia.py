@@ -1,99 +1,40 @@
 __all__ = ("World",)
 
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from ..constants import latest_game_version
 from .tile import Tile
-from .world_net import WorldNet
 from .world_object import WorldObject
+from .world_object_pool import WorldObjectPool
+from .world_player_pool import WorldPlayerPool
+from .world_tile_pool import WorldTilePool
 
-if TYPE_CHECKING:
-    from ..player import Player
 
+class World(WorldPlayerPool, WorldTilePool, WorldObjectPool):
+    def __init__(
+        self,
+        name: str,
+        *,
+        width: int = 100,
+        height: int = 60,
+        base_weather_id: int = 0,
+        weather_id: int = 0,
+        version: int = 20,
+        flags: int = 64,
+    ) -> None:
+        WorldPlayerPool.__init__(self)
+        WorldTilePool.__init__(self, width, height)
+        WorldObjectPool.__init__(self)
 
-class World(WorldNet):
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.version: int = 20  # uint16
-        self.flags: int = 64  # uint32
-
-        self.name: str = ""
-
-        self.width: int = 100  # uint32
-        self.height: int = 60  # uin32
-
-        self.base_weather_id: int = 0  # uint32
-        self.weather_id: int = 0  # uint32
+        self.name: str = name
+        self.width: int = width
+        self.height: int = height
+        self.base_weather_id: int = base_weather_id
+        self.weather_id: int = weather_id
+        self.version: int = version
+        self.flags: int = flags
 
         self.data: bytearray = bytearray()
-
-        self.players: dict[int, "Player"] = {}  # players by net id
-        self.tiles: list[Tile] = [Tile() for _ in range(self.width * self.height)]
-        self.objects: list[WorldObject] = []
-
-        self.__net_id: int = 0  # incremented upon adding a player (never decremented or reset)
-
-    def add_player(self, player: "Player") -> bool:
-        """
-        Adds a player to the world.
-
-        Parameters
-        ----------
-        player: Player
-            The player to add to the world.
-
-        Returns
-        -------
-        bool:
-            True if the player was added, False otherwise.
-        """
-        if player.net_id in self.players:
-            return False
-
-        if player.world == None:
-            player.world = self
-
-        player.net_id = self.__net_id
-        self.players[player.net_id] = player
-
-        player._send_world(self)
-        player.on_spawn(500, 500)
-
-        self.lambda_broadcast(lambda p: p.on_spawn(500, 500, player), exclude_net_id=player.net_id)
-
-        for p in self.players.values():
-            if p.net_id == player.net_id:
-                continue
-
-            player.on_spawn(500, 500, p)
-
-        self.__net_id += 1
-
-        return True
-
-    def remove_player(self, player: "Player") -> bool:
-        """
-        Removes a player from the world.
-
-        Parameters
-        ----------
-        player: Player
-            The player to remove from the world.
-
-        Returns
-        -------
-        bool:
-            True if the player was removed, False otherwise.
-        """
-        if player.net_id not in self.players:
-            return False
-
-        del self.players[player.net_id]
-
-        self.lambda_broadcast(lambda p: p._on_remove(player), exclude_net_id=player.net_id)
-
-        return True
 
     def serialise(self, *, game_version: float = latest_game_version) -> bytearray:
         """
