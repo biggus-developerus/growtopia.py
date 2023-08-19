@@ -267,7 +267,12 @@ class GameUpdatePacket(Packet):
         update_packet.net_id = int.from_bytes(data[8:12], "little", signed=True)
         update_packet.target_net_id = int.from_bytes(data[12:16], "little", signed=True)
 
-        update_packet.flags = GameUpdatePacketFlags(int.from_bytes(data[16:20], "little"))
+        flags = GameUpdatePacketFlags(flags_val := int.from_bytes(data[16:20], "little"))
+
+        if flags_val != 0 and flags == GameUpdatePacketFlags.NONE:
+            flags = flags_val
+
+        update_packet.flags = flags
         update_packet.float = struct.unpack("f", data[20:24])[0]
         update_packet.int = int.from_bytes(data[24:28], "little", signed=True)
 
@@ -281,7 +286,7 @@ class GameUpdatePacket(Packet):
         update_packet.int_x = int.from_bytes(data[48:52], "little", signed=True)
         update_packet.int_y = int.from_bytes(data[52:56], "little", signed=True)
 
-        if update_packet.flags == GameUpdatePacketFlags.EXTRA_DATA:
+        if update_packet.flags == GameUpdatePacketFlags.EXTRA_DATA or len(data[56:]) > 0:
             if len(data) < 60:
                 ErrorManager._raise_exception(PacketTooSmall(update_packet, ">=60"))
                 update_packet._malformed = True
