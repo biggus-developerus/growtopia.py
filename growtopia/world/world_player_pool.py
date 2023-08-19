@@ -1,6 +1,6 @@
 __all__ = ("WorldPlayerPool",)
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from ..player import Player
@@ -61,6 +61,22 @@ class WorldPlayerPool(WorldNet):
         self.__net_id += 1
 
         return True
+
+    def get_player(self, net_id: int) -> Optional["Player"]:
+        """
+        Gets a player by their net id.
+
+        Parameters
+        ----------
+        net_id: int
+            The net id of the player to get.
+
+        Returns
+        -------
+        Player:
+            The player with the net id.
+        """
+        return self.players.get(net_id, None)
 
     def remove_player(self, player: "Player") -> bool:
         """
