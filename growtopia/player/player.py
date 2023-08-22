@@ -39,6 +39,7 @@ class Player(PlayerNet):
         self.login_info: PlayerLoginInfo = PlayerLoginInfo()
         self.world: Optional[World] = None
         self.inventory: Optional[Inventory] = Inventory()
+        self.pos: tuple[int, int] = ()
 
     def play_audio_file(self, file_path: str, delay: int = 0) -> bool:
         """
@@ -74,6 +75,28 @@ class Player(PlayerNet):
             return False
 
         return self.world.add_player(self)
+
+    def add_inventory_item(self, item_id: int, amount: int = 1) -> bool:
+        """
+        Adds an item to the player's inventory.
+
+        Parameters
+        ----------
+        item_id: int
+            The item ID to add.
+
+        amount: int
+            The amount of the item to add.
+
+        Returns
+        -------
+        bool:
+            True if the item was successfully added, False otherwise.
+        """
+        if self.inventory is None:
+            return False
+
+        return self.inventory.add_item(item_id, amount)
 
     def send_inventory(self, inventory: Optional[Inventory] = None) -> bool:
         """
