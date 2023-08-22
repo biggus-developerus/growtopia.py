@@ -3,8 +3,8 @@ __all__ = ("Tile",)
 
 class Tile:
     def __init__(self, *, foreground: int = 0, background: int = 0) -> None:
-        self.foreground: int = foreground  # uint16
-        self.background: int = background  # uint16
+        self.foreground: int = foreground
+        self.background: int = background
 
         self.lockpos: int = 0  # uint16
         self.flags: int = 0  # uint16

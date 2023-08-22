@@ -12,29 +12,36 @@ if TYPE_CHECKING:
 
 
 class World(WorldNet):
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        name: str,
+        *,
+        width: int = 100,
+        height: int = 60,
+        base_weather_id: int = 0,
+        weather_id: int = 0,
+        version: int = 20,
+        flags: int = 64,
+        spawn_pos: tuple[int, int] = (500, 500),
+    ) -> None:
         super().__init__()
 
-        self.version: int = 20  # uint16
-        self.flags: int = 64  # uint32
+        self.name: str = name
+        self.width: int = width
+        self.height: int = height
+        self.base_weather_id: int = base_weather_id
+        self.weather_id: int = weather_id
+        self.version: int = version
+        self.flags: int = flags
+        self.spawn_pos: tuple[int, int] = spawn_pos
 
-        self.name: str = ""
-
-        self.width: int = 100  # uint32
-        self.height: int = 60  # uin32
-
-        self.base_weather_id: int = 0  # uint32
-        self.weather_id: int = 0  # uint32
-
-        self.data: bytearray = bytearray()
-
-        self.players: dict[int, "Player"] = {}  # players by net id
-        self.tiles: list[Tile] = [Tile() for _ in range(self.width * self.height)]
+        self.players: dict[int, Player] = {}
+        self.tiles: list[Tile] = [Tile() for _ in range(width * height)]
         self.objects: list[WorldObject] = []
 
-        self.__net_id: int = 0  # incremented upon adding a player (never decremented or reset)
+        self.__net_id: int = 0
 
-    def add_player(self, player: "Player") -> bool:
+    def add_player(self, player: "Player", override_spawn: tuple[int, int] = None) -> bool:
         """
         Adds a player to the world.
 
@@ -58,19 +65,25 @@ class World(WorldNet):
         self.players[player.net_id] = player
 
         player._send_world(self)
-        player.on_spawn(500, 500)
+        player.on_spawn(*(override_spawn or self.spawn_pos))
+        player.pos = override_spawn or self.spawn_pos
 
-        self.lambda_broadcast(lambda p: p.on_spawn(500, 500, player), exclude_net_id=player.net_id)
+        self.lambda_broadcast(
+            lambda p: p.on_spawn(*(override_spawn or self.spawn_pos), player), exclude_net_id=player.net_id
+        )
 
         for p in self.players.values():
             if p.net_id == player.net_id:
                 continue
 
-            player.on_spawn(500, 500, p)
+            player.on_spawn(*p.pos, p)
 
         self.__net_id += 1
 
         return True
+
+    def get_player(self, net_id: int) -> Optional["Player"]:
+        return self.players.get(net_id, None)
 
     def remove_player(self, player: "Player") -> bool:
         """
