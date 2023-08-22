@@ -23,23 +23,23 @@ class VariantList:
     """
 
     def __init__(self, *variants: Union[str, int, float, Variant]) -> None:
-        self.variants: list[Variant] = []
+        self.variants: list[Variant] = [
+            Variant(variant) if not isinstance(variant, Variant) else variant for variant in variants
+        ]
         self.data = bytearray([0])
-
-        for variant in variants:
-            self.append(Variant(variant) if not isinstance(variant, Variant) else variant)
 
     def get(self, index: int) -> Optional[Variant]:
         return self.variants[index] if index < len(self.variants) else None
 
     def append(self, variant: Variant) -> None:
-        self.data += variant.serialise(len(self.variants))
         self.variants.append(variant)
 
-        self.data[0] = len(self.variants)
-
     def serialise(self) -> bytearray:
-        self.data[0] = len(self.variants)
+        self.data = bytearray([len(self.variants)])
+
+        for i, variant in enumerate(self.variants):
+            self.data += variant.serialise(i)
+
         return self.data
 
     @classmethod
@@ -52,8 +52,16 @@ class VariantList:
 
         return variant_list
 
-    def __getitem__(self, i) -> Variant:  # allows for indexing
+    def __getitem__(self, i) -> Variant:
         return self.variants[i]
 
-    def __len__(self) -> int:  # allows for len()
+    def __len__(self) -> int:
         return len(self.variants)
+
+    def __iadd__(self, variant: Variant) -> "VariantList":
+        self.variants.append(variant)
+        return self
+
+    def __add__(self, variant: Variant) -> "VariantList":
+        self.variants.append(variant)
+        return self
