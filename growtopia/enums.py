@@ -38,6 +38,11 @@ class EventID(StrEnum):
     ON_JOIN_REQUEST = "on_join_request"
     ON_QUIT_TO_EXIT = "on_quit_to_exit"
     ON_INPUT = "on_input"
+    ON_WRENCH = "on_wrench"
+    ON_GROWID = "on_growid"
+    ON_STORE = "on_store"
+    ON_FRIENDS = "on_friends"
+    ON_EVENTMENU = "on_eventmenu"
 
     # Call function events
     OnSuperMain = "on_super_main"
