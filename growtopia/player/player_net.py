@@ -14,7 +14,6 @@ from ..protocol import (
     GameUpdatePacketFlags,
     GameUpdatePacketType,
     HelloPacket,
-    Packet,
     StrPacket,
     VariantList,
 )
