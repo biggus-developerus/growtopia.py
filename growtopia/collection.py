@@ -1,5 +1,6 @@
 __all__ = ("Collection",)
 
+from .command import Command, CommandDec
 from .enums import EventID
 from .listener import Listener
 
@@ -16,14 +17,22 @@ class Collection:
 
     def __new__(cls, *args, **kwargs) -> "Collection":
         inst = super().__new__(cls)
-        inst._listeners = {}
 
-        for _, listener in cls.__dict__.items():
-            if isinstance(listener, Listener):
-                inst._listeners[listener.id] = listener
-                listener._belongs_to = inst
+        inst._listeners = {}
+        inst._commands = {}
+
+        for _, value in cls.__dict__.items():
+            if isinstance(value, Listener):
+                inst._listeners[value.id] = value
+                value._belongs_to = inst
+
+            elif isinstance(value, CommandDec):
+                inst._commands[value.name] = value
+                value._belongs_to = inst
+                value._init_args()
 
         return inst
 
     def __init__(self, *args, **kwargs) -> None:
         self._listeners: dict[EventID, Listener]
+        self._commands: dict[str, Command]

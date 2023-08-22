@@ -30,10 +30,12 @@ class Listener:
             raise TypeError("Callback must be a coroutine function.")
 
         self.id: EventID = EventID(callback.__name__.lower())
+
         self.name: str = callback.__name__
         self.callback: Callable = callback
 
         self._belongs_to: object = None
+        self._is_dialog_listener: bool = False
 
     def __call__(self, *args, **kwargs) -> Coroutine:
         if self._belongs_to is not None:

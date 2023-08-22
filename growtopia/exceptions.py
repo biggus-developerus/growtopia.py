@@ -7,14 +7,12 @@ __all__ = (
     "PacketTooSmall",
 )
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 if TYPE_CHECKING:
     from .items_data import ItemsData
-    from .protocol import Packet
     from .player_tribute import PlayerTribute
-    from .protocol import Packet
-    from .dialog import Dialog
+    from .protocol import Packet, StrPacket, PacketType
 
 from .constants import ignored_attributes
 
@@ -70,7 +68,7 @@ class PacketException(GrowtopiaException):
         The name of the error.
     message: str
         The message of the error.
-    packet: Optional[Packet]
+    packet: Optional[Union[Packet, StrPacket]]
         The Packet object that was being handled when the error occurred.
 
     Attributes
@@ -79,8 +77,8 @@ class PacketException(GrowtopiaException):
         The Packet object that was being handled when the error occurred.
     """
 
-    def __init__(self, error_name: str, message: str, packet: Optional["Packet"]):
-        self.packet: Optional["Packet"] = packet
+    def __init__(self, error_name: str, message: str, packet: Optional[Union["Packet", "StrPacket"]]):
+        self.packet: Optional[Union["Packet", "StrPacket"]] = packet
         super().__init__(error_name, message)
 
 
@@ -179,9 +177,9 @@ class PacketTypeDoesNotMatchContent(PacketException):
         The Packet object that was being handled when the error occurred.
     """
 
-    def __init__(self, packet: "Packet"):
+    def __init__(self, packet: Union["Packet", "StrPacket"], packet_type_from_content: "PacketType"):
         error_name = "PacketTypeDoesNotMatchContent"
-        message = f"Packet type does not match content. Packet type: {packet._type}, packet type from content: {packet.data[:4]}"
+        message = f"Packet type does not match content. Packet type: {packet._type}, packet type from content: {packet_type_from_content}"
 
         super().__init__(
             error_name,
@@ -204,9 +202,9 @@ class PacketTooSmall(PacketException):
         The Packet object that was being handled when the error occurred.
     """
 
-    def __init__(self, packet: "Packet", size_required: str = ">=4"):
+    def __init__(self, packet: Union["Packet", "StrPacket"], data_length: int, size_required: str = ">=4"):
         error_name = "PacketTooSmall"
-        message = f"Packet is too small, required length: {size_required}, got: {len(packet.data)}"
+        message = f"Packet is too small, required length: {size_required}, got: {data_length}"
 
         super().__init__(
             error_name,

@@ -3,16 +3,17 @@ __all__ = (
     "Colour",
 )
 
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class EventID(str, Enum):
+class EventID(StrEnum):
     """
     An enumeration of all dispatchable events.
     """
 
     # General events (not related to ENet / Growtopia)
+    ON_UNKNOWN = "on_unknown"
     ON_UNHANDLED = "on_unhandled"
     ON_CLEANUP = "on_cleanup"
     ON_READY = "on_ready"
@@ -31,6 +32,17 @@ class EventID(str, Enum):
     ON_PLAY_SFX = "on_play_sfx"
     ON_LOG = "on_log"
     ON_LOGON_FAIL = "on_logon_fail"
+    ON_REFRESH_ITEM_DATA = "on_refresh_item_data"
+    ON_REFRESH_PLAYER_TRIBUTE_DATA = "on_refresh_player_tribute_data"
+    ON_ENTER_GAME = "on_enter_game"
+    ON_JOIN_REQUEST = "on_join_request"
+    ON_QUIT_TO_EXIT = "on_quit_to_exit"
+    ON_INPUT = "on_input"
+    ON_WRENCH = "on_wrench"
+    ON_GROWID = "on_growid"
+    ON_STORE = "on_store"
+    ON_FRIENDS = "on_friends"
+    ON_EVENTMENU = "on_eventmenu"
 
     # Call function events
     OnSuperMain = "on_super_main"
@@ -85,27 +97,38 @@ class EventID(str, Enum):
 
     @classmethod
     def _missing_(cls, _: object) -> Any:
-        return cls("on_unhandled")
+        return cls("on_unknown")
 
 
-class Colour(str, Enum):
+class Colour(StrEnum):
     """
     An enumeration of all text colours that can be used.
     """
 
-    DEFAULT = "``"
-    WHITE = "`0"
-    SKY_BLUE = "`1"
+    DEFAULT = "`o"
+    LIGHT_CYAN = "`1"
     GREEN = "`2"
-    PALE_BLUE = "`3"
+    LIGHT_BLUE = "`3"
     RED = "`4"
-    LIGHT_PINK = "`5"
-    TAN = "`6"
-    GREY = "`7"
+    LIGHT_PURPLE = "`5"
+    BEIGE = "`6"
+    LIGHT_GRAY = "`7"
     ORANGE = "`8"
-    YELLOW = "`9"
+    LIGHT_YELLOW = "`9"
+    VERY_LIGHT_CYAN = "`!"
+    LIGHT_PINK = "`@"
+    PURPLE = "`#"
+    VERY_LIGHT_YELLOW = "`$"
+    VERY_LIGHT_GREEN = "`^"
+    VERY_LIGHT_PINK = "`&"
+    WHITE = "`w"  # w and 0 are the same
+    LIGHT_BEIGE = "`o"
     BLACK = "`b"
-    PASTEL_RED = "`@"
-    DARK_PINK = "`#"
-    PASTEL_YELLOW = "`$"
-    PASTEL_GREEN = "`^"
+    PINK = "`p"
+    DARK_BLUE = "`q"
+    BLUE = "`e"
+    LIGHT_GREEN = "`r"
+    DARK_GREEN = "`t"
+    DARK_GRAY = "`a"
+    GRAY = "`s"
+    CYAN = "`c"

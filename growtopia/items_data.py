@@ -1,12 +1,13 @@
 __all__ = ("ItemsData",)
 
-from functools import lru_cache
 from typing import Optional, Union
 
 from .constants import ignored_attributes
+from .error_manager import ErrorManager
 from .exceptions import UnsupportedItemsData
 from .file import File
 from .item import Item
+from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
 
 
 class ItemsData(File):
@@ -125,7 +126,7 @@ class ItemsData(File):
         self.item_count = int.from_bytes(data[2:6], "little")
 
         if self.version not in list(ignored_attributes.keys()):
-            raise UnsupportedItemsData(self)
+            ErrorManager._raise_exception(UnsupportedItemsData(self))
 
         for _ in range(self.item_count):
             item = Item()
@@ -164,8 +165,13 @@ class ItemsData(File):
 
         self.hash_file()
 
-    @lru_cache(maxsize=100)
-    def get_item(self, item_id: Optional[int] = None, name: Optional[str] = None) -> Optional[Item]:
+    def get_item(
+        self,
+        item_id: Optional[int] = None,
+        name: Optional[str] = None,
+        *,
+        _cache: dict[str, Item] = {},
+    ) -> Optional[Item]:
         """
         Fetches an item from the items list. It is recommended to use the item's ID to fetch the item, as it is faster.
 
@@ -191,14 +197,24 @@ class ItemsData(File):
             return self.items[item_id]
 
         if name is not None:
+            if name.lower() in _cache:
+                return _cache[name.lower()]
+
             for item in self.items:
                 if item.name.lower() == name.lower():
+                    if len(_cache) == 100:
+                        _cache.popitem()
+
+                    _cache[name.lower()] = item
                     return item
 
         return None
 
-    @lru_cache(maxsize=100)
-    def get_starts_with(self, val: str) -> list[Item]:
+    def get_starts_with(
+        self,
+        val: str,
+        _cache: dict[str, Item] = {},
+    ) -> list[Item]:
         """
         Fetches all the items that start with the value provided.
 
@@ -218,10 +234,20 @@ class ItemsData(File):
         >>> items = ItemsData("items.dat")
         >>> items.get_starts_with("dirt")
         """
-        return [item for item in self.items if item.name.lower().startswith(val.lower())]
+        if val in _cache:
+            return _cache[val]
 
-    @lru_cache(maxsize=100)
-    def get_ends_with(self, val: str) -> list[Item]:
+        if len(_cache) == 100:
+            _cache.popitem()
+
+        _cache[val] = (res := [item for item in self.items if item.name.lower().startswith(val.lower())])
+        return res
+
+    def get_ends_with(
+        self,
+        val: str,
+        _cache: dict[str, Item] = {},
+    ) -> list[Item]:
         """
         Fetches all the items that end with the value provided.
 
@@ -241,10 +267,21 @@ class ItemsData(File):
         >>> items = ItemsData("items.dat")
         >>> items.get_ends_with("lock")
         """
-        return [item for item in self.items if item.name.lower().endswith(val.lower())]
+        if val in _cache:
+            return _cache[val]
 
-    @lru_cache(maxsize=100)
-    def get_contains(self, val: str) -> list[Item]:
+        if len(_cache) == 100:
+            _cache.popitem()
+
+        _cache[val] = (res := [item for item in self.items if item.name.lower().endswith(val.lower())])
+
+        return res
+
+    def get_contains(
+        self,
+        val: str,
+        _cache: dict[str, Item] = {},
+    ) -> list[Item]:
         """
         Fetches all the items that contain the value provided.
 
@@ -264,4 +301,33 @@ class ItemsData(File):
         >>> items = ItemsData("items.dat")
         >>> items.get_contains("dirt")
         """
-        return [item for item in self.items if val.lower() in item.name.lower()]
+        if val in _cache:
+            return _cache[val]
+
+        if len(_cache) == 100:
+            _cache.popitem()
+
+        _cache[val] = (res := [item for item in self.items if val.lower() in item.name.lower()])
+
+        return res
+
+    @property
+    def packet(self) -> GameUpdatePacket:
+        """
+        Returns the packet that should be sent to the client when it requests for the items.dat file.
+
+        Returns
+        -------
+        GameUpdatePacket
+            The packet that should be sent to the client when it requests for the items.dat file.
+
+        Examples
+        --------
+        >>> from growtopia import ItemsData
+        >>> items = ItemsData("items.dat")
+        >>> items.packet
+        """
+        if not self.content:
+            raise ValueError("The items.dat file has not been read yet.")
+
+        return GameUpdatePacket(update_type=GameUpdatePacketType.SEND_ITEMS_DATA, extra_data=bytes(self.content))

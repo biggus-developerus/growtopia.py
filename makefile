@@ -9,6 +9,9 @@ endif
 test:
 	$(python) -m pytest -vv ./tests
 
+profile:
+	$(python) profile_.py
+
 format:
 	$(python) -m black ./growtopia
 	$(python) -m isort ./growtopia

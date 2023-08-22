@@ -1,19 +1,18 @@
 """Test the Server class."""
 
-from growtopia import Context, Server
+from growtopia import ServerContext, GameServer
 
 
 def test_server() -> None:
     """Test the server"""
 
-    server = Server(
+    server = GameServer(
         address=("127.0.0.1", 17095),
     )
 
     @server.listener
-    async def on_connect(context: Context) -> None:
-        print("on_connect")
-        print(context)
+    async def on_connect(context: ServerContext) -> None:
+        ...
 
     # server.start() TODO: Allow the server to run for a couple of seconds and then stop it.
 

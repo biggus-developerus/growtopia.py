@@ -19,9 +19,12 @@ class PacketType(IntEnum):
     GAME_MESSAGE = 3
     GAME_UPDATE = 4
 
+    # Custom variant type aliases.
+    CONTAINS_TEXT = 2  # TEXT but applies to GAME_MESSAGE too.
+
     @classmethod
     def _missing_(cls, _: int) -> "PacketType":
-        return cls(0)
+        return cls.UNKNOWN
 
 
 class VariantType(IntEnum):
@@ -50,12 +53,13 @@ class GameUpdatePacketFlags(IntEnum):
     An integer enumeration of all game update packet flags.
     """
 
-    UNKNOWN = -1
+    NONE = 0
     EXTRA_DATA = 8
+    FACING_LEFT = 16
 
     @classmethod
     def _missing_(cls, _):
-        return cls.UNKNOWN
+        return cls.NONE
 
 
 class GameUpdatePacketType(IntEnum):
@@ -65,7 +69,7 @@ class GameUpdatePacketType(IntEnum):
 
     UNKNOWN = 99
 
-    STATE = 0
+    STATE_UPDATE = 0
     CALL_FUNCTION = 1
     UPDATE_STATUS = 2
     TILE_CHANGE_REQUEST = 3

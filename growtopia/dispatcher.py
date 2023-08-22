@@ -1,16 +1,14 @@
 __all__ = ("Dispatcher",)
 
 import asyncio
-import inspect
-from importlib.machinery import ModuleSpec
-from importlib.util import module_from_spec, spec_from_file_location
-from types import ModuleType
-from typing import Coroutine
+from typing import Coroutine, Optional
 
 from .collection import Collection
+from .command import CommandDec
 from .dialog import Dialog
 from .enums import EventID
 from .error_manager import ErrorManager
+from .extension import Extension
 from .listener import Listener
 
 
@@ -24,30 +22,18 @@ class Dispatcher:
         A dictionary that keeps track of all listeners. Event IDs are used as keys and Listener objects are used as values.
     collections: dict[str, Collection]
         A dictionary that keeps track of all collections. Collection names are used as keys and Collection objects are used as values.
-    extensions: dict[str, ModuleType]
-        A dictionary that keeps track of all extensions. Module names are used as keys and ModuleType objects are used as values.
+    extensions: dict[str, Extension]
+        A dictionary that keeps track of all extensions. Module names are used as keys and Extension objects are used as values.
+    dialogs: dict[str, Dialog]
+        A dictionary that keeps track of all dialogs. Dialog names are used as keys and Dialog objects are used as values.
     """
 
     def __init__(self) -> None:
         self.listeners: dict[EventID, Listener] = {}
         self.collections: dict[str, Collection] = {}
-        self.extensions: dict[str, ModuleType] = {}
+        self.extensions: dict[str, Extension] = {}
         self.dialogs: dict[str, Dialog] = {}
-
-    @classmethod
-    def __get_module(cls, name: str, pck: str = None) -> tuple[ModuleType, ModuleSpec]:
-        pck = pck or "."
-        name = name if name.endswith(".py") else name + ".py"
-        return (
-            module_from_spec(
-                spec := spec_from_file_location(
-                    name,
-                    f"{pck}/{name}",
-                    submodule_search_locations=[pck],
-                )
-            ),
-            spec,
-        )
+        self.commands: dict[str, CommandDec] = {}
 
     def listener(self, func: Coroutine) -> Listener:
         """
@@ -76,6 +62,65 @@ class Dispatcher:
 
         return listener
 
+    def command(self, func: Coroutine) -> CommandDec:
+        """
+        A decorator that registers a coroutine as a command.
+
+        Parameters
+        ----------
+        func: Coroutine
+            The coroutine to register.
+
+        Returns
+        -------
+        Command
+            The Command object that was created.
+
+        Raises
+        ------
+        TypeError
+            The coroutine passed in is not a coroutine.
+        """
+        if not asyncio.iscoroutinefunction(func):
+            raise TypeError("callback must be a coroutine")
+
+        command = CommandDec(func)
+        self.add_commands(command)
+
+        return command
+
+    def add_commands(self, *commands: CommandDec) -> None:
+        """
+        Adds a command to the dispatcher.
+
+        Parameters
+        ----------
+        *commands: Command
+            The command(s) to add to the dispatcher.
+        """
+        for command in commands:
+            if len(command.aliases) > 0:
+                for alias in command.aliases:
+                    self.commands[alias] = command
+
+            self.commands[command.name] = command
+
+    def remove_commands(self, *commands: CommandDec) -> None:
+        """
+        Removes a command from the dispatcher.
+
+        Parameters
+        ----------
+        *commands: Command
+            The command(s) to remove from the dispatcher.
+        """
+        for command in commands:
+            if len(command.aliases) > 0:
+                for alias in command.aliases:
+                    del self.commands[alias]
+
+            del self.commands[command.name]
+
     def add_listeners(self, *listeners: Listener) -> None:
         """
         Adds a listener to the dispatcher.
@@ -86,6 +131,15 @@ class Dispatcher:
             The listener(s) to add to the dispatcher.
         """
         for listener in listeners:
+            if (
+                listener.id == EventID.ON_UNKNOWN
+                and listener.callback.__name__ != "on_unknown"
+                and not listener._is_dialog_listener
+            ):
+                raise ValueError(
+                    "Callback name must be 'on_unknown' if the ID is 'EventID.ON_UNKNOWN'. This most likely happened because you're trying to register a listener that is not recognised by growtopia.py itself."
+                )
+
             self.listeners[listener.id] = listener
 
     def remove_listeners(self, *listeners: Listener) -> None:
@@ -100,7 +154,7 @@ class Dispatcher:
         for listener in listeners:
             del self.listeners[listener.id]
 
-    def register_dialog(self, dialog: Dialog, *args, **kwargs) -> None:
+    def register_dialog(self, dialog: Dialog, *args, **kwargs) -> Dialog:
         """
         Registers a dialog.
 
@@ -111,6 +165,24 @@ class Dispatcher:
         """
         dialog = dialog(*args, **kwargs) if isinstance(dialog, type) else dialog  # check if the class is instantiated
         self.dialogs[dialog.name] = dialog
+
+        return Dialog
+
+    def get_dialog(self, name: str) -> Optional[Dialog]:
+        """
+        Retreives a dialog from the dialogs dictionary.
+
+        Parameters
+        ----------
+        name: str
+            The name of the dialog to retrieve.
+
+        Returns
+        -------
+        Optional[Dialog]
+            The Dialog object that was retrieved, or None if nothing was found.
+        """
+        return self.dialogs.get(name, None)
 
     def unregister_dialog(self, dialog_name: str) -> None:
         """
@@ -123,7 +195,7 @@ class Dispatcher:
         """
         del self.dialogs[dialog_name]
 
-    def register_collection(self, col: Collection, *args, **kwargs) -> None:
+    def register_collection(self, col: Collection, *args, **kwargs) -> Collection:
         """
         Registers a collection of Listeners.
 
@@ -140,6 +212,9 @@ class Dispatcher:
         self.collections[col.__class__.__name__] = col
 
         self.add_listeners(*list(col._listeners.values()))
+        self.add_commands(*list(col._commands.values()))
+
+        return col
 
     def unregister_collection(self, collection_name: str) -> None:
         """
@@ -157,8 +232,9 @@ class Dispatcher:
             return
 
         self.remove_listeners(*list(col._listeners.values()))
+        self.remove_commands(*list(col._commands.values()))
 
-    def load_extension(self, module_name: str, package: str = None, *args, **kwargs) -> None:
+    def load_extension(self, module_name: str, package: str = ".", *args, **kwargs) -> None:
         """
         Loads an extension and registers its Listeners and Collections.
 
@@ -173,46 +249,49 @@ class Dispatcher:
         **kwargs
             The keyword arguments to pass to the constructors of the Collections in the module.
         """
-        module, spec = self.__get_module(module_name, package)
-        spec.loader.exec_module(module)
+        ext = Extension(module_name, package, *args, **kwargs)
+        ext.load()
 
-        self.extensions[f"{package}.{module.__name__[:-3]}"] = module
+        self.extensions[f"{ext.module.__name__[:-3]}"] = ext
 
-        for _, value in module.__dict__.items():
-            if isinstance(value, Listener):
-                self.add_listeners(value)
-            elif inspect.isclass(value) and issubclass(value, Collection):
-                self.register_collection(value, *args, **kwargs)
-            elif inspect.isclass(value) and issubclass(value, Dialog) and value is not Dialog:
-                self.register_dialog(value, *args, **kwargs)
+        self.add_listeners(*ext.listeners)
+        self.add_commands(*ext.commands)
 
-    def unload_extension(self, module_name: str, package: str = None) -> None:
+        for collection in ext.collections:
+            self.register_collection(collection, *args, **kwargs)
+
+        for dialog in ext.dialogs:
+            self.register_dialog(dialog, *args, **kwargs)
+
+    def unload_extension(self, ext_name: str) -> None:
         """
-        Unloads an extension and unregisters its Listeners and Collections.
+        Unloads an extension and unregisters its Listeners, Collections, and Dialogs.
 
         Parameters
         ----------
-        module_name: str
-            The name of the module to unload.
-        package: str
-            The package to unload the module from.
+        ext_name: str
+            The name of the extension to unload. This is the name of the module.
         """
-        module_name = module_name if not module_name.endswith(".py") else module_name[:-3]
-        module = self.extensions.get(f"{package}.{module_name}", None)
+        ext_name = ext_name if not ext_name.endswith(".py") else ext_name[:-3]
+        ext = self.extensions.get(ext_name, None)
 
-        if not module:
-            ErrorManager._raise_exception(ValueError(f"extension {module_name} is not loaded."))
+        if not ext:
+            ErrorManager._raise_exception(ValueError(f"extension {ext_name} is not loaded."))
             return
 
-        for _, value in module.__dict__.items():
-            if isinstance(value, Listener):
-                self.remove_listeners(value)
-            elif inspect.isclass(value) and issubclass(value, Collection):
-                self.unregister_collection(value.__name__)
-            elif inspect.isclass(value) and issubclass(value, Dialog):
-                self.unregister_dialog(value)
+        for listener in ext.listeners:
+            self.remove_listeners(listener)
 
-    def reload_extension(self, module_name: str, package: str = None) -> None:
+        for collection in ext.collections:
+            self.unregister_collection(collection.__class__.__name__)
+
+        for dialog in ext.dialogs:
+            self.unregister_dialog(dialog.name)
+
+        ext.unload()
+        self.extensions.pop(ext_name)
+
+    def reload_extension(self, ext_name: str) -> None:
         """
         Reloads an extension and re-registers its Listeners and Collections.
 
@@ -223,8 +302,15 @@ class Dispatcher:
         package: str
             The package to reload the module from.
         """
-        self.unload_extension(module_name, package)
-        self.load_extension(module_name, package)
+        ext_name = ext_name if not ext_name.endswith(".py") else ext_name[:-3]
+        ext = self.extensions.get(ext_name, None)
+
+        if not ext:
+            ErrorManager._raise_exception(ValueError(f"extension {ext_name} is not loaded."))
+            return
+
+        ext.reload()
+        self.load_extension(ext_name, ext.package, *ext._args_to_pass, **ext._kwargs_to_pass)
 
     async def dispatch_event(self, event_id: EventID, *args, **kwargs) -> bool:
         """
@@ -244,12 +330,36 @@ class Dispatcher:
         if listener is None:
             return False
 
-        await listener(*args, **kwargs)
+        asyncio.get_event_loop().create_task(listener(*args, **kwargs))
+        return True
+
+    async def dispatch_command(self, command_name: str, command_args: list[str], *args, **kwargs) -> bool:
+        """
+        Dispatches a command.
+
+        Parameters
+        ----------
+        command_name: str
+            The name of the command to dispatch.
+        command_args: list[str]
+            The arguments to pass to the command.
+        """
+        command = self.commands.get(command_name, None)
+
+        if command is None:
+            return False
+
+        c = command(command_args, *args, **kwargs)
+
+        if not c:
+            return False
+
+        asyncio.get_event_loop().create_task(c)
         return True
 
     async def dispatch_dialog_return(self, dialog_name: str, button_name: str, *args, **kwargs) -> bool:
         """
-        Dispatches a dialog return event to a ButtonListener or Listener object.
+        Dispatches a dialog return event to a Listener object.
 
         Parameters
         ----------
@@ -273,5 +383,5 @@ class Dispatcher:
         if listener is None:
             return False
 
-        await listener(*args, **kwargs)
+        asyncio.get_event_loop().create_task(listener(*args, **kwargs))
         return True

@@ -1,18 +1,17 @@
 __all__ = ("HelloPacket",)
 
-from typing import Optional, Union
-
-import enet
+from typing import Optional
 
 from ..enums import EventID
 from ..error_manager import ErrorManager
 from ..exceptions import PacketTooSmall, PacketTypeDoesNotMatchContent
-from .packet import Packet, PacketType
+from .enums import PacketType
+from .packet import Packet
 
 
 class HelloPacket(Packet):
     """
-    Represents a hello packet. A packet that contains 4 bytes indicating its type (1). Uses the Packet class as a base.
+    Represents a hello packet. A packet that contains 4 bytes indicating its type (1).
 
     Parameters
     ----------
@@ -25,27 +24,9 @@ class HelloPacket(Packet):
         The raw data of the packet.
     """
 
-    def __init__(self, data: Optional[Union[bytearray, bytes, enet.Packet]] = None) -> None:
-        super().__init__(data)
-
-        self._type: PacketType = PacketType.HELLO
-        self.__malformed: bool = False
-
-        if len(self.data) >= 4:
-            self.deserialise()
-
-    @property
-    def enet_packet(self) -> enet.Packet:
-        """
-        Create a new enet.Packet object from the raw data.
-
-        Returns
-        -------
-        enet.Packet
-            The enet.Packet object created from the raw data.
-        """
-
-        return enet.Packet(self.serialise(), enet.PACKET_FLAG_RELIABLE)
+    def __init__(self) -> None:
+        super().__init__()
+        self._type = PacketType.HELLO
 
     def serialise(self) -> bytearray:
         """
@@ -56,49 +37,8 @@ class HelloPacket(Packet):
         bytes
             The serialised packet.
         """
-
         self.data = bytearray(int.to_bytes(self._type, 4, "little"))
         return self.data
-
-    def deserialise(self, data: Optional[bytes] = None) -> None:
-        """
-        Deserialise the packet.
-
-        Parameters
-        ----------
-        data: Optional[bytes]
-            The data to deserialise. If this isn't provided,
-            the data attribute will be used instead.
-
-        Raises
-        ------
-        PacketTooSmall
-            The packet is too small to be deserialised.
-
-        PacketTypeDoesNotMatchContent
-            The packet type does not match the content of the packet.
-
-        Returns
-        -------
-        None
-        """
-
-        if data is None:
-            data = self.data
-
-        if len(data) < 4:
-            ErrorManager._raise_exception(PacketTooSmall(self))
-            self.__malformed = True
-            return
-
-        type = PacketType(int.from_bytes(data[:4], "little"))
-
-        if self._type != PacketType.HELLO:
-            ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(self))
-            self.__malformed = True
-            return
-
-        self._type = type
 
     def identify(self) -> EventID:
         """
@@ -109,7 +49,50 @@ class HelloPacket(Packet):
         EventID
             The event ID responsible for handling the packet.
         """
-        if self.__malformed:
+        if self._malformed:
             return EventID.ON_MALFORMED_PACKET
 
         return EventID.ON_HELLO
+
+    @classmethod
+    def from_bytes(cls, data: bytes) -> Optional["HelloPacket"]:
+        """
+        Deserialises a packet from the bytes given. Returns a HelloPacket object.
+
+        Parameters
+        ----------
+        data: bytes
+            The data to deserialise and make a HelloPacket object out of.
+
+        Raises
+        ------
+        TypeError:
+            If the data wasn't of type bytes.
+        PacketTooSmall:
+            If the data was too small (<4)
+        PacketTypeDoesNotMatchContent:
+            If the data did not match the packet's type (HELLO)
+
+        Returns
+        -------
+        Optional["HelloPacket"]
+            Returns a HelloPacket object when the deserialisation is successful, returns None otherwise.
+        """
+        packet = cls()
+
+        if len(data) < 4:
+            ErrorManager._raise_exception(PacketTooSmall(packet, len(data), ">=4"))
+            packet._malformed = True
+            return
+
+        type_ = PacketType(int.from_bytes(data[:4], "little"))
+
+        if type_ != PacketType.HELLO:
+            ErrorManager._raise_exception(PacketTypeDoesNotMatchContent(packet, type_))
+            packet._malformed = True
+            return
+
+        packet._type = type_
+        packet.data = bytearray(data)
+
+        return packet

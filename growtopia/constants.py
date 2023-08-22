@@ -32,3 +32,5 @@ ignored_attributes = {
     14: ["unknown", "sit_file"],
     15: [],
 }
+
+latest_game_version: float = 4.33  # used for world packet serialisation

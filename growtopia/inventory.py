@@ -4,26 +4,38 @@ __all__ = (
 )
 
 from dataclasses import dataclass
+from typing import Union
+
+from .item import Item
 
 
 @dataclass
 class InventoryItem:
     """
     Represents an inventory item.
+
+    Attributes
+    ----------
+    id: int
+        The id of the item.
+    count: int
+        The count of the item.
+    equipped: bool
+        Whether the item's equipped or not.
     """
 
-    id: int = 0  # uint16
-    count: int = 0  # uint8
-    equipped: bool = False  # uint8
+    id: int = 0
+    count: int = 0
+    equipped: bool = False
 
-    def to_bytes(self) -> bytearray:
+    def serialise(self) -> bytearray:
         """
-        Converts the inventory item to bytes.
+        Serialises the inventory item.
 
         Returns
         -------
         bytearray
-            The converted inventory item.
+            The serialised inventory item.
         """
 
         return bytearray(
@@ -54,32 +66,85 @@ class InventoryItem:
 
         return item
 
-    def to_bytes(self) -> bytearray:
+
+class Inventory:
+    """
+    Represents an Inventory.
+
+    Attributes
+    ----------
+    version: int
+        The version of the inventory format.
+    slots: int
+        Represents the slots in the inventory (count).
+    item_count: int
+
+
+    """
+
+    def __init__(self) -> None:
+        self.version: int = 20  # uint8
+        self.slots: int = 10  # uint32
+
+        self.items: list[InventoryItem] = []  # Should we use a dict instead for faster lookup? (item_id: InventoryItem)
+
+    def add_item(self, item_id_or_item: Union[int, Item], count: int, equipped: bool = False) -> None:
         """
-        Converts the inventory item to bytes.
+        Adds an item to the inventory.
+
+        Parameters
+        ----------
+        item_id_or_item: Union[int, Item]
+            The id of the item or Item object to add.
+        count: int
+            The count of the item to add.
+        equipped: bool
+            Whether the item's equipped or not. (default False)
+        """
+        item_id = item_id_or_item if isinstance(item_id_or_item, int) else item_id_or_item.id
+
+        item = InventoryItem(item_id, count, equipped)
+        self.items.append(item)
+
+    def remove_item(self, item_id: int, count: int) -> None:
+        """
+        Removes an item from the inventory.
+
+        Parameters
+        ----------
+        item_id: int
+            The id of the item to remove.
+        count: int
+            The count of the item to remove.
+        """
+
+        for item in self.items:
+            if item.id == item_id:
+                item.count -= count
+
+                if item.count <= 0:
+                    self.items.remove(item)
+
+                break
+
+    def serialise(self) -> bytearray:
+        """
+        Serialises the inventory.
 
         Returns
         -------
         bytearray
-            The converted inventory item.
+            The serialised inventory.
         """
 
-        return bytearray(
-            self.id.to_bytes(2, "little") + self.count.to_bytes(1, "little") + self.equipped.to_bytes(1, "little")
-        )
+        data = bytearray(self.version.to_bytes(1, "little"))
+        data += bytearray(self.slots.to_bytes(4, "little"))
+        data += bytearray(len(self.items).to_bytes(2, "little"))
 
+        for item in self.items:
+            data += item.serialise()
 
-class Inventory:
-    """
-    Represents a client's inventory (set upon emitting ON_SEND_INVENTORY_STATE).
-    """
-
-    def __init__(self) -> None:
-        self.version: int = 0  # uint8
-        self.slots: int = 0  # uint32
-        self.item_count: int = 0  # uint8
-
-        self.items: list[InventoryItem] = []
+        return data
 
     @classmethod
     def from_bytes(cls, data: bytearray) -> "Inventory":
@@ -101,33 +166,14 @@ class Inventory:
 
         inventory.version = data[0]
         inventory.slots = int.from_bytes(data[1:5], "little")
-        inventory.item_count = int.from_bytes(data[5:6], "little")
 
+        item_count = int.from_bytes(data[5:6], "little")
         offset = 6
 
-        for _ in range(inventory.item_count):
+        for _ in range(item_count):
             item = InventoryItem.from_bytes(data[offset : offset + 4])
             inventory.items.append(item)
 
             offset += 4
 
         return inventory
-
-    def to_bytes(self) -> bytearray:
-        """
-        Converts the inventory to bytes.
-
-        Returns
-        -------
-        bytearray
-            The converted inventory.
-        """
-
-        data = bytearray(self.version.to_bytes(1, "little"))
-        data += bytearray(self.slots.to_bytes(4, "little"))
-        data += bytearray(self.item_count.to_bytes(2, "little"))
-
-        for item in self.items:
-            data += item.to_bytes()
-
-        return data

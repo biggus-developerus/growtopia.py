@@ -5,10 +5,10 @@ __all__ = (
 )
 
 import asyncio
-from typing import Callable, Any
+from typing import Any, Callable
 
 from .listener import Listener
-from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList, TextPacket
+from .protocol import GameUpdatePacket, GameUpdatePacketType, TextPacket, VariantList
 
 
 class DialogElement:
@@ -46,11 +46,30 @@ class DialogElement:
     def button(name: str, text: str) -> str:
         return f"add_button|{name}|{text}|noflags|0|0"
 
+    def text_input(name: str, label: str, max_length: int, default_text: str = "") -> str:
+        return f"add_text_input|{name}|{label}|{default_text}|{max_length}|"
+
+    def password_input(name: str, label: str, max_length: int, default_text: str = "") -> str:
+        return f"add_text_input_password|{name}|{label}|{default_text}|{max_length}|"
+
     def ending(name: str, cancel: str, accept: str) -> str:
         return f"end_dialog|{name}|{cancel}|{accept}"
 
     def quick_exit() -> str:
         return f"add_quick_exit"
+
+    def embed_data(data: dict[str, str]) -> str:
+        """
+        (Non-Visual)
+
+        Allows you to embed key value paired data to the dialog packet.
+
+        Only accepts strings as value.
+
+        Embedding data with the same keys will follow the last key's value. ({k:1,k:2,k:3} -> {k:3})
+        """
+
+        return "\n".join([f"embed_data|{key}|{value}" for key, value in data.items()])
 
 
 class Dialog:
@@ -84,6 +103,7 @@ class Dialog:
         for key, value in cls.__dict__.items():
             if isinstance(value, Listener):
                 value._belongs_to = inst
+                value._is_dialog_listener = True
                 inst.listeners[key] = value
 
         return inst
@@ -98,7 +118,6 @@ class Dialog:
 
     @classmethod
     def from_string(cls, data: str) -> "Dialog":
-        """ """
         dialog = cls("unknown")
 
         for element in data.split("\n"):
@@ -125,7 +144,10 @@ class Dialog:
                     raise ValueError("Dialog already has an ending.")
 
                 self.__has_ending = True
-                self.name = element.split("|")[1]
+                name = element.split("|")[1]
+
+                if name != self.name:
+                    raise ValueError("Name in the ending element does not match the Dialog's name.")
 
             self.elements.append(element)
 
@@ -167,12 +189,13 @@ class Dialog:
 
     @property
     def packet(self) -> GameUpdatePacket:
-        packet = GameUpdatePacket()
-
-        packet.update_type = GameUpdatePacketType.CALL_FUNCTION
-        packet.set_variant_list(VariantList("OnDialogRequest", self.dialog))
-
-        return packet
+        return GameUpdatePacket(
+            update_type=GameUpdatePacketType.CALL_FUNCTION,
+            variant_list=VariantList(
+                "OnDialogRequest",
+                self.dialog,
+            ),
+        )
 
     def encode(self) -> bytes:
         """
@@ -220,7 +243,4 @@ class DialogReturn:
 
     @property
     def packet(self) -> TextPacket:
-        packet = TextPacket()
-        packet.text = f"action|dialog_return\ndialog_name|{self.dialog.name}\n" + "\n".join(self.filled_elements)
-
-        return packet
+        return TextPacket(f"action|dialog_return\ndialog_name|{self.dialog.name}\n" + "\n".join(self.filled_elements))
