@@ -6,12 +6,13 @@ from growtopia import Dialog, DialogElement
 def test_dialog() -> None:
     """Hello Dialog"""
 
-    hello = Dialog("test_dialog")
-
-    hello.add_elements(
-        DialogElement.textbox("Hello Player!"),
-        DialogElement.checkbox("test_checkbox", "Do you want to play?", False),
-        DialogElement.ending("test_dialog", "Back", "Enter"),
+    hello = Dialog(
+        "test_dialog",
+        [
+            DialogElement.textbox("Hello Player!"),
+            DialogElement.checkbox("test_checkbox", "Do you want to play?", False),
+            DialogElement.ending("test_dialog", "Back", "Enter"),
+        ],
     )
 
     assert (
