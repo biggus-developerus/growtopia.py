@@ -116,7 +116,8 @@ class Dialog:
 
         self.__has_ending: bool = False
 
-        self.add_elements(*elements)
+        if elements:
+            self.add_elements(*elements)
 
     @classmethod
     def from_string(cls, data: str) -> "Dialog":
