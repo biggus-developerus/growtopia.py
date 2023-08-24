@@ -1,10 +1,14 @@
 __all__ = ("GameServer",)
 
+from typing import Optional
+
 import enet
 
 from ..context import ServerContext
 from ..enums import EventID
+from ..items_data import ItemsData
 from ..player import PlayerLoginInfo
+from ..player_tribute import PlayerTribute
 from ..protocol import (
     GameMessagePacket,
     GameUpdatePacket,
@@ -18,9 +22,14 @@ from .server_world_pool import ServerWorldPool
 
 
 class GameServer(Server, ServerWorldPool):
-    def __init__(self, address: tuple[str, int], **kwargs) -> None:
+    def __init__(
+        self, address: tuple[str, int], items_data: ItemsData, player_tribute: Optional[PlayerTribute] = None, **kwargs
+    ) -> None:
         Server.__init__(self, address, **kwargs)
         ServerWorldPool.__init__(self)
+
+        self.items_data: ItemsData = items_data
+        self.player_tribute: Optional[PlayerTribute] = player_tribute
 
         self._send_hello: bool = kwargs.get("send_hello", True)
 
