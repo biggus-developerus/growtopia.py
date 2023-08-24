@@ -39,9 +39,7 @@ class Variant:
 
     def serialise(self, index: int) -> bytearray:
         self.data = bytearray(
-            index.to_bytes(1, "little")
-            + self.type.value.to_bytes(1, "little")
-            + self._serialisers[self.type](self.value)
+            index.to_bytes(1, "little") + self.type.to_bytes(1, "little") + self._serialisers[self.type](self.value)
         )
 
         return self.data
