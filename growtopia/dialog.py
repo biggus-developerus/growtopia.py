@@ -111,10 +111,12 @@ class Dialog:
     def __init__(self, name: str, elements: list[str] = None) -> None:
         self.name: str = name
 
-        self.elements: list[str] = elements or []
+        self.elements: list[str] = []
         self.listeners: dict[str, Listener]
 
         self.__has_ending: bool = False
+
+        self.add_elements(*elements)
 
     @classmethod
     def from_string(cls, data: str) -> "Dialog":
