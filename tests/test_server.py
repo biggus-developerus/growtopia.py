@@ -1,13 +1,18 @@
 """Test the Server class."""
 
-from growtopia import ServerContext, GameServer
+from growtopia import ServerContext, GameServer, ItemsData, PlayerTribute
 
 
 def test_server() -> None:
     """Test the server"""
 
+    items_data = ItemsData("data/items_v15.dat")
+    player_triute = PlayerTribute("data/player_tribute_v2.dat")
+
     server = GameServer(
-        address=("127.0.0.1", 17095),
+        ("127.0.0.1", 17095),
+        items_data,
+        player_triute,
     )
 
     @server.listener
