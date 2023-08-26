@@ -7,7 +7,7 @@ from .error_manager import ErrorManager
 from .exceptions import UnsupportedItemsData
 from .file import File
 from .item import Item
-from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
+from .protocol import GameUpdatePacket, GameUpdatePacketType
 
 
 class ItemsData(File):
