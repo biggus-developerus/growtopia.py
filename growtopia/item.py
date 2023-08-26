@@ -73,6 +73,14 @@ class Item:
         self.unknown: bytearray = bytearray(25)
         self.sit_file: str = ""
 
+    @property
+    def is_foreground(self) -> bool:
+        return self.action_type != 18
+
+    @property
+    def is_background(self) -> bool:
+        return self.action_type == 18
+
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Item):
             return self.id == other.id
