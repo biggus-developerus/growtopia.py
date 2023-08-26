@@ -36,10 +36,31 @@ class World(WorldNet):
         self.spawn_pos: tuple[int, int] = spawn_pos
 
         self.players: dict[int, Player] = {}
-        self.tiles: list[Tile] = [Tile() for _ in range(width * height)]
+        self.tiles: list[Tile] = [Tile(pos=(i % self.width, i // self.width)) for i in range(width * height)]
         self.objects: list[WorldObject] = []
 
         self.__net_id: int = 0
+
+    def get_tile(self, x: int, y: int) -> Optional[Tile]:
+        """
+        Gets a tile at a position.
+
+        Parameters
+        ----------
+        x: int
+            The x position of the tile.
+        y: int
+            The y position of the tile.
+
+        Returns
+        -------
+        Optional[Tile]:
+            The tile if found, None otherwise.
+        """
+        if x < 0 or x >= self.width or y < 0 or y >= self.height:
+            return None
+
+        return self.tiles[x + y * self.width]
 
     def add_player(self, player: "Player", override_spawn: tuple[int, int] = None) -> bool:
         """
