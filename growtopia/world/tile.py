@@ -1,15 +1,146 @@
 __all__ = ("Tile",)
 
+from typing import Union
+
+from ..item import Item
+from ..obj_holder import _ObjHolder
+
+from ..protocol import GameUpdatePacket, GameUpdatePacketType, GameUpdatePacketFlags
+
 
 class Tile:
-    def __init__(self, *, foreground: int = 0, background: int = 0) -> None:
-        self.foreground: int = foreground
-        self.background: int = background
+    def __init__(
+        self,
+        *,
+        foreground: int = 0,
+        background: int = 0,
+        pos: tuple[int, int] = (0, 0),
+    ) -> None:
+        self.foreground_id: int = foreground
+        self.background_id: int = background
 
-        self.lockpos: int = 0  # uint16
-        self.flags: int = 0  # uint16
-        self.extra_type: int = 0  # uint8
+        self.lockpos: int = 0
+        self.flags: int = 0
+        self.extra_type: int = 0
         self.extra_data: bytes = b""
+
+        self.pos: tuple[int, int] = pos
+
+        self._damage_dealt: int = 0
+
+    def set_item(self, item: Item) -> None:
+        """
+        Sets the foreground/background item.
+
+        Parameters
+        ----------
+        item: Item
+            The item to set.
+        """
+        self.foreground = item if item.is_foreground else self.foreground
+        self.background = item if item.is_background else self.background
+
+    def punch(self, damage: int = 1, break_tile: bool = False) -> bool:
+        """
+        Punches the tile.
+
+        Parameters
+        ----------
+        damage: int
+            The amount of damage to deal to the tile.
+
+        Returns
+        -------
+        bool:
+            True if the tile was punched, False otherwise.
+        """
+        if self.is_empty:
+            return False
+
+        self._damage_dealt += damage
+
+        if self.health <= 0 and break_tile:
+            self.break_layer()
+
+        return True
+
+    def break_layer(self) -> None:
+        """
+        Breaks a layer. If the foreground item is not blank, it will be broken, otherwise the background item will be broken.
+        "Broken" means the layer will be set to blank.
+        """
+
+        self._damage_dealt = 0
+
+        if self.foreground != 0:
+            self.foreground = 0
+            return
+        if self.background != 0:
+            self.background = 0
+            return
+
+    def apply_damage_packet(self, net_id: int, tile_damage: int = 6) -> GameUpdatePacket:
+        return GameUpdatePacket(
+            update_type=GameUpdatePacketType.TILE_APPLY_DAMAGE,
+            int_x=self.pos[0],
+            int_y=self.pos[1],
+            int_=tile_damage,
+            net_id=net_id,
+            extra_data=b"\x00",
+        )
+
+    @property
+    def health(self) -> int:
+        """
+        The health of the tile.
+        """
+        return self.item.break_hits - self._damage_dealt
+
+    @property
+    def is_empty(self) -> bool:
+        """
+        Whether or not the tile is empty.
+        """
+        return self.foreground.id == 0 and self.background.id == 0
+
+    @property
+    def update_packet(self) -> GameUpdatePacket:
+        return GameUpdatePacket(
+            update_type=GameUpdatePacketType.SEND_TILE_UPDATE_DATA,
+            flags=GameUpdatePacketFlags.EXTRA_DATA,
+            int_x=self.pos[0],
+            int_y=self.pos[1],
+            extra_data=self.serialise(),
+        )
+
+    @property
+    def item(self) -> Item:
+        """
+        The foreground/background item. If the foreground item is not blank, it will be returned, otherwise the background item will be returned.
+        """
+        return self.foreground if self.foreground != 0 else self.background
+
+    @property
+    def foreground(self) -> Item:
+        """
+        The foreground item.
+        """
+        return _ObjHolder.items_data.get_item(self.foreground_id)
+
+    @property
+    def background(self) -> Item:
+        """
+        The background item.
+        """
+        return _ObjHolder.items_data.get_item(self.background_id)
+
+    @background.setter
+    def background(self, item_or_id: Union[Item, int]) -> None:
+        self.background_id = item_or_id.id if isinstance(item_or_id, Item) else item_or_id
+
+    @foreground.setter
+    def foreground(self, item_or_id: Union[Item, int]) -> None:
+        self.foreground_id = item_or_id.id if isinstance(item_or_id, Item) else item_or_id
 
     def serialise(self) -> bytearray:
         """
@@ -22,8 +153,8 @@ class Tile:
         """
         data = bytearray()
 
-        data += self.foreground.to_bytes(2, "little")
-        data += self.background.to_bytes(2, "little")
+        data += self.foreground_id.to_bytes(2, "little")
+        data += self.background_id.to_bytes(2, "little")
 
         data += self.lockpos.to_bytes(2, "little")
         data += self.flags.to_bytes(2, "little")
