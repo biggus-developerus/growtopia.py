@@ -4,6 +4,7 @@ from typing import Union
 
 from .file import File
 from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
+from .obj_holder import _ObjHolder
 
 
 class PlayerTribute(File):
@@ -37,6 +38,8 @@ class PlayerTribute(File):
         self.epic_players: list[str] = []
         self.exceptional_mentors: list[str] = []
         self.charity_champions: list[str] = []
+
+        _ObjHolder.player_tribute = self
 
     def _parse_names(self, names: bytearray) -> list[str]:
         return [name.strip() for name in names.decode("utf-8").split(";")]

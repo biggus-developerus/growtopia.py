@@ -8,6 +8,7 @@ from .exceptions import UnsupportedItemsData
 from .file import File
 from .item import Item
 from .protocol import GameUpdatePacket, GameUpdatePacketType
+from .obj_holder import _ObjHolder
 
 
 class ItemsData(File):
@@ -50,6 +51,8 @@ class ItemsData(File):
         self.items: list[Item] = []
         self.item_count: int = 0
         self.version: int = 0
+
+        _ObjHolder.items_data = self
 
     @classmethod
     def from_bytes(cls, data: bytes) -> "ItemsData":
