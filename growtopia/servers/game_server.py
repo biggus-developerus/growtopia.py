@@ -1,14 +1,10 @@
 __all__ = ("GameServer",)
 
-from typing import Optional
-
 import enet
 
 from ..context import ServerContext
 from ..enums import EventID
-from ..items_data import ItemsData
 from ..player import PlayerLoginInfo
-from ..player_tribute import PlayerTribute
 from ..protocol import (
     GameMessagePacket,
     GameUpdatePacket,
@@ -19,25 +15,21 @@ from ..protocol import (
 )
 from .server import Server
 from .server_world_pool import ServerWorldPool
+from ..obj_holder import _ObjHolder
 
 
 class GameServer(Server, ServerWorldPool):
-    def __init__(
-        self, address: tuple[str, int], items_data: ItemsData, player_tribute: Optional[PlayerTribute] = None, **kwargs
-    ) -> None:
+    def __init__(self, address: tuple[str, int], **kwargs) -> None:
         Server.__init__(self, address, **kwargs)
         ServerWorldPool.__init__(self)
-
-        self.items_data: ItemsData = items_data
-        self.player_tribute: Optional[PlayerTribute] = player_tribute
 
         self._send_hello: bool = kwargs.get("send_hello", True)
 
     async def _handle_event(self, context: ServerContext) -> bool:
         event = EventID.ON_UNKNOWN
 
-        context.items_data = self.items_data
-        context.player_tribute = self.player_tribute
+        context.items_data = _ObjHolder.items_data
+        context.player_tribute = _ObjHolder.player_tribute
 
         if context.enet_event.type == enet.EVENT_TYPE_CONNECT:
             context.player = self.new_player(context.enet_event.peer)
@@ -103,6 +95,6 @@ class GameServer(Server, ServerWorldPool):
 
             elif event == EventID.ON_TILE_CHANGE_REQUEST:
                 context.tile = context.world.get_tile(context.packet.int_x, context.packet.int_y)
-                context.item = self.items_data.get_item(context.packet.int)
+                context.item = _ObjHolder.items_data.get_item(context.packet.int)
 
         return await self.dispatch_event(event, context)
