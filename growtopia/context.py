@@ -21,7 +21,7 @@ if TYPE_CHECKING:
         TextPacket,
     )
     from .servers import Server
-    from .world import World
+    from .world import World, Tile
 
 
 class Context:
@@ -71,6 +71,9 @@ class ServerContext(Context):
         self.server: Optional["Server"] = None
         self.player: Optional["Player"] = None
         self.world: Optional["World"] = None
+        self.tile: Optional["Tile"] = None
+        self.items_data: Optional["ItemsData"] = None
+        self.player_tribute: Optional["PlayerTribute"] = None
 
     def reply(self, packet: Union["StrPacket", "GameUpdatePacket", "HelloPacket"]) -> bool:
         """

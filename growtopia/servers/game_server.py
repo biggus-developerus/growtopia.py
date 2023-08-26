@@ -36,6 +36,9 @@ class GameServer(Server, ServerWorldPool):
     async def _handle_event(self, context: ServerContext) -> bool:
         event = EventID.ON_UNKNOWN
 
+        context.items_data = self.items_data
+        context.player_tribute = self.player_tribute
+
         if context.enet_event.type == enet.EVENT_TYPE_CONNECT:
             context.player = self.new_player(context.enet_event.peer)
 
@@ -97,5 +100,8 @@ class GameServer(Server, ServerWorldPool):
                 if (text := context.packet.arguments.get("text", None)) and text.startswith("/"):
                     if await self.dispatch_command((splt_txt := text.split(" "))[0][1:], splt_txt[1:], context):
                         return True  # so that we don't dispatch the ON_INPUT event.
+
+            elif event == EventID.ON_TILE_CHANGE_REQUEST:
+                context.tile = context.world.get_tile(context.packet.x, context.packet.y)
 
         return await self.dispatch_event(event, context)
