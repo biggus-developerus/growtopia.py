@@ -11,8 +11,6 @@ def test_server() -> None:
 
     server = GameServer(
         ("127.0.0.1", 17095),
-        items_data,
-        player_triute,
     )
 
     @server.listener
