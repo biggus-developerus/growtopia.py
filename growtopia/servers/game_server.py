@@ -97,4 +97,7 @@ class GameServer(Server, ServerWorldPool):
                 context.tile = context.world.get_tile(context.packet.int_x, context.packet.int_y)
                 context.item = _ObjHolder.items_data.get_item(context.packet.int)
 
+                if context.item.id == 18:
+                    event = EventID.ON_TILE_PUNCH
+
         return await self.dispatch_event(event, context)
