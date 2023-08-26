@@ -57,7 +57,11 @@ class EventID(StrEnum):
     ON_STATE_UPDATE = "on_state_update"
     ON_CALL_FUNCTION = "on_call_function"
     ON_UPDATE_STATUS = "on_update_status"
+
     ON_TILE_CHANGE_REQUEST = "on_tile_change_request"
+    ON_TILE_PUNCH = "on_tile_punch"
+    ON_TILE_PLACE = "on_tile_place"
+
     ON_SEND_MAP_DATA = "on_send_map_data"
     ON_SEND_TILE_UPDATE_DATA = "on_send_tile_update_data"
     ON_SEND_TILE_UPDATE_DATA_MULTIPLE = "on_send_tile_update_data_multiple"
