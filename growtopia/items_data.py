@@ -142,7 +142,7 @@ class ItemsData(File):
                     size = item.__dict__[attr]
                     item.__dict__[attr] = int.from_bytes(data[offset : offset + size], "little")
                     if attr == "break_hits":
-                        item.__dict__[attr] = item.__dict__[attr] / 6
+                        item.__dict__[attr] = item.__dict__[attr] // 6
                     offset += size
                 elif isinstance(item.__dict__[attr], str):
                     str_len = int.from_bytes(data[offset : offset + 2], "little")
