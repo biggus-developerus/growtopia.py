@@ -103,5 +103,6 @@ class GameServer(Server, ServerWorldPool):
 
             elif event == EventID.ON_TILE_CHANGE_REQUEST:
                 context.tile = context.world.get_tile(context.packet.int_x, context.packet.int_y)
+                context.item = self.items_data.get_item(context.packet.int)
 
         return await self.dispatch_event(event, context)
