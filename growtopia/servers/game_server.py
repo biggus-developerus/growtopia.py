@@ -102,6 +102,6 @@ class GameServer(Server, ServerWorldPool):
                         return True  # so that we don't dispatch the ON_INPUT event.
 
             elif event == EventID.ON_TILE_CHANGE_REQUEST:
-                context.tile = context.world.get_tile(context.packet.x, context.packet.y)
+                context.tile = context.world.get_tile(context.packet.int_x, context.packet.int_y)
 
         return await self.dispatch_event(event, context)
