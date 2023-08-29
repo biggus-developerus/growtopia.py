@@ -42,6 +42,7 @@ class VariantType(IntEnum):
 
     # Custom variant type aliases.
     DIALOG = 2  # str
+    BOOL = 9
 
     @classmethod
     def _missing_(cls, _):
