@@ -100,4 +100,14 @@ class GameServer(Server, ServerWorldPool):
                 if context.item.id == 18:
                     event = EventID.ON_TILE_PUNCH
 
+            elif event == EventID.ON_RESPAWN_SPIKE:
+                x, y = context.packet.arguments.get("tileX", None), context.packet.arguments.get("tileY", None)
+
+                if x and y:
+                    context.tile = context.world.get_tile(
+                        int(context.packet.arguments["tileX"]), int(context.packet.arguments["tileY"])
+                    )
+                else:
+                    ...  # we need to do something here, maybe dispatch ON_MALFORMED_PACKET?
+
         return await self.dispatch_event(event, context)
