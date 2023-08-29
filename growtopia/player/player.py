@@ -3,6 +3,7 @@ __all__ = ("Player",)
 from typing import TYPE_CHECKING, Optional
 
 import enet
+import asyncio
 
 from ..inventory import Inventory
 from .player_login_info import PlayerLoginInfo
@@ -40,6 +41,8 @@ class Player(PlayerNet):
         self.world: Optional[World] = None
         self.inventory: Optional[Inventory] = Inventory()
         self.pos: tuple[int, int] = ()
+
+        self.frozen: bool = False
 
     def play_audio_file(self, file_path: str, delay: int = 0) -> bool:
         """
@@ -113,6 +116,35 @@ class Player(PlayerNet):
             return False
 
         return self._send_inventory_state(self.inventory)
+
+    def kill(self, respawn: bool = True) -> bool:
+        """
+        Kills the player.
+        Simply calls World.kill_player, which sends a packet that'll show the respawn animation.
+
+        Parameters
+        ----------
+        respawn: bool
+            Whether the player should return to the world's spawn position or not.
+
+        Returns
+        -------
+        bool:
+            True if the player was killed, False otherwise.
+        """
+        if self.world is None:
+            return False
+
+        return self.world.kill_player(self, respawn)
+
+    async def freeze(self, duration: float) -> None:
+        self.frozen = True
+        self.on_set_freeze_state(self.frozen)
+
+        await asyncio.sleep(duration)
+
+        self.frozen = False
+        self.on_set_freeze_state(self.frozen)
 
     @property
     def guest(self) -> bool:

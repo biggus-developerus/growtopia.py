@@ -313,6 +313,58 @@ class PlayerNet:
             )
         )
 
+    def on_set_freeze_state(self, frozen: bool, player: Optional["Player"] = None) -> bool:
+        """
+        Sets the freeze state for an avatar.
+
+        Parameters
+        ----------
+        frozen: bool
+            Whether the player's frozen or not.
+        player: Optional["Player"]
+            The player to set the freeze state for.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+        return self.send(
+            GameUpdatePacket(
+                update_type=GameUpdatePacketType.CALL_FUNCTION,
+                variant_list=VariantList(
+                    "OnSetFreezeState",
+                    frozen,
+                ),
+                net_id=(player or self).net_id,
+            )
+        )
+
+    def on_killed(self, player: Optional["Player"] = None) -> bool:
+        """
+        Kills an avatar
+
+        Parameters
+        ----------
+        player: Optional["Player"]
+            The player to kill the avatar of.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+        return self.send(
+            GameUpdatePacket(
+                update_type=GameUpdatePacketType.CALL_FUNCTION,
+                variant_list=VariantList(
+                    "OnKilled",
+                    0,
+                ),
+                net_id=(player or self).net_id,
+            )
+        )
+
     def on_spawn(self, x: int, y: int, player: Optional["Player"] = None) -> bool:
         """
         Spawns an avatar for the player.
