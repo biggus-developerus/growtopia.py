@@ -43,6 +43,8 @@ class EventID(StrEnum):
     ON_STORE = "on_store"
     ON_FRIENDS = "on_friends"
     ON_EVENTMENU = "on_eventmenu"
+    ON_RESPAWN = "on_respawn"
+    ON_RESPAWN_SPIKE = "on_respawn_spike"
 
     # Call function events
     OnSuperMain = "on_super_main"
