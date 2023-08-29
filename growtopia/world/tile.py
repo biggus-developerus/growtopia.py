@@ -40,7 +40,7 @@ class Tile:
         self.foreground = item if item.is_foreground else self.foreground
         self.background = item if item.is_background else self.background
 
-    def punch(self, damage: int = 1, break_tile: bool = False) -> bool:
+    def punch(self, damage: int = 1) -> bool:
         """
         Punches the tile.
 
@@ -59,9 +59,6 @@ class Tile:
 
         self._damage_dealt += damage
 
-        if self.health <= 0 and break_tile:
-            self.break_layer()
-
         return True
 
     def break_layer(self) -> None:
@@ -75,6 +72,7 @@ class Tile:
         if self.foreground != 0:
             self.foreground = 0
             return
+
         if self.background != 0:
             self.background = 0
             return
