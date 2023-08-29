@@ -19,11 +19,17 @@ from ..obj_holder import _ObjHolder
 
 
 class GameServer(Server, ServerWorldPool):
-    def __init__(self, address: tuple[str, int], **kwargs) -> None:
+    def __init__(
+        self,
+        address: tuple[str, int],
+        *,
+        send_hello: bool = True,
+        **kwargs,
+    ) -> None:
         Server.__init__(self, address, **kwargs)
         ServerWorldPool.__init__(self)
 
-        self._send_hello: bool = kwargs.get("send_hello", True)
+        self._send_hello: bool = send_hello
 
     async def _handle_event(self, context: ServerContext) -> bool:
         event = EventID.ON_UNKNOWN
