@@ -239,6 +239,33 @@ class PlayerNet:
             )
         )
 
+    def on_set_pos(self, x: int, y: int, player: Optional["Player"] = None) -> bool:
+        """
+        Sets the position of an avatar.
+
+        Parameters
+        ----------
+        x: int
+            The x pos of where the avatar will be.
+        y: int
+            The y pos of where the avatar will be.
+
+        Returns
+        -------
+        bool:
+            True if the packet was successfully sent, False otherwise.
+        """
+        return self.send(
+            GameUpdatePacket(
+                update_type=GameUpdatePacketType.CALL_FUNCTION,
+                variant_list=VariantList(
+                    "OnSetPos",
+                    (x, y),
+                ),
+                net_id=(player or self).net_id,
+            )
+        )
+
     def on_send_to_server(self, port: int, token: int, user: int, string: str, lmode: bool) -> bool:
         """
         Sends the client to a sub server.

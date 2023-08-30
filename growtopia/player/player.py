@@ -117,6 +117,26 @@ class Player(PlayerNet):
 
         return self._send_inventory_state(self.inventory)
 
+    def set_pos(self, x: int, y: int, player: Optional["Player"] = None) -> bool:
+        """
+        Sets the position of a player.
+
+        Parameters
+        ----------
+        x: int
+            The x pos of where the player will be.
+        y: int
+            The y pos of where the player will be.
+        player: Optional["Player"]
+            The player to set the position of.
+
+        Returns
+        -------
+        bool:
+            True if the player had their position updated, False otherwise.
+        """
+        return self.on_set_pos(x, y, player)
+
     def kill(self, respawn: bool = True) -> bool:
         """
         Kills the player.
@@ -138,6 +158,18 @@ class Player(PlayerNet):
         return self.world.kill_player(self, respawn)
 
     async def freeze(self, duration: float) -> None:
+        """
+        Freezes the player for a certain amount of time.
+
+        Parameters
+        ----------
+        duration: float
+            The duration in seconds to freeze the player for.
+
+        Returns
+        -------
+        None
+        """
         self.frozen = True
         self.on_set_freeze_state(self.frozen)
 
