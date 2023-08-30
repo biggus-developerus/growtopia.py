@@ -155,7 +155,7 @@ class GameUpdatePacket(Packet):
 
         self.data += self.update_type.to_bytes(1, "little")
 
-        self.data += self.object_type.to_bytes(1, "little")
+        self.data += self.object_type.to_bytes(1, "little", signed=True)
         self.data += self.count1.to_bytes(1, "little")
         self.data += self.count2.to_bytes(1, "little")
 
@@ -260,7 +260,7 @@ class GameUpdatePacket(Packet):
         update_packet.data = bytearray(data)
         update_packet.update_type = GameUpdatePacketType(int.from_bytes(data[4:5], "little"))
 
-        update_packet.object_type = int.from_bytes(data[5:6], "little")
+        update_packet.object_type = int.from_bytes(data[5:6], "little", signed=True)
         update_packet.count1 = int.from_bytes(data[6:7], "little")
         update_packet.count2 = int.from_bytes(data[7:8], "little")
 
