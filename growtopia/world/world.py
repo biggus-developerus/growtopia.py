@@ -6,6 +6,7 @@ from ..constants import latest_game_version
 from .tile import Tile
 from .world_net import WorldNet
 from .world_object import WorldObject
+from ..protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
 
 if TYPE_CHECKING:
     from ..player import Player
@@ -61,6 +62,25 @@ class World(WorldNet):
             return None
 
         return self.tiles[x + y * self.width]
+
+    def kill_player(self, player: "Player", respawn: bool = True) -> bool:
+        """
+        Kills a player.
+
+        Parameters
+        ----------
+        respawn: bool
+            Whether the player should return to the world's spawn position or not.
+
+        Returns
+        -------
+        bool:
+            True if the player was killed, False otherwise.
+        """
+        self.lambda_broadcast(lambda p: p.on_killed(player))
+
+        if respawn:
+            self.lambda_broadcast(lambda p: p.set_pos(*self.spawn_pos, player))
 
     def add_player(self, player: "Player", override_spawn: tuple[int, int] = None) -> bool:
         """
