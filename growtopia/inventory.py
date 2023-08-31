@@ -77,9 +77,6 @@ class Inventory:
         The version of the inventory format.
     slots: int
         Represents the slots in the inventory (count).
-    item_count: int
-
-
     """
 
     def __init__(self) -> None:
@@ -108,7 +105,7 @@ class Inventory:
             return
 
         item = InventoryItem(item_id, count, equipped)
-        self[item.id] = item
+        self.items[item.id] = item
 
     def remove_item(self, item_id: int, count: int) -> None:
         """
