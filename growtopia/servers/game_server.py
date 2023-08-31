@@ -4,6 +4,7 @@ import enet
 
 from ..context import ServerContext
 from ..enums import EventID
+from ..obj_holder import _ObjHolder
 from ..player import PlayerLoginInfo
 from ..protocol import (
     GameMessagePacket,
@@ -15,7 +16,6 @@ from ..protocol import (
 )
 from .server import Server
 from .server_world_pool import ServerWorldPool
-from ..obj_holder import _ObjHolder
 
 
 class GameServer(Server, ServerWorldPool):
