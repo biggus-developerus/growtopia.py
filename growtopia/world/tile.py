@@ -4,11 +4,12 @@ from typing import Union
 
 from ..item import Item
 from ..obj_holder import _ObjHolder
+from ..protocol import GameUpdatePacket, GameUpdatePacketFlags, GameUpdatePacketType
+from .enums import TileExtraDataType
+from .tile_extra import TileExtra
 
-from ..protocol import GameUpdatePacket, GameUpdatePacketType, GameUpdatePacketFlags
 
-
-class Tile:
+class Tile(TileExtra):
     def __init__(
         self,
         *,
@@ -16,19 +17,23 @@ class Tile:
         background: int = 0,
         pos: tuple[int, int] = (0, 0),
     ) -> None:
+        super().__init__()
+
         self.foreground_id: int = foreground
         self.background_id: int = background
 
         self.lockpos: int = 0
         self.flags: int = 0
-        self.extra_type: int = 0
-        self.extra_data: bytes = b""
 
         self.pos: tuple[int, int] = pos
 
         self._damage_dealt: int = 0
 
-    def set_item(self, item: Item) -> None:
+    def set_item(
+        self,
+        item: Item,
+        **kwargs,
+    ) -> None:
         """
         Sets the foreground/background item.
 
@@ -36,9 +41,17 @@ class Tile:
         ----------
         item: Item
             The item to set.
+        **kwargs: dict
+            Depending on the item passed in, this may be required.
+            If you're passing in something like a main door, you'd need to pass in the door_label. (defaults to an empty str)
         """
         self.foreground = item if item.is_foreground else self.foreground
         self.background = item if item.is_background else self.background
+
+        match item.action_type:
+            case 13:
+                self.flags = 1
+                self._set_door_extra_data(kwargs.get("door_label", ""))
 
     def punch(self, damage: int = 1) -> bool:
         """
@@ -157,9 +170,7 @@ class Tile:
         data += self.lockpos.to_bytes(2, "little")
         data += self.flags.to_bytes(2, "little")
 
-        if self.flags != 0:
-            data += self.extra_type.to_bytes(1, "little")
-            data += self.extra_data
+        data += self._serialise_extra_data()
 
         return data
 
