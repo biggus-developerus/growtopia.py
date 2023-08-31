@@ -26,8 +26,7 @@ class Tile(TileExtra):
         self.flags: int = 0
 
         self.pos: tuple[int, int] = pos
-
-        self._damage_dealt: int = 0
+        self.damage_dealt: int = 0
 
     def set_item(
         self,
@@ -70,7 +69,7 @@ class Tile(TileExtra):
         if self.is_empty:
             return False
 
-        self._damage_dealt += damage
+        self.damage_dealt += damage
 
         return True
 
@@ -80,7 +79,7 @@ class Tile(TileExtra):
         "Broken" means the layer will be set to blank.
         """
 
-        self._damage_dealt = 0
+        self.damage_dealt = 0
 
         if self.foreground != 0:
             self.foreground = 0
@@ -105,7 +104,7 @@ class Tile(TileExtra):
         """
         The health of the tile.
         """
-        return self.item.break_hits - self._damage_dealt
+        return self.item.break_hits - self.damage_dealt
 
     @property
     def is_empty(self) -> bool:
