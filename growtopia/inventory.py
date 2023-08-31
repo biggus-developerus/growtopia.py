@@ -86,7 +86,7 @@ class Inventory:
         self.version: int = 20  # uint8
         self.slots: int = 10  # uint32
 
-        self.items: list[InventoryItem] = []  # Should we use a dict instead for faster lookup? (item_id: InventoryItem)
+        self.items: dict[int, InventoryItem] = {}  # item_id: InventoryItem
 
     def add_item(self, item_id_or_item: Union[int, Item], count: int, equipped: bool = False) -> None:
         """
@@ -103,8 +103,12 @@ class Inventory:
         """
         item_id = item_id_or_item if isinstance(item_id_or_item, int) else item_id_or_item.id
 
+        if item_id in self.items:
+            self.items[item_id].count += count
+            return
+
         item = InventoryItem(item_id, count, equipped)
-        self.items.append(item)
+        self[item.id] = item
 
     def remove_item(self, item_id: int, count: int) -> None:
         """
@@ -118,14 +122,15 @@ class Inventory:
             The count of the item to remove.
         """
 
-        for item in self.items:
-            if item.id == item_id:
-                item.count -= count
+        item = self.items.get(item_id, None)
 
-                if item.count <= 0:
-                    self.items.remove(item)
+        if not item:
+            return
 
-                break
+        item.count -= count
+
+        if item.count <= 0:
+            self.items.pop(item_id)
 
     def serialise(self) -> bytearray:
         """
@@ -141,7 +146,7 @@ class Inventory:
         data += bytearray(self.slots.to_bytes(4, "little"))
         data += bytearray(len(self.items).to_bytes(2, "little"))
 
-        for item in self.items:
+        for item in self.items.values():
             data += item.serialise()
 
         return data
@@ -172,7 +177,7 @@ class Inventory:
 
         for _ in range(item_count):
             item = InventoryItem.from_bytes(data[offset : offset + 4])
-            inventory.items.append(item)
+            inventory.items[item.id] = item
 
             offset += 4
 
