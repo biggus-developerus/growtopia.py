@@ -1,9 +1,9 @@
 __all__ = ("Player",)
 
+import asyncio
 from typing import TYPE_CHECKING, Optional
 
 import enet
-import asyncio
 
 from ..inventory import Inventory
 from .player_login_info import PlayerLoginInfo
@@ -42,7 +42,12 @@ class Player(PlayerNet):
         self.inventory: Optional[Inventory] = Inventory()
         self.pos: tuple[int, int] = ()
 
+        # states
+
         self.frozen: bool = False
+        self.invisible: bool = False
+        self.moderator: bool = False
+        self.super_moderator: bool = False
 
     def play_audio_file(self, file_path: str, delay: int = 0) -> bool:
         """
