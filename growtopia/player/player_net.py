@@ -52,8 +52,13 @@ class PlayerNet:
         self.net_id: int = -1
         self.user_id: int = 0
 
+        # implemented in Player class
         self.login_info: PlayerLoginInfo
         self.name: str
+        self.frozen: bool
+        self.invisible: bool
+        self.moderator: bool
+        self.super_moderator: bool
 
     def _send(
         self, data: bytes = None, flags: int = enet.PACKET_FLAG_RELIABLE, enet_packet: enet.Packet = None
@@ -411,23 +416,16 @@ class PlayerNet:
             True if the packet was successfully sent, False otherwise.
         """
 
-        if player:
-            return self.send(
-                GameUpdatePacket(
-                    update_type=GameUpdatePacketType.CALL_FUNCTION,
-                    variant_list=VariantList(
-                        "OnSpawn",
-                        f"spawn|avatar\nnetID|{player.net_id}\nuserID|{player.user_id}\ncolrect|0|0|20|30\nposXY|{x}|{y}\nname|{player.name}\ncountry|{player.login_info.country}\ninvis|0\nmstate|0\nsmstate|0\n",
-                    ),
-                )
-            )
-
+        player = player or self
         return self.send(
             GameUpdatePacket(
                 update_type=GameUpdatePacketType.CALL_FUNCTION,
                 variant_list=VariantList(
                     "OnSpawn",
-                    f"spawn|avatar\nnetID|{self.net_id}\nuserID|{self.user_id}\ncolrect|0|0|20|30\nposXY|{x}|{y}\nname|{self.name}\ncountry|{self.login_info.country}\ninvis|0\nmstate|0\nsmstate|0\ntype|local\n",
+                    f"spawn|avatar\nnetID|{player.net_id}\nuserID|{player.user_id}\ncolrect|0|0|20|30\nposXY|{x}|{y}\nname|{player.name}\ncountry|{player.login_info.country}\ninvis|{int(player.invisible)}\nmstate|{int(player.moderator)}\nsmstate|{int(player.super_moderator)}"
+                    + "\ntype|local\n"
+                    if player == self
+                    else "\n",
                 ),
             )
         )
