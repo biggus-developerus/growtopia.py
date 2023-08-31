@@ -1,8 +1,10 @@
 __all__ = ("World",)
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 from ..constants import latest_game_version
+from ..item import Item
+from ..obj_holder import _ObjHolder
 from .tile import Tile
 from .world_net import WorldNet
 from .world_object import WorldObject
@@ -40,6 +42,71 @@ class World(WorldNet):
         self.objects: list[WorldObject] = []
 
         self.__net_id: int = 0
+
+    def set_row_tiles(
+        self,
+        row: int,
+        foreground_item_or_item_id: Optional[Union[Item, int]] = 0,
+        background_item_or_item_id: Optional[Union[Item, int]] = 0,
+    ) -> None:
+        """
+        Sets a row of tiles.
+
+        Parameters
+        ----------
+        row: int
+            The row to set.
+        foreground_item_or_item_id: Optional[Union[Item, int]]
+            The foreground item or item id to set. (default 0)
+        background_item_or_item_id: Optional[Union[Item, int]]
+            The background item or item id to set. (default 0)
+        """
+        foreground = (
+            foreground_item_or_item_id if isinstance(foreground_item_or_item_id, int) else foreground_item_or_item_id.id
+        )
+        background = (
+            background_item_or_item_id if isinstance(background_item_or_item_id, int) else background_item_or_item_id.id
+        )
+
+        for tile in self.get_row(row):
+            tile.foreground = foreground
+            tile.background = background
+
+    def get_row(self, row: int, size: Optional[int] = None) -> list[Tile]:
+        """
+        Gets a row of tiles.
+
+        Parameters
+        ----------
+        row: int
+            The row to get.
+        size: Optional[int]
+            The size of the row to get. (default None)
+
+        Returns
+        -------
+        list[Tile]:
+            The row of tiles.
+        """
+        return self.tiles[row * self.width : row * self.width + (size or self.width)]
+
+    def get_column(self, column: int, size: Optional[int] = None) -> list[Tile]:
+        """
+        Gets a column of tiles.
+
+        Parameters
+        ----------
+        column: int
+            The column to get.
+        size: Optional[int]
+            The size of the column to get. (default None)
+
+        Returns
+        -------
+        list[Tle]:
+            The column of tiles.
+        """
+        return [self.tiles[i * self.width + column] for i in range((size or self.height))]
 
     def get_tile(self, x: int, y: int) -> Optional[Tile]:
         """
