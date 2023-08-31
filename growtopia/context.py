@@ -10,6 +10,7 @@ import enet
 
 if TYPE_CHECKING:
     from .clients import Client, GameClient
+    from .item import Item
     from .items_data import ItemsData
     from .player import Player
     from .player_tribute import PlayerTribute
@@ -21,8 +22,7 @@ if TYPE_CHECKING:
         TextPacket,
     )
     from .servers import Server
-    from .world import World, Tile
-    from .item import Item
+    from .world import Tile, World
 
 
 class Context:
