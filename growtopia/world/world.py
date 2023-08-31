@@ -6,7 +6,6 @@ from ..constants import latest_game_version
 from .tile import Tile
 from .world_net import WorldNet
 from .world_object import WorldObject
-from ..protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
 
 if TYPE_CHECKING:
     from ..player import Player
