@@ -416,16 +416,23 @@ class PlayerNet:
             True if the packet was successfully sent, False otherwise.
         """
 
-        player = player or self
+        if player:
+            return self.send(
+                GameUpdatePacket(
+                    update_type=GameUpdatePacketType.CALL_FUNCTION,
+                    variant_list=VariantList(
+                        "OnSpawn",
+                        f"spawn|avatar\nnetID|{player.net_id}\nuserID|{player.user_id}\ncolrect|0|0|20|30\nposXY|{x}|{y}\nname|{player.name}\ncountry|{player.login_info.country}\ninvis|{int(player.invisible)}\nmstate|{int(player.moderator)}\nsmstate|{int(player.super_moderator)}",
+                    ),
+                )
+            )
+
         return self.send(
             GameUpdatePacket(
                 update_type=GameUpdatePacketType.CALL_FUNCTION,
                 variant_list=VariantList(
                     "OnSpawn",
-                    f"spawn|avatar\nnetID|{player.net_id}\nuserID|{player.user_id}\ncolrect|0|0|20|30\nposXY|{x}|{y}\nname|{player.name}\ncountry|{player.login_info.country}\ninvis|{int(player.invisible)}\nmstate|{int(player.moderator)}\nsmstate|{int(player.super_moderator)}"
-                    + "\ntype|local\n"
-                    if player == self
-                    else "\n",
+                    f"spawn|avatar\nnetID|{self.net_id}\nuserID|{self.user_id}\ncolrect|0|0|20|30\nposXY|{x}|{y}\nname|{self.name}\ncountry|{self.login_info.country}\ninvis|{int(self.invisible)}\nmstate|{int(self.moderator)}\nsmstate|{int(self.super_moderator)}\ntype|local\n",
                 ),
             )
         )
