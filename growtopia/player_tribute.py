@@ -3,8 +3,8 @@ __all__ = ("PlayerTribute",)
 from typing import Union
 
 from .file import File
-from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
 from .obj_holder import _ObjHolder
+from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
 
 
 class PlayerTribute(File):
