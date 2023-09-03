@@ -1,11 +1,11 @@
 __all__ = ("Tile",)
 
+import asyncio
 from typing import Union
 
 from ..item import Item
 from ..obj_holder import _ObjHolder
 from ..protocol import GameUpdatePacket, GameUpdatePacketFlags, GameUpdatePacketType
-from .enums import TileExtraDataType
 from .tile_extra import TileExtra
 
 
@@ -26,7 +26,9 @@ class Tile(TileExtra):
         self.flags: int = 0
 
         self.pos: tuple[int, int] = pos
-        self.damage_dealt: int = 0
+
+        self._damage_dealt_to_foreground: int = 0
+        self._damage_dealt_to_background: int = 0
 
     def set_item(
         self,
@@ -52,7 +54,18 @@ class Tile(TileExtra):
                 self.flags = 1
                 self._set_door_extra_data(kwargs.get("door_label", ""))
 
-    def punch(self, damage: int = 1) -> bool:
+    async def _start_reset_timer(
+        self,
+        damage_applied_to: Item,
+    ) -> None:
+        await asyncio.sleep(self.item.reset_time)
+
+        if self.is_empty or self.health <= 0 or self.item != damage_applied_to:
+            return
+
+        self.reset_damage_dealt_to_layer()
+
+    def punch(self, damage: int = 1, reset: bool = True) -> bool:
         """
         Punches the tile.
 
@@ -60,6 +73,8 @@ class Tile(TileExtra):
         ----------
         damage: int
             The amount of damage to deal to the tile.
+        reset: bool
+            Whether or not to reset the damage dealt to the tile after a certain amount of time.
 
         Returns
         -------
@@ -69,7 +84,10 @@ class Tile(TileExtra):
         if self.is_empty:
             return False
 
-        self.damage_dealt += damage
+        self.deal_damage_to_layer(damage)
+
+        if reset:
+            asyncio.create_task(self._start_reset_timer(self.item))
 
         return True
 
@@ -79,15 +97,59 @@ class Tile(TileExtra):
         "Broken" means the layer will be set to blank.
         """
 
-        self.damage_dealt = 0
-
         if self.foreground != 0:
             self.foreground = 0
+            self._damage_dealt_to_foreground = 0
             return
 
         if self.background != 0:
             self.background = 0
+            self._damage_dealt_to_background = 0
             return
+
+    def get_layer(self) -> Item:
+        """
+        Gets the layer. If the foreground item is not blank, it will be returned, otherwise the background item will be returned.
+
+        Returns
+        -------
+        Item:
+            The current layer.
+        """
+        return self.foreground if self.foreground != 0 else self.background
+
+    def deal_damage_to_layer(self, damage: int) -> None:
+        """
+        Deals damage to the layer. If the foreground item is not blank, it will be dealt to, otherwise the background item will be dealt to.
+
+        Parameters
+        ----------
+        damage: int
+            The amount of damage to deal to the layer.
+        """
+
+        if self.is_empty:
+            return
+
+        if self.foreground != 0:
+            self._damage_dealt_to_foreground += damage
+            return
+
+        self._damage_dealt_to_background += damage
+
+    def reset_damage_dealt_to_layer(self) -> None:
+        """
+        Resets the damage dealt to the layer. If the foreground item is not blank, it will be reset, otherwise the background item will be reset.
+        """
+
+        if self.is_empty:
+            return
+
+        if self.foreground != 0:
+            self._damage_dealt_to_foreground = 0
+            return
+
+        self._damage_dealt_to_background = 0
 
     def apply_damage_packet(self, net_id: int, tile_damage: int = 6) -> GameUpdatePacket:
         return GameUpdatePacket(
@@ -104,7 +166,23 @@ class Tile(TileExtra):
         """
         The health of the tile.
         """
-        return self.item.break_hits - self.damage_dealt
+        if self.is_empty:
+            return 0
+
+        return self.get_layer().break_hits - self.damage_dealt
+
+    @property
+    def damage_dealt(self) -> int:
+        """
+        The damage dealt to the tile.
+        """
+        if self.is_empty:
+            return 0
+
+        if self.foreground != 0:
+            return self._damage_dealt_to_foreground
+
+        return self._damage_dealt_to_background
 
     @property
     def is_empty(self) -> bool:
@@ -148,9 +226,15 @@ class Tile(TileExtra):
     def background(self, item_or_id: Union[Item, int]) -> None:
         self.background_id = item_or_id.id if isinstance(item_or_id, Item) else item_or_id
 
+        if self.background_id == 0:
+            self.reset_extra_data()
+
     @foreground.setter
     def foreground(self, item_or_id: Union[Item, int]) -> None:
         self.foreground_id = item_or_id.id if isinstance(item_or_id, Item) else item_or_id
+
+        if self.foreground_id == 0:
+            self.reset_extra_data()
 
     def serialise(self) -> bytearray:
         """
@@ -197,7 +281,7 @@ class Tile(TileExtra):
         tile.flags = int.from_bytes(data[6:8], "little")
 
         if tile.flags != 0:  # TODO: Obviously handle the extra data.. 😢
-            tile.extra_type = int.from_bytes(data[8:9], "little")
+            tile.extra_data_type = int.from_bytes(data[8:9], "little")
             tile.extra_data = data[9:]
 
         return tile
