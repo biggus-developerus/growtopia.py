@@ -1,19 +1,20 @@
 __all__ = ("World",)
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union, Callable
 
 from ..constants import latest_game_version
-from ..item import Item
-from ..obj_holder import _ObjHolder
 from .tile import Tile
-from .world_net import WorldNet
 from .world_object import WorldObject
+from .world_avatar_pool import WorldAvatarPool
+from .world_player_pool import WorldPlayerPool
+from .world_tile_pool import WorldTilePool
+from ..protocol import Packet, GameUpdatePacket, GameMessagePacket, TextPacket
 
 if TYPE_CHECKING:
-    from ..player import Player
+    from ..player import Avatar
 
 
-class World(WorldNet):
+class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
     def __init__(
         self,
         name: str,
@@ -24,196 +25,167 @@ class World(WorldNet):
         weather_id: int = 0,
         version: int = 20,
         flags: int = 64,
-        spawn_pos: tuple[int, int] = (500, 500),
+        spawn_pos: tuple[int, int] = (0, 0),
     ) -> None:
-        super().__init__()
+        WorldAvatarPool.__init__(self)
+        WorldPlayerPool.__init__(self)
+        WorldTilePool.__init__(self, width, height)
 
         self.name: str = name
-        self.width: int = width
-        self.height: int = height
+        self._width: int = width
+        self._height: int = height
         self.base_weather_id: int = base_weather_id
         self.weather_id: int = weather_id
         self.version: int = version
         self.flags: int = flags
-        self.spawn_pos: tuple[int, int] = spawn_pos
+        self._spawn_pos: tuple[int, int] = spawn_pos
 
-        self.players: dict[int, Player] = {}
-        self.tiles: list[Tile] = [Tile(pos=(i % self.width, i // self.width)) for i in range(width * height)]
+        self.avatars: dict[int, "Avatar"] = {}
         self.objects: list[WorldObject] = []
 
-        self.__net_id: int = 0
+        self._next_net_id: int = 0
 
-    def set_row_tiles(
-        self,
-        row: int,
-        foreground_item_or_item_id: Optional[Union[Item, int]] = 0,
-        background_item_or_item_id: Optional[Union[Item, int]] = 0,
+    @property
+    def width(self) -> int:
+        """
+        Returns the width of the world.
+
+        Returns
+        -------
+        int:
+            The width of the world.
+        """
+        return self._width
+
+    @width.setter
+    def width(self, value: int) -> None:
+        """
+        Sets the width of the world.
+
+        Parameters
+        ----------
+        value: int
+            The width to set.
+        """
+        self._width = value
+
+    @property
+    def height(self) -> int:
+        """
+        Returns the height of the world.
+
+        Returns
+        -------
+        int:
+            The height of the world.
+        """
+        return self._height
+
+    @height.setter
+    def height(self, value: int) -> None:
+        """
+        Sets the height of the world.
+
+        Parameters
+        ----------
+        value: int
+            The height to set.
+        """
+        self._height = value
+
+    @property
+    def spawn_pos(self) -> tuple[int, int]:
+        """
+        Returns the spawn position of the world.
+
+        Returns
+        -------
+        tuple[int, int]:
+            The spawn position of the world.
+        """
+        return self._spawn_pos
+
+    @spawn_pos.setter
+    def spawn_pos(self, value: tuple[int, int]) -> None:
+        """
+        Sets the spawn position of the world.
+
+        Parameters
+        ----------
+        value: tuple[int, int]
+            The spawn position to set.
+        """
+        self._spawn_pos = value
+
+    @property
+    def next_net_id(self) -> int:
+        """
+        Returns the net ID of the next player.
+
+        Returns
+        -------
+        int:
+            The net ID of the next player.
+        """
+        return self._next_net_id
+
+    @next_net_id.setter
+    def next_net_id(self, value: int) -> None:
+        """
+        Sets the net ID of the next player.
+
+        Parameters
+        ----------
+        value: int
+            The net ID to set.
+        """
+        self._next_net_id = value
+
+    def broadcast(
+        self, packet: Union[Packet, GameUpdatePacket, GameMessagePacket, TextPacket], exclude_net_id: int = -1
     ) -> None:
         """
-        Sets a row of tiles.
+        Broadcasts a packet to all players in the world.
 
         Parameters
         ----------
-        row: int
-            The row to set.
-        foreground_item_or_item_id: Optional[Union[Item, int]]
-            The foreground item or item id to set. (default 0)
-        background_item_or_item_id: Optional[Union[Item, int]]
-            The background item or item id to set. (default 0)
+        packet: Union[Packet, GameUpdatePacket, GameMessagePacket, TextPacket]
+            The packet to broadcast.
         """
-        foreground = (
-            foreground_item_or_item_id if isinstance(foreground_item_or_item_id, int) else foreground_item_or_item_id.id
-        )
-        background = (
-            background_item_or_item_id if isinstance(background_item_or_item_id, int) else background_item_or_item_id.id
-        )
+        for player in self.players.values():
+            if player.net_id == exclude_net_id:
+                continue
 
-        for tile in self.get_row(row):
-            tile.foreground = foreground
-            tile.background = background
+            player.send(packet)
 
-    def get_row(self, row: int, size: Optional[int] = None) -> list[Tile]:
+    def lambda_broadcast(self, callback: Callable, exclude_net_id: int = -1) -> None:
         """
-        Gets a row of tiles.
+        Calls a callback for each player in the world.
 
         Parameters
         ----------
-        row: int
-            The row to get.
-        size: Optional[int]
-            The size of the row to get. (default None)
-
-        Returns
-        -------
-        list[Tile]:
-            The row of tiles.
+        callback: Callable(Player)
+            The callback to call for each player.
         """
-        return self.tiles[row * self.width : row * self.width + (size or self.width)]
+        for player in self.players.values():
+            if player.net_id == exclude_net_id:
+                continue
 
-    def get_column(self, column: int, size: Optional[int] = None) -> list[Tile]:
+            callback(player)
+
+    def kill_avatar(self, avatar: "Avatar", respawn: bool = True) -> None:
         """
-        Gets a column of tiles.
-
-        Parameters
-        ----------
-        column: int
-            The column to get.
-        size: Optional[int]
-            The size of the column to get. (default None)
-
-        Returns
-        -------
-        list[Tle]:
-            The column of tiles.
-        """
-        return [self.tiles[i * self.width + column] for i in range((size or self.height))]
-
-    def get_tile(self, x: int, y: int) -> Optional[Tile]:
-        """
-        Gets a tile at a position.
-
-        Parameters
-        ----------
-        x: int
-            The x position of the tile.
-        y: int
-            The y position of the tile.
-
-        Returns
-        -------
-        Optional[Tile]:
-            The tile if found, None otherwise.
-        """
-        if x < 0 or x >= self.width or y < 0 or y >= self.height:
-            return None
-
-        return self.tiles[x + y * self.width]
-
-    def kill_player(self, player: "Player", respawn: bool = True) -> bool:
-        """
-        Kills a player.
+        Kills an avatar.
 
         Parameters
         ----------
         respawn: bool
-            Whether the player should return to the world's spawn position or not.
-
-        Returns
-        -------
-        bool:
-            True if the player was killed, False otherwise.
+            Whether the avatar should return to the world's spawn position or not.
         """
-        self.lambda_broadcast(lambda p: p.on_killed(player))
+        self.lambda_broadcast(lambda p: p.on_killed(avatar))
 
         if respawn:
-            self.lambda_broadcast(lambda p: p.set_pos(*self.spawn_pos, player))
-
-    def add_player(self, player: "Player", override_spawn: tuple[int, int] = None) -> bool:
-        """
-        Adds a player to the world.
-
-        Parameters
-        ----------
-        player: Player
-            The player to add to the world.
-
-        Returns
-        -------
-        bool:
-            True if the player was added, False otherwise.
-        """
-        if player.net_id in self.players:
-            return False
-
-        if player.world == None:
-            player.world = self
-
-        player.net_id = self.__net_id
-        self.players[player.net_id] = player
-
-        player._send_world(self)
-        player.on_spawn(*(override_spawn or self.spawn_pos))
-        player.pos = override_spawn or self.spawn_pos
-
-        self.lambda_broadcast(
-            lambda p: p.on_spawn(*(override_spawn or self.spawn_pos), player), exclude_net_id=player.net_id
-        )
-
-        for p in self.players.values():
-            if p.net_id == player.net_id:
-                continue
-
-            player.on_spawn(*p.pos, p)
-
-        self.__net_id += 1
-
-        return True
-
-    def get_player(self, net_id: int) -> Optional["Player"]:
-        return self.players.get(net_id, None)
-
-    def remove_player(self, player: "Player") -> bool:
-        """
-        Removes a player from the world.
-
-        Parameters
-        ----------
-        player: Player
-            The player to remove from the world.
-
-        Returns
-        -------
-        bool:
-            True if the player was removed, False otherwise.
-        """
-        if player.net_id not in self.players:
-            return False
-
-        del self.players[player.net_id]
-
-        self.lambda_broadcast(lambda p: p._on_remove(player), exclude_net_id=player.net_id)
-
-        return True
+            self.lambda_broadcast(lambda p: p.set_pos(*self.spawn_pos, avatar))
 
     def serialise(self, *, game_version: float = latest_game_version) -> bytearray:
         """
