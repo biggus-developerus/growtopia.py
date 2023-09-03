@@ -8,6 +8,10 @@ class TileExtra:
         self.extra_data_type: TileExtraDataType = TileExtraDataType.NONE
         self.extra_data: bytearray = bytearray()
 
+    def reset_extra_data(self) -> None:
+        self.extra_data_type = TileExtraDataType.NONE
+        self.extra_data = bytearray()
+
     def _set_door_extra_data(self, door_label: str) -> None:
         self.extra_data_type = TileExtraDataType.DOOR
 
