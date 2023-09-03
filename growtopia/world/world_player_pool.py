@@ -1,14 +1,13 @@
 __all__ = ("WorldPlayerPool",)
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Callable
+from abc import ABC, abstractmethod
 
 if TYPE_CHECKING:
     from ..player import Player
 
-from .world_net import WorldNet
 
-
-class WorldPlayerPool(WorldNet):
+class WorldPlayerPool(ABC):
     """
     Used to store and manage players in a world.
 
@@ -19,10 +18,45 @@ class WorldPlayerPool(WorldNet):
     """
 
     def __init__(self) -> None:
-        super().__init__()
+        self._players: dict[int, "Player"] = {}
 
-        self.players: dict[int, "Player"] = {}
-        self.__net_id: int = 0
+    @property
+    @abstractmethod
+    def next_net_id(self) -> int:
+        ...
+
+    @property
+    @abstractmethod
+    def spawn_pos(self) -> tuple[int, int]:
+        ...
+
+    @abstractmethod
+    def lambda_broadcast(self, callback: Callable, exclude_net_id: int = -1) -> None:
+        ...
+
+    @property
+    def players(self) -> dict[int, "Player"]:
+        """
+        Returns the players in the world.
+
+        Returns
+        -------
+        dict[int, Player]:
+            The players in the world.
+        """
+        return self._players
+
+    @players.setter
+    def players(self, value: dict[int, "Player"]) -> None:
+        """
+        Sets the players in the world.
+
+        Parameters
+        ----------
+        value: dict[int, Player]
+            The players to set.
+        """
+        self._players = value
 
     def add_player(self, player: "Player") -> bool:
         """
@@ -44,21 +78,19 @@ class WorldPlayerPool(WorldNet):
         if player.world == None:
             player.world = self
 
-        player.net_id = self.__net_id
-        self.players[player.net_id] = player
+        player.net_id = self.next_net_id
+        player.pos = self.spawn_pos
 
         player._send_world(self)
-        player.on_spawn(500, 500)
+        player._on_spawn(player, True)
 
-        self.lambda_broadcast(lambda p: p.on_spawn(500, 500, player), exclude_net_id=player.net_id)
+        self.lambda_broadcast(lambda p: p._on_spawn(player, False), exclude_net_id=player.net_id)
 
         for p in self.players.values():
-            if p.net_id == player.net_id:
-                continue
+            player._on_spawn(p, False)
 
-            player.on_spawn(500, 500, p)
-
-        self.__net_id += 1
+        self.next_net_id += 1
+        self.players[player.net_id] = player
 
         return True
 
