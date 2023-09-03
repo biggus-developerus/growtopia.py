@@ -1,19 +1,18 @@
 __all__ = ("Player",)
 
 import asyncio
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 import enet
 
 from ..inventory import Inventory
+from .player_avatar import PlayerAvatar
 from .player_login_info import PlayerLoginInfo
 from .player_net import PlayerNet
 
-if TYPE_CHECKING:
-    from ..world import World
 
-
-class Player(PlayerNet):
+class Player(PlayerAvatar, PlayerNet):
+    # TODO: Update docstr
     """
     Represents a connected ENet peer.
 
@@ -21,33 +20,64 @@ class Player(PlayerNet):
     ----------
     peer: enet.Peer
         The peer object of the player.
-
-    Attributes
-    ----------
-    peer: enet.Peer
-        The peer object of the player.
-    last_packet_sent: Union[StrPacket, GameUpdatePacket]
-        The last packet that was sent to the player.
-    last_packet_received: Union[StrPacket, GameUpdatePacket]
-        The last packet that was received from the player.
-    login_info: PlayerLoginInfo
-        A PlayerLoginInfo object that contains the data that the player sent when they logged in. (e.g. username, password, etc.)
     """
 
     def __init__(self, peer: enet.Peer) -> None:
-        super().__init__(peer)
+        PlayerAvatar.__init__(self)
+        PlayerNet.__init__(self)
 
-        self.login_info: PlayerLoginInfo = PlayerLoginInfo()
-        self.world: Optional[World] = None
         self.inventory: Optional[Inventory] = Inventory()
-        self.pos: tuple[int, int] = ()
 
-        # states
+        self._login_info: PlayerLoginInfo = PlayerLoginInfo()
+        self._peer: enet.Peer = peer
 
-        self.frozen: bool = False
-        self.invisible: bool = False
-        self.moderator: bool = False
-        self.super_moderator: bool = False
+    @property
+    def login_info(self) -> PlayerLoginInfo:
+        """
+        Returns the login info of the player.
+
+        Returns
+        -------
+        PlayerLoginInfo:
+            The login info of the player.
+        """
+        return self._login_info
+
+    @login_info.setter
+    def login_info(self, value: PlayerLoginInfo) -> None:
+        """
+        Sets the login info of the player.
+
+        Parameters
+        ----------
+        value: PlayerLoginInfo
+            The login info to set.
+        """
+        self._login_info = value
+
+    @property
+    def peer(self) -> enet.Peer:
+        """
+        Returns the peer object of the player.
+
+        Returns
+        -------
+        enet.Peer:
+            The peer object of the player.
+        """
+        return self._peer
+
+    @peer.setter
+    def peer(self, value: enet.Peer) -> None:
+        """
+        Sets the peer object of the player.
+
+        Parameters
+        ----------
+        value: enet.Peer
+            The peer object to set.
+        """
+        self._peer = value
 
     def play_audio_file(self, file_path: str, delay: int = 0) -> bool:
         """
@@ -67,22 +97,6 @@ class Player(PlayerNet):
             True if the packet was successfully sent, False otherwise.
         """
         return self._play_sfx(file_path, delay)
-
-    def send_to_world(self, world: Optional["World"]) -> bool:
-        """
-        Sends the player to a world.
-
-        Parameters
-        ----------
-        world: World
-            The world to send the player to.
-        """
-        self.world = world or self.world
-
-        if self.world is None:
-            return False
-
-        return self.world.add_player(self)
 
     def add_inventory_item(self, item_id: int, amount: int = 1) -> bool:
         """
@@ -160,7 +174,7 @@ class Player(PlayerNet):
         if self.world is None:
             return False
 
-        return self.world.kill_player(self, respawn)
+        return self.world.kill_avatar(self, respawn)
 
     async def freeze(self, duration: float) -> None:
         """

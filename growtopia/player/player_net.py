@@ -1,5 +1,6 @@
 __all__ = ("PlayerNet",)
 
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Optional, Union
 
 import enet
@@ -22,43 +23,50 @@ from .player_login_info import PlayerLoginInfo
 if TYPE_CHECKING:
     from ..world import World
     from .player import Player
+    from ..avatar import Avatar
 
 
-class PlayerNet:
+class PlayerNet(ABC):
     """
     A base class for the Player class. This class is used to handle the networking bit of the Player class.
-
-    Parameters
-    ----------
-    peer: enet.Peer
-        The peer object of the player.
+    This class itself relies on the Player class, more specifically the Avatar class that it inherits from.
 
     Attributes
     ----------
-    peer: enet.Peer
-        The peer object of the player.
     last_packet_sent: Union[StrPacket, GameUpdatePacket]
         The last packet that was sent to the player.
     last_packet_received: Union[StrPacket, GameUpdatePacket]
         The last packet that was received from the player.
     """
 
-    def __init__(self, peer: enet.Peer) -> None:
-        self.peer: enet.Peer = peer
-
+    def __init__(self) -> None:
         self.last_packet_sent: Optional[Union[StrPacket, GameUpdatePacket]] = None
         self.last_packet_received: Optional[Union[StrPacket, GameUpdatePacket]] = None
 
-        self.net_id: int = -1
-        self.user_id: int = 0
+    @property
+    @abstractmethod
+    def peer(self) -> enet.Peer:
+        ...
 
-        # implemented in Player class
-        self.login_info: PlayerLoginInfo
-        self.name: str
-        self.frozen: bool
-        self.invisible: bool
-        self.moderator: bool
-        self.super_moderator: bool
+    @property
+    @abstractmethod
+    def login_info(self) -> PlayerLoginInfo:
+        ...
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        ...
+
+    @property
+    @abstractmethod
+    def user_id(self) -> int:
+        ...
+
+    @property
+    @abstractmethod
+    def net_id(self) -> int:
+        ...
 
     def _send(
         self, data: bytes = None, flags: int = enet.PACKET_FLAG_RELIABLE, enet_packet: enet.Packet = None
@@ -397,7 +405,7 @@ class PlayerNet:
             )
         )
 
-    def on_spawn(self, x: int, y: int, player: Optional["Player"] = None) -> bool:
+    def _on_spawn(self, avatar: "Avatar", local: bool) -> bool:
         """
         Spawns an avatar for the player.
 
@@ -407,35 +415,15 @@ class PlayerNet:
             The X coordinate of the avatar.
         y: int
             The Y coordinate of the avatar.
-        local: bool
-            Whether the avatar is local or not.
+        avatar: Avatar
+            The avatar to spawn for the player.
 
         Returns
         -------
         bool:
             True if the packet was successfully sent, False otherwise.
         """
-
-        if player:
-            return self.send(
-                GameUpdatePacket(
-                    update_type=GameUpdatePacketType.CALL_FUNCTION,
-                    variant_list=VariantList(
-                        "OnSpawn",
-                        f"spawn|avatar\nnetID|{player.net_id}\nuserID|{player.user_id}\ncolrect|0|0|20|30\nposXY|{x}|{y}\nname|{player.name}\ncountry|{player.login_info.country}\ninvis|{int(player.invisible)}\nmstate|{int(player.moderator)}\nsmstate|{int(player.super_moderator)}",
-                    ),
-                )
-            )
-
-        return self.send(
-            GameUpdatePacket(
-                update_type=GameUpdatePacketType.CALL_FUNCTION,
-                variant_list=VariantList(
-                    "OnSpawn",
-                    f"spawn|avatar\nnetID|{self.net_id}\nuserID|{self.user_id}\ncolrect|0|0|20|30\nposXY|{x}|{y}\nname|{self.name}\ncountry|{self.login_info.country}\ninvis|{int(self.invisible)}\nmstate|{int(self.moderator)}\nsmstate|{int(self.super_moderator)}\ntype|local\n",
-                ),
-            )
-        )
+        return self.send(avatar.packet if not local else avatar.local_packet)
 
     def _on_remove(self, player: "Player") -> bool:
         """
