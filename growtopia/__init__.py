@@ -1,3 +1,4 @@
+from .avatar import *
 from .clients import *
 from .collection import *
 from .command import *
