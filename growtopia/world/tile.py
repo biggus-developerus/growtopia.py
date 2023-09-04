@@ -226,14 +226,16 @@ class Tile(TileExtra):
     def background(self, item_or_id: Union[Item, int]) -> None:
         self.background_id = item_or_id.id if isinstance(item_or_id, Item) else item_or_id
 
-        if self.background_id == 0:
+        if self.background_id == 0 and self.item.is_background:
+            self.flags = 0
             self.reset_extra_data()
 
     @foreground.setter
     def foreground(self, item_or_id: Union[Item, int]) -> None:
         self.foreground_id = item_or_id.id if isinstance(item_or_id, Item) else item_or_id
 
-        if self.foreground_id == 0:
+        if self.foreground_id == 0 and self.item.is_foreground:
+            self.flags = 0
             self.reset_extra_data()
 
     def serialise(self) -> bytearray:
