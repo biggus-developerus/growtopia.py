@@ -1,7 +1,7 @@
 __all__ = ("WorldPlayerPool",)
 
-from typing import TYPE_CHECKING, Optional, Callable
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Callable, Optional
 
 if TYPE_CHECKING:
     from ..player import Player
@@ -18,7 +18,7 @@ class WorldPlayerPool(ABC):
     """
 
     def __init__(self) -> None:
-        self._players: dict[int, "Player"] = {}
+        self.__players: dict[int, "Player"] = {}
 
     @property
     @abstractmethod
@@ -44,7 +44,7 @@ class WorldPlayerPool(ABC):
         dict[int, Player]:
             The players in the world.
         """
-        return self._players
+        return self.__players
 
     @players.setter
     def players(self, value: dict[int, "Player"]) -> None:
@@ -56,7 +56,7 @@ class WorldPlayerPool(ABC):
         value: dict[int, Player]
             The players to set.
         """
-        self._players = value
+        self.__players = value
 
     def add_player(self, player: "Player") -> bool:
         """
