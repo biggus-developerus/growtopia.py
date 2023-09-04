@@ -1,7 +1,8 @@
 __all__ = ("Avatar",)
 
 from typing import TYPE_CHECKING, Optional
-from .protocol import GameUpdatePacket, VariantList, GameUpdatePacketType
+
+from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
 
 if TYPE_CHECKING:
     from .world import World

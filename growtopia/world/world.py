@@ -1,17 +1,17 @@
 __all__ = ("World",)
 
-from typing import TYPE_CHECKING, Optional, Union, Callable
+from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from ..constants import latest_game_version
+from ..protocol import GameMessagePacket, GameUpdatePacket, Packet, TextPacket
 from .tile import Tile
-from .world_object import WorldObject
 from .world_avatar_pool import WorldAvatarPool
+from .world_object import WorldObject
 from .world_player_pool import WorldPlayerPool
 from .world_tile_pool import WorldTilePool
-from ..protocol import Packet, GameUpdatePacket, GameMessagePacket, TextPacket
 
 if TYPE_CHECKING:
-    from ..player import Avatar
+    from ..avatar import Avatar
 
 
 class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
@@ -32,18 +32,18 @@ class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
         WorldTilePool.__init__(self, width, height)
 
         self.name: str = name
-        self._width: int = width
-        self._height: int = height
+        self.__width: int = width
+        self.__height: int = height
         self.base_weather_id: int = base_weather_id
         self.weather_id: int = weather_id
         self.version: int = version
         self.flags: int = flags
-        self._spawn_pos: tuple[int, int] = spawn_pos
+        self.__spawn_pos: tuple[int, int] = spawn_pos
 
         self.avatars: dict[int, "Avatar"] = {}
         self.objects: list[WorldObject] = []
 
-        self._next_net_id: int = 0
+        self.__next_net_id: int = 0
 
     @property
     def width(self) -> int:
@@ -55,7 +55,7 @@ class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
         int:
             The width of the world.
         """
-        return self._width
+        return self.__width
 
     @width.setter
     def width(self, value: int) -> None:
@@ -67,7 +67,7 @@ class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
         value: int
             The width to set.
         """
-        self._width = value
+        self.__width = value
 
     @property
     def height(self) -> int:
@@ -79,7 +79,7 @@ class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
         int:
             The height of the world.
         """
-        return self._height
+        return self.__height
 
     @height.setter
     def height(self, value: int) -> None:
@@ -91,7 +91,7 @@ class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
         value: int
             The height to set.
         """
-        self._height = value
+        self.__height = value
 
     @property
     def spawn_pos(self) -> tuple[int, int]:
@@ -103,7 +103,7 @@ class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
         tuple[int, int]:
             The spawn position of the world.
         """
-        return self._spawn_pos
+        return self.__spawn_pos
 
     @spawn_pos.setter
     def spawn_pos(self, value: tuple[int, int]) -> None:
@@ -115,7 +115,7 @@ class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
         value: tuple[int, int]
             The spawn position to set.
         """
-        self._spawn_pos = value
+        self.__spawn_pos = value
 
     @property
     def next_net_id(self) -> int:
@@ -127,7 +127,7 @@ class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
         int:
             The net ID of the next player.
         """
-        return self._next_net_id
+        return self.__next_net_id
 
     @next_net_id.setter
     def next_net_id(self, value: int) -> None:
@@ -139,7 +139,7 @@ class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
         value: int
             The net ID to set.
         """
-        self._next_net_id = value
+        self.__next_net_id = value
 
     def broadcast(
         self, packet: Union[Packet, GameUpdatePacket, GameMessagePacket, TextPacket], exclude_net_id: int = -1

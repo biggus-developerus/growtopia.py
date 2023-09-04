@@ -21,9 +21,9 @@ from ..protocol import (
 from .player_login_info import PlayerLoginInfo
 
 if TYPE_CHECKING:
+    from ..avatar import Avatar
     from ..world import World
     from .player import Player
-    from ..avatar import Avatar
 
 
 class PlayerNet(ABC):

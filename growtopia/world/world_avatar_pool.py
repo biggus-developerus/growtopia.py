@@ -1,7 +1,7 @@
 __all__ = ("WorldAvatarPool",)
 
-from typing import TYPE_CHECKING, Optional, Callable
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING, Callable, Optional
 
 if TYPE_CHECKING:
     from ..avatar import Avatar
