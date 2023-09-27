@@ -1,7 +1,7 @@
 __all__ = ("Player",)
 
 import asyncio
-from typing import Optional
+from typing import Optional, Any
 
 import enet
 
@@ -30,6 +30,8 @@ class Player(PlayerAvatar, PlayerNet):
 
         self._login_info: PlayerLoginInfo = PlayerLoginInfo()
         self._peer: enet.Peer = peer
+
+        self.data: Any = None  # Free to use for storing player data (or anything else really)
 
     @property
     def login_info(self) -> PlayerLoginInfo:
