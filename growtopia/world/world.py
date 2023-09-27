@@ -32,8 +32,6 @@ class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
         WorldTilePool.__init__(self, width, height)
 
         self.name: str = name
-        self.__width: int = width
-        self.__height: int = height
         self.base_weather_id: int = base_weather_id
         self.weather_id: int = weather_id
         self.version: int = version
@@ -44,54 +42,6 @@ class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
         self.objects: list[WorldObject] = []
 
         self.__next_net_id: int = 0
-
-    @property
-    def width(self) -> int:
-        """
-        Returns the width of the world.
-
-        Returns
-        -------
-        int:
-            The width of the world.
-        """
-        return self.__width
-
-    @width.setter
-    def width(self, value: int) -> None:
-        """
-        Sets the width of the world.
-
-        Parameters
-        ----------
-        value: int
-            The width to set.
-        """
-        self.__width = value
-
-    @property
-    def height(self) -> int:
-        """
-        Returns the height of the world.
-
-        Returns
-        -------
-        int:
-            The height of the world.
-        """
-        return self.__height
-
-    @height.setter
-    def height(self, value: int) -> None:
-        """
-        Sets the height of the world.
-
-        Parameters
-        ----------
-        value: int
-            The height to set.
-        """
-        self.__height = value
 
     @property
     def spawn_pos(self) -> tuple[int, int]:

@@ -1,25 +1,16 @@
 __all__ = ("WorldTilePool",)
 
-from abc import ABC, abstractmethod
 from typing import Optional, Union
 
 from ..item import Item
 from .tile import Tile
 
 
-class WorldTilePool(ABC):
+class WorldTilePool:
     def __init__(self, width: int, height: int) -> None:
         self.tiles: list[Tile] = [Tile(pos=(i % width, i // width)) for i in range(width * height)]
-
-    @property
-    @abstractmethod
-    def width(self) -> int:
-        ...
-
-    @property
-    @abstractmethod
-    def height(self) -> int:
-        ...
+        self.width: int = width
+        self.height: int = height
 
     def set_row_tiles(
         self,
