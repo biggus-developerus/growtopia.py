@@ -7,6 +7,9 @@
 ![Build](https://github.com/kajob-dev/growtopia.py/actions/workflows/build.yml/badge.svg)
 ![Lint](https://github.com/kajob-dev/growtopia.py/actions/workflows/lint.yml/badge.svg)
 
+> [!WARNING]
+> Growtopia.py is still unfinished and is not ready for proper-project use. It is advised to not expect any stability from this project until it reaches a stable release (>=v0.1.6)
+
 A simple asynchronous API for Growtopia, capable of creating servers, clients, and more!
 
 ## Installation
