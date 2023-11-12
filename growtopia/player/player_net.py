@@ -18,6 +18,7 @@ from ..protocol import (
     StrPacket,
     VariantList,
 )
+from ..constants import CDN_HOST, CDN_ROUTE, BLOCKED_PACKAGES, SETTINGS
 from .player_login_info import PlayerLoginInfo
 
 if TYPE_CHECKING:
@@ -196,10 +197,10 @@ class PlayerNet(ABC):
         self,
         items_data_or_hash: Union[ItemsData, int],
         player_tribute_or_hash: Union[PlayerTribute, int],
-        cdn_host: str,
-        cdn_route: str,
-        blocked_packages: str,
-        settings: str,
+        cdn_host: str = CDN_HOST,
+        cdn_route: str = CDN_ROUTE,
+        blocked_packages: str = BLOCKED_PACKAGES,
+        settings: str = SETTINGS,
         *,
         function_name: str = "OnSuperMainStartAcceptLogonHrdxs47254722215a",
     ) -> bool:
