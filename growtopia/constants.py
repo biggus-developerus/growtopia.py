@@ -30,7 +30,8 @@ ignored_attributes = {
     12: ["flags4", "flags5", "unknown", "sit_file"],
     13: ["flags5", "unknown", "sit_file"],
     14: ["unknown", "sit_file"],
-    15: [],
+    15: ["renderer"],
+    16: [],
 }
 
 latest_game_version: float = 4.33  # used for world packet serialisation
