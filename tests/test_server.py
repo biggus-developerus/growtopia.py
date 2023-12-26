@@ -1,6 +1,6 @@
 """Test the Server class."""
 
-from growtopia import ServerContext, GameServer, ItemsData, PlayerTribute
+from growtopia import GameServer, ItemsData, PlayerTribute, ServerContext
 
 
 def test_server() -> None:

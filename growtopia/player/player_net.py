@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional, Union
 
 import enet
 
+from ..constants import BLOCKED_PACKAGES, CDN_HOST, CDN_ROUTE, SETTINGS
 from ..dialog import Dialog
 from ..inventory import Inventory
 from ..items_data import ItemsData
@@ -18,7 +19,6 @@ from ..protocol import (
     StrPacket,
     VariantList,
 )
-from ..constants import CDN_HOST, CDN_ROUTE, BLOCKED_PACKAGES, SETTINGS
 from .player_login_info import PlayerLoginInfo
 
 if TYPE_CHECKING:

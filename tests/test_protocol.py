@@ -2,7 +2,12 @@
 
 import pytest
 
-from growtopia import ErrorManager, PacketTooSmall, PacketTypeDoesNotMatchContent, protocol
+from growtopia import (
+    ErrorManager,
+    PacketTooSmall,
+    PacketTypeDoesNotMatchContent,
+    protocol,
+)
 
 ErrorManager.catch_exceptions = False
 
