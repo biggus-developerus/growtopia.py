@@ -73,7 +73,7 @@ class Item:
         self.unknown: bytearray = bytearray(25)
         self.sit_file: str = ""
 
-        self.renderer: str = ""
+        self.renderer_file: str = ""
 
     @property
     def is_foreground(self) -> bool:

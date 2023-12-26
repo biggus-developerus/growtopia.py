@@ -26,11 +26,11 @@ Example:
 """
 
 ignored_attributes = {
-    11: ["flags3", "bodypart", "flags4", "flags5", "unknown", "sit_file", "renderer"],
-    12: ["flags4", "flags5", "unknown", "sit_file", "renderer"],
-    13: ["flags5", "unknown", "sit_file", "renderer"],
-    14: ["unknown", "sit_file", "renderer"],
-    15: ["renderer"],
+    11: ["flags3", "bodypart", "flags4", "flags5", "unknown", "sit_file", "renderer_file"],
+    12: ["flags4", "flags5", "unknown", "sit_file", "renderer_file"],
+    13: ["flags5", "unknown", "sit_file", "renderer_file"],
+    14: ["unknown", "sit_file", "renderer_file"],
+    15: ["renderer_file"],
     16: [],
 }
 
