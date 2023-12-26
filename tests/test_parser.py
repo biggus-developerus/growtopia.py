@@ -23,8 +23,8 @@ def test_parser() -> None:
             assert items_data.get_ends_with("dirt seed")[0].id == 3
             assert len(items_data.get_contains("dirt")) > 0
 
-        for i, item in enumerate(items_data.items):
-            assert i == item.id
+            for i, item in enumerate(items_data.items):
+                assert i == item.id
 
         if file.startswith("player_tribute") and file.endswith(".dat"):
             player_tribute = PlayerTribute(f"tests/data/{file}")
