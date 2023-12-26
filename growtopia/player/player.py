@@ -119,8 +119,11 @@ class Player(PlayerAvatar, PlayerNet):
         """
         if self.inventory is None:
             return False
+        
+        self.inventory.add_item(item_id, amount)
+        self.send_inventory(self.inventory)
 
-        return self.inventory.add_item(item_id, amount)
+        return True
 
     def send_inventory(self, inventory: Optional[Inventory] = None) -> bool:
         """
