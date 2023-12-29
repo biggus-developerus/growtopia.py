@@ -1,7 +1,5 @@
 """Test the protocol package."""
 
-import pytest
-
 from growtopia import (
     ErrorManager,
     PacketTooSmall,
