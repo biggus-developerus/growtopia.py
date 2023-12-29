@@ -84,7 +84,7 @@ class CommandDec:
 
         self.callback: Callable = callback
         self.name: str = name or callback.__name__
-        self.description: str  | None = description or "No description provided."
+        self.description: str | None = description or "No description provided."
         self.help_message: str | Dialog | None = help_message
         self.aliases: tuple[str] | None = aliases or []
 

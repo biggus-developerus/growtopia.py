@@ -10,11 +10,7 @@ from .tile_extra import TileExtra
 
 class Tile(TileExtra):
     def __init__(
-        self,
-        *,
-        foreground: Item | None = None,
-        background: Item | None = None,
-        pos: tuple[int, int] = (0, 0)
+        self, *, foreground: Item | None = None, background: Item | None = None, pos: tuple[int, int] = (0, 0)
     ) -> None:
         super().__init__()
 
@@ -29,11 +25,7 @@ class Tile(TileExtra):
         self._damage_dealt_to_foreground: int = 0
         self._damage_dealt_to_background: int = 0
 
-    def set_item(
-        self,
-        item: Item,
-        **kwargs
-    ) -> None:
+    def set_item(self, item: Item, **kwargs) -> None:
         """
         Sets the foreground/background item.
 
@@ -223,7 +215,7 @@ class Tile(TileExtra):
         The background item.
         """
         return ObjHolder.items_data.get_item(self.background_id)
-    
+
     @foreground.setter
     def foreground(self, item: Item) -> None:
         self.foreground_id = item.id

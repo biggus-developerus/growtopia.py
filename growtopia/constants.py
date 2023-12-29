@@ -26,11 +26,12 @@ Example:
 """
 
 ignored_attributes = {
-    11: ["flags3", "bodypart", "flags4", "flags5", "unknown", "sit_file"],
-    12: ["flags4", "flags5", "unknown", "sit_file"],
-    13: ["flags5", "unknown", "sit_file"],
-    14: ["unknown", "sit_file"],
-    15: [],
+    11: ["flags3", "bodypart", "flags4", "flags5", "unknown", "sit_file", "renderer_file"],
+    12: ["flags4", "flags5", "unknown", "sit_file", "renderer_file"],
+    13: ["flags5", "unknown", "sit_file", "renderer_file"],
+    14: ["unknown", "sit_file", "renderer_file"],
+    15: ["renderer_file"],
+    16: [],
 }
 
 latest_game_version: float = 4.33  # used for world packet serialisation

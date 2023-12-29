@@ -14,10 +14,10 @@ def test_parser() -> None:
             items_data = ItemsData(f"tests/data/{file}")
             asyncio.run(items_data.parse())
 
-            assert items_data.get_item(item_id=2).name.lower() == "dirt"
-            assert items_data.get_item(item_id=3).name.lower() == "dirt seed"
-            assert items_data.get_item(name="blank").id == 0
-            assert items_data.get_item(name="blue gem lock").id == 7188
+            assert items_data.get_item(2).name.lower() == "dirt"
+            assert items_data.get_item(3).name.lower() == "dirt seed"
+            assert items_data.get_item("blank").id == 0
+            assert items_data.get_item("blue gem lock").id == 7188
 
             assert items_data.get_starts_with("dirt")[0].name.lower() == "dirt"
             assert items_data.get_ends_with("dirt seed")[0].id == 3

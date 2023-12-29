@@ -88,7 +88,7 @@ class ClientNet:
         self._peer.disconnect_now(0)
         self._peer = None
 
-    def send(self, packet: StrPacket | GameUpdatePacket| HelloPacket) -> bool:
+    def send(self, packet: StrPacket | GameUpdatePacket | HelloPacket) -> bool:
         """
         Sends a packet to the host.
 
