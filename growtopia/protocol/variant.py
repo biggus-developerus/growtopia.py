@@ -1,7 +1,6 @@
 __all__ = ("Variant",)
 
 import struct
-from typing import Union
 
 from .enums import VariantType
 
@@ -28,13 +27,13 @@ class Variant:
     }
 
     def __init__(
-        self, value: Union[str, int, float, tuple[int, int], tuple[int, int, int]], type_: VariantType = None
+        self, value: str | int | float | tuple[int, int] | tuple[int, int, int], type_: VariantType = None
     ) -> None:
         if isinstance(value, tuple):
             type_ = VariantType.VECTOR2 if len(value) == 2 else VariantType.VECTOR3
 
         self.type: VariantType = type_ or VariantType[type(value).__name__.upper()]
-        self.value: Union[str, int, float] = value
+        self.value: str | int | float = value
         self.data: bytearray = bytearray()
 
     def serialise(self, index: int) -> bytearray:

@@ -1,56 +1,65 @@
-__all__ = ["WorldGenerator"]
+from __future__ import annotations
 
+__all__ = ['WorldGenerator']
 
-from ..items_data import ItemsData
-from .tile import Tile
 from .world import World
+from ..obj_holder import ObjHolder
+from .tile import Tile
+from ..item import Item
 
 
 class WorldGenerator:
-    def __init__(self) -> None:
-        pass
+	def __init__(self) -> None:
+		pass
 
-    @staticmethod
-    def default(world: World, items_data: ItemsData) -> World:
-        """
-        Creates a default world.
 
-        Arguments
-        ---------
-                world: growtopia.World - The world to modify.
-                items_data: growtopia.ItemsData - The server's items data.
+	@staticmethod
+	def default(world: World) -> World:
+		"""
+		Creates a default world.
 
-        Returns
-        -------
-                world <growtopia.World> - The modified world.
-        """
+		Arguments
+		---------
+			world: growtopia.World - The world to modify.
+			items_data: growtopia.ItemsData - The server's items data.
 
-        spawn_pos: tuple[int, int] = world.spawn_pos
+		Returns
+		-------
+			world <growtopia.World> - The modified world.
+		"""
 
-        # Dirt & Bedrock
-        for y in range(50, 100):
-            if y >= 94:
-                world.set_row_tiles(y, items_data.get_item(name="Bedrock"))
+		CAVE_BACKGROUND: Item = ObjHolder.items_data.get_item("Cave Background")
+		BEDROCK: Item = ObjHolder.items_data.get_item("Bedrock")
 
-                continue
+		for y in range(world.height // 2, world.height):
+			# Base
+			world.set_row_tiles(
+				y,
+				ObjHolder.items_data.get_item("Dirt"),
+				CAVE_BACKGROUND
+			)
 
-            world.set_row_tiles(y, items_data.get_item(name="Dirt"), items_data.get_item(name="Cave Background"))
+			# Bedrock
+			if y >= world.height - 6:
+				world.set_row_tiles(
+					y,
+					BEDROCK,
+					CAVE_BACKGROUND
+				)
+		
+		# Main Door
+		for y in range(world.height):
+			for x in range(world.width):
+				new_tile = Tile(pos=world.spawn_pos)
+				
+				# Door
+				if (x, y) == world.spawn_pos:
+					new_tile.foreground = ObjHolder.items_data.get_item("Main Door")
 
-        # Main Door
-        for x in range(world.width):
-            new_tile = Tile()
+				# Bedrock
+				if (x, y) == (world.spawn_pos + (0, 1)):
+					new_tile.foreground(BEDROCK)
 
-            for y in range(world.height):
-                new_tile.pos = (x, y)
+				world.tiles[x * y] = new_tile
 
-                # Door
-                if (x, y) == spawn_pos:
-                    new_tile.foreground = items_data.get_item(name="Main Door")
-
-                # Bedrock
-                if (x, y) == (spawn_pos + (0, 1)):
-                    new_tile.foreground = items_data.get_item(name="Bedrock")
-
-            world.tiles[x * y] = new_tile
-
-        return world
+		return world

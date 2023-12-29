@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 __all__ = ("Avatar",)
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
 
@@ -13,7 +15,7 @@ class Avatar:
         self._net_id: int = -1
         self._user_id: int = 0
 
-        self.world: Optional["World"] = None
+        self.world: "World" | None = None
         self.pos: tuple[float, float] = (0.0, 0.0)
 
         self.display_name: str = ""

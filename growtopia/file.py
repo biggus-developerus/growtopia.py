@@ -1,7 +1,5 @@
 __all__ = ("File",)
 
-from typing import Union
-
 import aiofiles
 
 
@@ -31,7 +29,7 @@ class File:
     >>> file = File("items.dat")
     """
 
-    def __init__(self, data: Union[str, bytes]) -> None:
+    def __init__(self, data: str | bytes) -> None:
         self.__content: bytearray = bytearray()
         self.__path: str = ""
 

@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 __all__ = ("WorldAvatarPool",)
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     from ..avatar import Avatar
@@ -68,7 +70,7 @@ class WorldAvatarPool(ABC):
 
         return True
 
-    def get_avatar(self, net_id: int) -> Optional["Avatar"]:
+    def get_avatar(self, net_id: int) -> "Avatar":
         """
         Gets an avatar by their net id.
 

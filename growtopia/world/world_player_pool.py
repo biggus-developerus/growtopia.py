@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 __all__ = ("WorldPlayerPool",)
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     from ..player import Player
@@ -94,7 +96,7 @@ class WorldPlayerPool(ABC):
 
         return True
 
-    def get_player(self, net_id: int) -> Optional["Player"]:
+    def get_player(self, net_id: int) -> "Player":
         """
         Gets a player by their net id.
 

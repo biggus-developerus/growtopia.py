@@ -1,7 +1,5 @@
 __all__ = ("HelloPacket",)
 
-from typing import Optional
-
 from ..enums import EventID
 from ..error_manager import ErrorManager
 from ..exceptions import PacketTooSmall, PacketTypeDoesNotMatchContent
@@ -55,7 +53,7 @@ class HelloPacket(Packet):
         return EventID.ON_HELLO
 
     @classmethod
-    def from_bytes(cls, data: bytes) -> Optional["HelloPacket"]:
+    def from_bytes(cls, data: bytes) -> "HelloPacket":
         """
         Deserialises a packet from the bytes given. Returns a HelloPacket object.
 

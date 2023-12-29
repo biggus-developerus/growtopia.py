@@ -4,7 +4,6 @@ __all__ = (
 )
 
 from dataclasses import dataclass
-from typing import Union
 
 from .item import Item
 
@@ -85,7 +84,7 @@ class Inventory:
 
         self.items: dict[int, InventoryItem] = {}  # item_id: InventoryItem
 
-    def add_item(self, item_id_or_item: Union[int, Item], count: int, equipped: bool = False) -> None:
+    def add_item(self, item_id_or_item: int | Item, count: int, equipped: bool = False) -> None:
         """
         Adds an item to the inventory.
 

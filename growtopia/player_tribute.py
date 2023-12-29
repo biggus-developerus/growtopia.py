@@ -1,10 +1,8 @@
 __all__ = ("PlayerTribute",)
 
-from typing import Union
-
 from .file import File
-from .obj_holder import _ObjHolder
-from .protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
+from .obj_holder import ObjHolder
+from .protocol import GameUpdatePacket, GameUpdatePacketType
 
 
 class PlayerTribute(File):
@@ -30,7 +28,7 @@ class PlayerTribute(File):
         A dictionary that has years as keys and a list of names as values.
     """
 
-    def __init__(self, data: Union[str, bytes]) -> None:
+    def __init__(self, data: str | bytes) -> None:
         super().__init__(data)
 
         self.version: int = 0
@@ -39,7 +37,7 @@ class PlayerTribute(File):
         self.exceptional_mentors: list[str] = []
         self.charity_champions: list[str] = []
 
-        _ObjHolder.player_tribute = self
+        ObjHolder.player_tribute = self
 
     def _parse_names(self, names: bytearray) -> list[str]:
         return [name.strip() for name in names.decode("utf-8").split(";")]

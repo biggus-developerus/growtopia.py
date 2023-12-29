@@ -1,7 +1,7 @@
 __all__ = ("Player",)
 
 import asyncio
-from typing import Any, Optional
+from typing import Optional, Any
 
 import enet
 
@@ -119,7 +119,7 @@ class Player(PlayerAvatar, PlayerNet):
         """
         if self.inventory is None:
             return False
-
+        
         self.inventory.add_item(item_id, amount)
         self.send_inventory(self.inventory)
 

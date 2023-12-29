@@ -1,7 +1,5 @@
 __all__ = ("VariantList",)
 
-from typing import Optional, Union
-
 from .variant import Variant
 
 
@@ -22,13 +20,13 @@ class VariantList:
         The serialised data. This is updated every time a Variant object is appended.
     """
 
-    def __init__(self, *variants: Union[str, int, float, Variant]) -> None:
+    def __init__(self, *variants: str | int | float | Variant) -> None:
         self.variants: list[Variant] = [
             Variant(variant) if not isinstance(variant, Variant) else variant for variant in variants
         ]
         self.data = bytearray([0])
 
-    def get(self, index: int) -> Optional[Variant]:
+    def get(self, index: int) -> Variant | None:
         return self.variants[index] if index < len(self.variants) else None
 
     def append(self, variant: Variant) -> None:

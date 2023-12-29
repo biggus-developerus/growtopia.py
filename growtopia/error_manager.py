@@ -1,11 +1,11 @@
 __all__ = ("ErrorManager",)
 
 import traceback
-from typing import Callable, Optional
+from typing import Callable
 
 
 class ErrorManager:
-    callback: Optional[Callable] = None
+    callback: Callable | None = None
     catch_exceptions: bool = True
 
     @classmethod

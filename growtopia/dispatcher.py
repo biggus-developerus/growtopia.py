@@ -1,7 +1,7 @@
 __all__ = ("Dispatcher",)
 
 import asyncio
-from typing import Coroutine, Optional
+from typing import Coroutine
 
 from .collection import Collection
 from .command import CommandDec
@@ -168,7 +168,7 @@ class Dispatcher:
 
         return Dialog
 
-    def get_dialog(self, name: str) -> Optional[Dialog]:
+    def get_dialog(self, name: str) -> Dialog:
         """
         Retreives a dialog from the dialogs dictionary.
 
