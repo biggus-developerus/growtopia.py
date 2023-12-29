@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 __all__ = ("Packet",)
 
 from abc import ABC, abstractmethod
@@ -8,8 +10,6 @@ import enet
 if TYPE_CHECKING:
     from ..player import Player
 
-from typing import Optional
-
 from ..enums import EventID
 from .enums import PacketType
 
@@ -19,13 +19,13 @@ class Packet(ABC):
     This class is a base class that also provides some useful concrete methods.
     """
 
-    def __init__(self, data: Optional[bytearray] = None, *, type_: Optional[PacketType] = None) -> None:
+    def __init__(self, data: bytearray | None = None, *, type_: PacketType | None = None) -> None:
         self.data: bytearray = data or bytearray()
 
         self._type: PacketType = type_ or PacketType.UNKNOWN
         self._malformed: bool = False
 
-        self.sender: Optional["Player"] = None
+        self.sender: "Player" | None = None
 
     @property
     def enet_packet(self) -> enet.Packet:

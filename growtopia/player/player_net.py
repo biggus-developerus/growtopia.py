@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 __all__ = ("PlayerNet",)
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 import enet
 
@@ -41,8 +43,8 @@ class PlayerNet(ABC):
     """
 
     def __init__(self) -> None:
-        self.last_packet_sent: Optional[Union[StrPacket, GameUpdatePacket]] = None
-        self.last_packet_received: Optional[Union[StrPacket, GameUpdatePacket]] = None
+        self.last_packet_sent: StrPacket | GameUpdatePacket = None
+        self.last_packet_received: StrPacket | GameUpdatePacket = None
 
     @property
     @abstractmethod
@@ -81,7 +83,7 @@ class PlayerNet(ABC):
             else False
         )
 
-    def send(self, packet: Union[StrPacket, GameUpdatePacket, HelloPacket]) -> bool:
+    def send(self, packet: StrPacket | GameUpdatePacket | HelloPacket) -> bool:
         """
         Sends a packet to the player.
 
@@ -195,8 +197,8 @@ class PlayerNet(ABC):
 
     def on_super_main(
         self,
-        items_data_or_hash: Union[ItemsData, int],
-        player_tribute_or_hash: Union[PlayerTribute, int],
+        items_data_or_hash: ItemsData | int,
+        player_tribute_or_hash: PlayerTribute | int,
         cdn_host: str = CDN_HOST,
         cdn_route: str = CDN_ROUTE,
         blocked_packages: str = BLOCKED_PACKAGES,
@@ -253,7 +255,7 @@ class PlayerNet(ABC):
             )
         )
 
-    def on_set_pos(self, x: int, y: int, player: Optional["Player"] = None) -> bool:
+    def on_set_pos(self, x: int, y: int, player: "Player" = None) -> bool:
         """
         Sets the position of an avatar.
 
@@ -354,7 +356,7 @@ class PlayerNet(ABC):
             )
         )
 
-    def on_set_freeze_state(self, frozen: bool, player: Optional["Player"] = None) -> bool:
+    def on_set_freeze_state(self, frozen: bool, player: "Player" = None) -> bool:
         """
         Sets the freeze state for an avatar.
 
@@ -381,7 +383,7 @@ class PlayerNet(ABC):
             )
         )
 
-    def on_killed(self, player: Optional["Player"] = None) -> bool:
+    def on_killed(self, player: "Player" = None) -> bool:
         """
         Kills an avatar
 
@@ -487,7 +489,7 @@ class PlayerNet(ABC):
         # TODO: new helper class, WorldSelectMenu 🤯🤯🤯🤯
         raise NotImplementedError
 
-    def disconnect(self, text: Optional[str] = None) -> None:
+    def disconnect(self, text: str = None) -> None:
         """
         Disconnects the player.
 

@@ -1,7 +1,5 @@
 __all__ = ("ServerPlayerPool",)
 
-from typing import Optional, Union
-
 import enet
 
 from ..player import Player
@@ -34,7 +32,7 @@ class ServerPlayerPool:
 
         return player
 
-    def get_player(self, p: Union[enet.Peer, int, str]) -> Optional[Player]:
+    def get_player(self, p: enet.Peer | int | str) -> Player:
         """
         Retrieves a player from the players dictionary.
 
@@ -57,7 +55,7 @@ class ServerPlayerPool:
         if isinstance(p, str):
             return self.players_by_name.get(p, None)
 
-    def remove_player(self, p: Union[enet.Peer, int, str], disconnect: Optional[bool] = False) -> None:
+    def remove_player(self, p: enet.Peer | int | str, disconnect: bool = False) -> None:
         """
         Removes a player from the players dictionary.
 

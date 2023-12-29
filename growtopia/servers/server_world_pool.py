@@ -1,7 +1,5 @@
 __all__ = ("ServerWorldPool",)
 
-from typing import Optional
-
 from ..world import World
 
 
@@ -24,12 +22,12 @@ class ServerWorldPool:
         Parameters
         ----------
         name: str
-            The name of the world to create.
+                The name of the world to create.
 
         Returns
         -------
         World:
-            The world that was created.
+                The world that was created.
         """
         world = World(name, width=width, height=height, base_weather_id=base_weather_id, weather_id=weather_id)
         self.worlds[name] = world
@@ -43,12 +41,12 @@ class ServerWorldPool:
         Parameters
         ----------
         world: World
-            The world to add.
+                The world to add.
 
         Returns
         -------
         bool:
-            True if the world was successfully added, False otherwise.
+                True if the world was successfully added, False otherwise.
         """
         if world.name in self.worlds:
             return False
@@ -64,12 +62,12 @@ class ServerWorldPool:
         Parameters
         ----------
         world: World
-            The world to remove.
+                The world to remove.
 
         Returns
         -------
         bool:
-            True if the world was successfully removed, False otherwise.
+                True if the world was successfully removed, False otherwise.
         """
         if world.name not in self.worlds:
             return False
@@ -78,18 +76,18 @@ class ServerWorldPool:
 
         return True
 
-    def get_world(self, name: str) -> Optional[World]:
+    def get_world(self, name: str) -> World:
         """
         Gets a world from the pool.
 
         Parameters
         ----------
         name: str
-            The name of the world to get.
+                The name of the world to get.
 
         Returns
         -------
         Optional[World]:
-            The world if it was found, None otherwise.
+                The world if it was found, None otherwise.
         """
         return self.worlds.get(name, None)

@@ -5,7 +5,7 @@ __all__ = (
 
 import asyncio
 import inspect
-from typing import Callable, Coroutine, Optional, Union
+from typing import Callable, Coroutine
 
 from .context import ServerContext
 from .dialog import Dialog, DialogElement
@@ -74,19 +74,19 @@ class CommandDec:
     def __init__(
         self,
         callback: Callable,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        help_message: Optional[str] = None,
-        aliases: Optional[tuple[str]] = None,
+        name: str | None = None,
+        description: str | None = None,
+        help_message: str | None = None,
+        aliases: tuple[str] | None = None,
     ) -> None:
         if not asyncio.iscoroutinefunction(callback):
             raise TypeError("Callback must be a coroutine function.")
 
         self.callback: Callable = callback
         self.name: str = name or callback.__name__
-        self.description: Optional[str] = description or "No description provided."
-        self.help_message: Optional[Union[str, Dialog]] = help_message
-        self.aliases: Optional[tuple[str]] = aliases or []
+        self.description: str | None = description or "No description provided."
+        self.help_message: str | Dialog | None = help_message
+        self.aliases: tuple[str] | None = aliases or []
 
         self._belongs_to: object = None
         self._is_dialog_listener: bool = False

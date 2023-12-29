@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 __all__ = (
     "Context",
     "ServerContext",
     "ClientContext",
 )
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 import enet
 
@@ -33,35 +35,27 @@ class Context:
     Attributes
     ----------
     server: Optional[:class:`Server`]
-        The server that emitted the event.
+            The server that emitted the event.
     player: Optional[:class:`Player`]
-        The player that emitted the event.
+            The player that emitted the event.
     enet_event: Optional[:class:`Event`]
-        The event that was emitted.
+            The event that was emitted.
     packet: Optional[Union["StrPacket","GameUpdatePacket","GameMessagePacket","TextPacket","HelloPacket"]
-        The packet that was emitted.
+            The packet that was emitted.
     """
 
     def __init__(self) -> None:
-        self.enet_event: Optional[enet.Event] = None
-        self.packet: Optional[
-            Union[
-                "StrPacket",
-                "GameUpdatePacket",
-                "GameMessagePacket",
-                "TextPacket",
-                "HelloPacket",
-            ]
-        ] = None
+        self.enet_event: enet.Event | None = None
+        self.packet: "StrPacket" | "GameUpdatePacket" | "GameMessagePacket" | "TextPacket" | "HelloPacket" | None = None
 
 
 class ClientContext(Context):
     def __init__(self) -> None:
         super().__init__()
 
-        self.client: Optional[Union["Client", "GameClient"]] = None
+        self.client: "Client" | "GameClient" | None = None
 
-    def reply(self, packet: Union["StrPacket", "GameUpdatePacket", "HelloPacket"]) -> bool:
+    def reply(self, packet: "StrPacket" | "GameUpdatePacket" | "HelloPacket") -> bool:
         return self.client.send(packet)
 
 
@@ -69,26 +63,26 @@ class ServerContext(Context):
     def __init__(self) -> None:
         super().__init__()
 
-        self.server: Optional["Server"] = None
-        self.player: Optional["Player"] = None
-        self.world: Optional["World"] = None
-        self.tile: Optional["Tile"] = None
-        self.items_data: Optional["ItemsData"] = None
-        self.item: Optional["Item"] = None
-        self.player_tribute: Optional["PlayerTribute"] = None
+        self.server: "Server" | None = None
+        self.player: "Player" | None = None
+        self.world: "World" | None = None
+        self.tile: "Tile" | None = None
+        self.items_data: "ItemsData" | None = None
+        self.item: "Item" | None = None
+        self.player_tribute: "PlayerTribute" | None = None
 
-    def reply(self, packet: Union["StrPacket", "GameUpdatePacket", "HelloPacket"]) -> bool:
+    def reply(self, packet: "StrPacket" | "GameUpdatePacket" | "HelloPacket") -> bool:
         """
         Replies to the player with a packet.
 
         Parameters
         ----------
         packet: Union[`StrPacket`, `GameUpdatePacket`, `HelloPacket`]
-            The packet to reply with.
+                The packet to reply with.
 
         Returns
         -------
         bool
-            Whether the packet was sent successfully.
+                Whether the packet was sent successfully.
         """
         return self.player.send(packet)

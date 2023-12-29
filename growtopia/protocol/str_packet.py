@@ -1,7 +1,5 @@
 __all__ = ("StrPacket",)
 
-from typing import Optional
-
 from ..enums import EventID
 from ..error_manager import ErrorManager
 from ..exceptions import PacketTooSmall, PacketTypeDoesNotMatchContent
@@ -41,7 +39,7 @@ class StrPacket(Packet):
         An enet.Packet object instantiated with the data that the packet's holding (flag: PACKET_FLAG_RELIABLE).
     """
 
-    def __init__(self, text: Optional[str] = None, *, type_: Optional[PacketType] = None) -> None:
+    def __init__(self, text: str | None = None, *, type_: PacketType | None = None) -> None:
         super().__init__()
 
         self._type = type_ or PacketType.CONTAINS_TEXT
@@ -91,7 +89,7 @@ class StrPacket(Packet):
             return EventID(f"on_{self.action}")
 
     @classmethod
-    def from_bytes(cls, data: bytes) -> Optional["StrPacket"]:
+    def from_bytes(cls, data: bytes) -> "StrPacket":
         """
         Deserialises a packet from the bytes given. Returns a StrPacket object.
 

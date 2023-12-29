@@ -1,26 +1,21 @@
 __all__ = ("Tile",)
 
 import asyncio
-from typing import Union
 
 from ..item import Item
-from ..obj_holder import _ObjHolder
+from ..obj_holder import ObjHolder
 from ..protocol import GameUpdatePacket, GameUpdatePacketFlags, GameUpdatePacketType
 from .tile_extra import TileExtra
 
 
 class Tile(TileExtra):
     def __init__(
-        self,
-        *,
-        foreground: int = 0,
-        background: int = 0,
-        pos: tuple[int, int] = (0, 0),
+        self, *, foreground: Item | None = None, background: Item | None = None, pos: tuple[int, int] = (0, 0)
     ) -> None:
         super().__init__()
 
-        self.foreground_id: int = foreground
-        self.background_id: int = background
+        self.foreground_id: int = foreground.id if type(foreground) == None else 0
+        self.background_id: int = background.id if type(background) == None else 0
 
         self.lockpos: int = 0
         self.flags: int = 0
@@ -30,11 +25,7 @@ class Tile(TileExtra):
         self._damage_dealt_to_foreground: int = 0
         self._damage_dealt_to_background: int = 0
 
-    def set_item(
-        self,
-        item: Item,
-        **kwargs,
-    ) -> None:
+    def set_item(self, item: Item, **kwargs) -> None:
         """
         Sets the foreground/background item.
 
@@ -97,13 +88,15 @@ class Tile(TileExtra):
         "Broken" means the layer will be set to blank.
         """
 
+        BLANK: Item = ObjHolder.items_data.get_item(0)
+
         if self.foreground != 0:
-            self.foreground = 0
+            self.foreground = BLANK
             self._damage_dealt_to_foreground = 0
             return
 
         if self.background != 0:
-            self.background = 0
+            self.background = BLANK
             self._damage_dealt_to_background = 0
             return
 
@@ -213,28 +206,29 @@ class Tile(TileExtra):
         """
         The foreground item.
         """
-        return _ObjHolder.items_data.get_item(self.foreground_id)
+
+        return ObjHolder.items_data.get_item(self.foreground_id)
 
     @property
     def background(self) -> Item:
         """
         The background item.
         """
-        return _ObjHolder.items_data.get_item(self.background_id)
+        return ObjHolder.items_data.get_item(self.background_id)
 
-    @background.setter
-    def background(self, item_or_id: Union[Item, int]) -> None:
-        self.background_id = item_or_id.id if isinstance(item_or_id, Item) else item_or_id
+    @foreground.setter
+    def foreground(self, item: Item) -> None:
+        self.foreground_id = item.id
 
-        if self.background_id == 0 and self.item.is_background:
+        if self.foreground_id == 0 and self.item.is_foreground:
             self.flags = 0
             self.reset_extra_data()
 
-    @foreground.setter
-    def foreground(self, item_or_id: Union[Item, int]) -> None:
-        self.foreground_id = item_or_id.id if isinstance(item_or_id, Item) else item_or_id
+    @background.setter
+    def background(self, item: Item) -> None:
+        self.background_id = item.id
 
-        if self.foreground_id == 0 and self.item.is_foreground:
+        if self.background_id == 0 and self.item.is_background:
             self.flags = 0
             self.reset_extra_data()
 

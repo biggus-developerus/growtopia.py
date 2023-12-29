@@ -1,7 +1,5 @@
 __all__ = ("ClientNet",)
 
-from typing import Union
-
 import enet
 
 from ..protocol import (
@@ -90,7 +88,7 @@ class ClientNet:
         self._peer.disconnect_now(0)
         self._peer = None
 
-    def send(self, packet: Union[StrPacket, GameUpdatePacket, HelloPacket]) -> bool:
+    def send(self, packet: StrPacket | GameUpdatePacket | HelloPacket) -> bool:
         """
         Sends a packet to the host.
 

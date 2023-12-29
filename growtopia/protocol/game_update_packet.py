@@ -1,7 +1,6 @@
 __all__ = ("GameUpdatePacket",)
 
 import struct
-from typing import Optional
 
 from ..enums import EventID
 from ..error_manager import ErrorManager
@@ -67,25 +66,25 @@ class GameUpdatePacket(Packet):
     def __init__(
         self,
         *,
-        update_type: Optional[GameUpdatePacketType] = GameUpdatePacketType.UNKNOWN,
-        object_type: Optional[int] = 0,
-        count1: Optional[int] = 0,
-        count2: Optional[int] = 0,
-        net_id: Optional[int] = -1,
-        target_net_id: Optional[int] = 0,
-        flags: Optional[GameUpdatePacketFlags] = GameUpdatePacketFlags.NONE,
-        float_: Optional[float] = 0.0,
-        int_: Optional[int] = 0,
-        vec_x: Optional[float] = 0.0,
-        vec_y: Optional[float] = 0.0,
-        velo_x: Optional[float] = 0.0,
-        velo_y: Optional[float] = 0.0,
-        particle_rotation: Optional[float] = 0.0,
-        int_x: Optional[int] = 0,
-        int_y: Optional[int] = 0,
-        extra_data_size: Optional[int] = 0,
+        update_type: GameUpdatePacketType = GameUpdatePacketType.UNKNOWN,
+        object_type: int = 0,
+        count1: int = 0,
+        count2: int = 0,
+        net_id: int = -1,
+        target_net_id: int = 0,
+        flags: GameUpdatePacketFlags = GameUpdatePacketFlags.NONE,
+        float_: float = 0.0,
+        int_: float = 0,
+        vec_x: float = 0.0,
+        vec_y: float = 0.0,
+        velo_x: float = 0.0,
+        velo_y: float = 0.0,
+        particle_rotation: float = 0.0,
+        int_x: int = 0,
+        int_y: int = 0,
+        extra_data_size: int = 0,
         extra_data: bytes = b"",
-        variant_list: Optional[VariantList] = None,
+        variant_list: VariantList | None = None,
     ) -> None:
         super().__init__()
 
@@ -117,7 +116,7 @@ class GameUpdatePacket(Packet):
         self.extra_data_size: int = extra_data_size
         self.extra_data: bytes = extra_data
 
-        self.variant_list: Optional[VariantList] = variant_list
+        self.variant_list: VariantList | None = variant_list
 
         if self.variant_list:
             self.set_variant_list(self.variant_list)
@@ -130,7 +129,7 @@ class GameUpdatePacket(Packet):
 
         self.variant_list = variant_list
 
-    def get_variant_list(self) -> Optional[VariantList]:
+    def get_variant_list(self) -> VariantList | None:
         if self.flags != GameUpdatePacketFlags.EXTRA_DATA:
             return None
 
@@ -213,7 +212,7 @@ class GameUpdatePacket(Packet):
         return EventID("on_" + self.update_type.name.lower())
 
     @classmethod
-    def from_bytes(cls, data: bytes) -> Optional["GameUpdatePacket"]:
+    def from_bytes(cls, data: bytes) -> "GameUpdatePacket":
         """
         Deserialises a packet from the bytes given. Returns a GameUpdatePacket object.
 

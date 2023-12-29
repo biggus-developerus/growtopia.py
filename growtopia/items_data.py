@@ -1,13 +1,11 @@
 __all__ = ("ItemsData",)
 
-from typing import Optional, Union
-
 from .constants import ignored_attributes
 from .error_manager import ErrorManager
 from .exceptions import UnsupportedItemsData
 from .file import File
 from .item import Item
-from .obj_holder import _ObjHolder
+from .obj_holder import ObjHolder
 from .protocol import GameUpdatePacket, GameUpdatePacketType
 
 
@@ -18,25 +16,25 @@ class ItemsData(File):
     Parameters
     ----------
     data: Union[str, bytes]
-        The data to parse. Can be a path to the file or bytes.
+            The data to parse. Can be a path to the file or bytes.
 
     Attributes
     ----------
     content: memoryview
-        A memoryview of the raw bytes of the items.dat file.
+            A memoryview of the raw bytes of the items.dat file.
     items: list[Item]
-        A list of all the items in the items.dat file.
+            A list of all the items in the items.dat file.
     item_count: int
-        The amount of items in the items.dat file.
+            The amount of items in the items.dat file.
     version: int
-        The version of the items.dat file.
+            The version of the items.dat file.
     hash: int
-        The hash of the items.dat file.
+            The hash of the items.dat file.
 
     Raises
     ------
     ValueError
-        Invalid data type passed into initialiser.
+            Invalid data type passed into initialiser.
 
     Examples
     --------
@@ -45,14 +43,14 @@ class ItemsData(File):
     >>> items.get_item(1)
     """
 
-    def __init__(self, data: Union[str, bytes]) -> None:
+    def __init__(self, data: str | bytes) -> None:
         super().__init__(data)
 
         self.items: list[Item] = []
         self.item_count: int = 0
         self.version: int = 0
 
-        _ObjHolder.items_data = self
+        ObjHolder.items_data = self
 
     @classmethod
     def from_bytes(cls, data: bytes) -> "ItemsData":
@@ -62,17 +60,17 @@ class ItemsData(File):
         Parameters
         ----------
         data: bytes
-            The raw data of the items.dat file.
+                The raw data of the items.dat file.
 
         Raises
         ------
         ValueError
-            Invalid data type passed into initialiser.
+                Invalid data type passed into initialiser.
 
         Returns
         -------
         ItemsData
-            The instance of the class.
+                The instance of the class.
         """
         return cls(data)
 
@@ -84,14 +82,14 @@ class ItemsData(File):
         Parameters
         ----------
         name: str
-            The name of the item to decrypt.
+                The name of the item to decrypt.
         key: int
-            The key to use to decrypt the name. This is usually the item's ID.
+                The key to use to decrypt the name. This is usually the item's ID.
 
         Returns
         -------
         result: str
-            The decrypted name.
+                The decrypted name.
         """
         key %= (key_len := len("*PBG892FXX982ABC"))
         result = ""
@@ -114,7 +112,7 @@ class ItemsData(File):
         Raises
         ------
         UnsupportedItemsData
-            The items.dat file is not supported by this library. Raised when the version of the items.dat file is not supported.
+                The items.dat file is not supported by this library. Raised when the version of the items.dat file is not supported.
 
         Returns
         -------
@@ -168,27 +166,19 @@ class ItemsData(File):
 
         self.hash_file()
 
-    def get_item(
-        self,
-        item_id: Optional[int] = None,
-        name: Optional[str] = None,
-        *,
-        _cache: dict[str, Item] = {},
-    ) -> Optional[Item]:
+    def get_item(self, name_or_id: str | int, *, _cache: dict[str, Item] = {}) -> Item | None:
         """
         Fetches an item from the items list. It is recommended to use the item's ID to fetch the item, as it is faster.
 
         Parameters
         ----------
-        item_id: Optional[int]
-            The ID of the item to fetch.
-        name: Optional[str]
-            The name of the item to fetch.
+        name_or_id: Union[str, int]
+                The name or id of the item to be fetched.
 
         Returns
         -------
         Optional[Item]
-            The item that was fetched. If no item was found, returns None.
+                The item that was fetched. If no item was found, returns None.
 
         Examples
         --------
@@ -196,20 +186,24 @@ class ItemsData(File):
         >>> items = ItemsData("items.dat")
         >>> items.get_item(1)
         """
-        if item_id is not None and item_id < len(self.items):
-            return self.items[item_id]
 
-        if name is not None:
-            if name.lower() in _cache:
-                return _cache[name.lower()]
+        if type(name_or_id) == int:
+            if name_or_id < len(self.items):
+                return self.items[name_or_id]
 
-            for item in self.items:
-                if item.name.lower() == name.lower():
-                    if len(_cache) == 100:
-                        _cache.popitem()
+            return None
 
-                    _cache[name.lower()] = item
-                    return item
+        if name_or_id.lower() in _cache:
+            return _cache[name_or_id.lower()]
+
+        for item in self.items:
+            if item.name.lower() == name_or_id.lower():
+                if len(_cache) == 100:
+                    _cache.popitem()
+
+                _cache[name_or_id.lower()] = item
+
+                return item
 
         return None
 
@@ -224,12 +218,12 @@ class ItemsData(File):
         Parameters
         ----------
         val: str
-            The value to match the start of the item's name with.
+                The value to match the start of the item's name with.
 
         Returns
         -------
         list[Item]
-            A list of all the items that start with the value provided.
+                A list of all the items that start with the value provided.
 
         Examples
         --------
@@ -257,12 +251,12 @@ class ItemsData(File):
         Parameters
         ----------
         val: str
-            The value to match the end of the item's name with.
+                The value to match the end of the item's name with.
 
         Returns
         -------
         list[Item]
-            A list of all the items that end with the value provided.
+                A list of all the items that end with the value provided.
 
         Examples
         --------
@@ -291,12 +285,12 @@ class ItemsData(File):
         Parameters
         ----------
         val: str
-            The value to match the item's name with.
+                The value to match the item's name with.
 
         Returns
         -------
         list[Item]
-            A list of all the items that contain the value provided.
+                A list of all the items that contain the value provided.
 
         Examples
         --------
@@ -322,7 +316,7 @@ class ItemsData(File):
         Returns
         -------
         GameUpdatePacket
-            The packet that should be sent to the client when it requests for the items.dat file.
+                The packet that should be sent to the client when it requests for the items.dat file.
 
         Examples
         --------

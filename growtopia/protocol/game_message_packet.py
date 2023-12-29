@@ -1,7 +1,5 @@
 __all__ = ("GameMessagePacket",)
 
-from typing import Optional
-
 from growtopia.protocol.enums import PacketType
 
 from .str_packet import StrPacket
@@ -34,5 +32,5 @@ class GameMessagePacket(StrPacket):
         An enet.Packet object instantiated with the data that the packet's holding (flag: PACKET_FLAG_RELIABLE).
     """
 
-    def __init__(self, text: Optional[str] = None) -> None:
+    def __init__(self, text: str = None) -> None:
         super().__init__(text, type_=PacketType.GAME_MESSAGE)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 __all__ = (
     "GrowtopiaException",
     "ParserException",
@@ -7,7 +9,7 @@ __all__ = (
     "PacketTooSmall",
 )
 
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .items_data import ItemsData
@@ -33,16 +35,16 @@ class GrowtopiaException(Exception):
     Parameters
     ----------
     error_name: str
-        The name of the error.
+            The name of the error.
     message: str
-        The message of the error.
+            The message of the error.
 
     Attributes
     ----------
     error_name: str
-        The name of the error.
+            The name of the error.
     message: str
-        The message of the error.
+            The message of the error.
     """
 
     def __init__(self, error_name: str, message: str):
@@ -65,20 +67,20 @@ class PacketException(GrowtopiaException):
     Parameters
     ----------
     error_name: str
-        The name of the error.
+            The name of the error.
     message: str
-        The message of the error.
+            The message of the error.
     packet: Optional[Union[Packet, StrPacket]]
-        The Packet object that was being handled when the error occurred.
+            The Packet object that was being handled when the error occurred.
 
     Attributes
     ----------
     packet: Optional[Packet]
-        The Packet object that was being handled when the error occurred.
+            The Packet object that was being handled when the error occurred.
     """
 
-    def __init__(self, error_name: str, message: str, packet: Optional[Union["Packet", "StrPacket"]]):
-        self.packet: Optional[Union["Packet", "StrPacket"]] = packet
+    def __init__(self, error_name: str, message: str, packet: "Packet" | "StrPacket" | None = None):
+        self.packet: "Packet" | "StrPacket" = packet
         super().__init__(error_name, message)
 
 
@@ -90,36 +92,36 @@ class ParserException(GrowtopiaException):
     Parameters
     ----------
     error_name: str
-        The name of the error.
+            The name of the error.
     message: str
-        The message of the error.
+            The message of the error.
     items_data: Optional[ItemsData]
-        The ItemsData object that was being parsed when the error occurred.
+            The ItemsData object that was being parsed when the error occurred.
     player_tribute: Optional[PlayerTribute]
-        The PlayerTribute object that was being parsed when the error occurred.
+            The PlayerTribute object that was being parsed when the error occurred.
 
     Attributes
     ----------
     items_data: Optional[ItemsData]
-        The ItemsData object that was being parsed when the error occurred.
+            The ItemsData object that was being parsed when the error occurred.
     player_tribute: Optional[PlayerTribute]
-        The PlayerTribute object that was being parsed when the error occurred.
+            The PlayerTribute object that was being parsed when the error occurred.
     version: Optional[int]
-        The version of the items.dat file.
+            The version of the items.dat file.
     supported_versions: list[int]
-        A list of all the supported versions of the items.dat file.
+            A list of all the supported versions of the items.dat file.
     """
 
     def __init__(
         self,
         error_name: str,
         message: str,
-        items_data: Optional["ItemsData"] = None,
-        player_tribute: Optional["PlayerTribute"] = None,
+        items_data: "ItemsData" | None = None,
+        player_tribute: "PlayerTribute" | None = None,
     ):
-        self.items_data: Optional["ItemsData"] = items_data or None
-        self.player_tribute: Optional["PlayerTribute"] = player_tribute or None
-        self.version: Optional[int] = items_data.version if items_data else None
+        self.items_data: "ItemsData" | None = items_data or None
+        self.player_tribute: "PlayerTribute" | None = player_tribute or None
+        self.version: int | None = items_data.version if items_data else None
         self.supported_versions: list[int] = list(ignored_attributes.keys())
 
         super().__init__(
@@ -138,16 +140,16 @@ class UnsupportedItemsData(ParserException):
     Parameters
     ----------
     items_data: ItemsData
-        The ItemsData object that was being parsed when the error occurred.
+            The ItemsData object that was being parsed when the error occurred.
 
     Attributes
     ----------
     items_data: ItemsData
-        The ItemsData object that was being parsed when the error occurred.
+            The ItemsData object that was being parsed when the error occurred.
     version: int
-        The version of the items.dat file.
+            The version of the items.dat file.
     supported_versions: list[int]
-        A list of all the supported versions of the items.dat file.
+            A list of all the supported versions of the items.dat file.
     """
 
     def __init__(self, items_data: "ItemsData"):
@@ -169,15 +171,15 @@ class PacketTypeDoesNotMatchContent(PacketException):
     Parameters
     ----------
     packet: Packet
-        The Packet object that was being handled when the error occurred.
+            The Packet object that was being handled when the error occurred.
 
     Attributes
     ----------
     packet: Packet
-        The Packet object that was being handled when the error occurred.
+            The Packet object that was being handled when the error occurred.
     """
 
-    def __init__(self, packet: Union["Packet", "StrPacket"], packet_type_from_content: "PacketType"):
+    def __init__(self, packet: "Packet" | "StrPacket", packet_type_from_content: "PacketType"):
         error_name = "PacketTypeDoesNotMatchContent"
         message = f"Packet type does not match content. Packet type: {packet._type}, packet type from content: {packet_type_from_content}"
 
@@ -194,15 +196,15 @@ class PacketTooSmall(PacketException):
 
     Parameters
     packet: Packet
-        The Packet object that was being handled when the error occurred.
+            The Packet object that was being handled when the error occurred.
 
     Attributes
     ----------
     packet: Packet
-        The Packet object that was being handled when the error occurred.
+            The Packet object that was being handled when the error occurred.
     """
 
-    def __init__(self, packet: Union["Packet", "StrPacket"], data_length: int, size_required: str = ">=4"):
+    def __init__(self, packet: "Packet" | "StrPacket", data_length: int, size_required: str = ">=4"):
         error_name = "PacketTooSmall"
         message = f"Packet is too small, required length: {size_required}, got: {data_length}"
 
