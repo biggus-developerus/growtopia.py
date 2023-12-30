@@ -39,6 +39,7 @@ class WorldGenerator:
             if y >= world.height - 6:
                 world.set_row_tiles(y, BEDROCK, CAVE_BACKGROUND)
 
+        # Main Door
         world.get_tile(*world.spawn_pos).set_item(ObjHolder.items_data.get_item("Main Door"), door_label="EXIT")
         world.get_tile(world.spawn_pos[0], world.spawn_pos[1] + 1).set_item(BEDROCK)
 
