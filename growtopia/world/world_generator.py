@@ -27,30 +27,19 @@ class WorldGenerator:
                 world <growtopia.World> - The modified world.
         """
 
+        DIRT: Item = ObjHolder.items_data.get_item("Dirt")
         CAVE_BACKGROUND: Item = ObjHolder.items_data.get_item("Cave Background")
         BEDROCK: Item = ObjHolder.items_data.get_item("Bedrock")
 
         for y in range(world.height // 2, world.height):
             # Base
-            world.set_row_tiles(y, ObjHolder.items_data.get_item("Dirt"), CAVE_BACKGROUND)
+            world.set_row_tiles(y, DIRT, CAVE_BACKGROUND)
 
             # Bedrock
             if y >= world.height - 6:
                 world.set_row_tiles(y, BEDROCK, CAVE_BACKGROUND)
 
-        # Main Door
-        for y in range(world.height):
-            for x in range(world.width):
-                new_tile = Tile(pos=world.spawn_pos)
-
-                # Door
-                if (x, y) == world.spawn_pos:
-                    new_tile.foreground = ObjHolder.items_data.get_item("Main Door")
-
-                # Bedrock
-                if (x, y) == (world.spawn_pos + (0, 1)):
-                    new_tile.foreground(BEDROCK)
-
-                world.tiles[x * y] = new_tile
+        world.get_tile(*world.spawn_pos).set_item(ObjHolder.items_data.get_item("Main Door"), door_label="EXIT")
+        world.get_tile(world.spawn_pos[0], world.spawn_pos[1] + 1).set_item(BEDROCK)
 
         return world
