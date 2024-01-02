@@ -20,6 +20,8 @@ class Tile(TileExtra):
         self.lockpos: int = 0
         self.flags: int = 0
 
+        self.label: str = ""
+
         self.pos: tuple[int, int] = pos
 
         self._damage_dealt_to_foreground: int = 0
@@ -39,11 +41,12 @@ class Tile(TileExtra):
         """
         self.foreground = item if item.is_foreground else self.foreground
         self.background = item if item.is_background else self.background
+        self.label = kwargs["door_label"] if "door_label" in list(kwargs.keys()) else self.label
 
         match item.action_type:
             case 13:
                 self.flags = 1
-                self._set_door_extra_data(kwargs.get("door_label", ""))
+                self._set_door_extra_data(self.label)
 
     async def _start_reset_timer(
         self,

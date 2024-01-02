@@ -120,4 +120,7 @@ class GameServer(Server, ServerWorldPool):
                 context.tile = context.world.get_tile(context.packet.int_x, context.packet.int_y)
                 context.item = context.tile.get_layer()
 
+            elif event == EventID.ON_ITEM_ACTIVATE_REQUEST:
+                context.item = ObjHolder.items_data.get_item(context.packet.int)
+
         return await self.dispatch_event(event, context)

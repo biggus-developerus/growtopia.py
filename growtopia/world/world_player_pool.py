@@ -5,6 +5,8 @@ __all__ = ("WorldPlayerPool",)
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Callable
 
+from ..protocol import GameUpdatePacket, GameUpdatePacketType
+
 if TYPE_CHECKING:
     from ..player import Player
 
@@ -93,6 +95,11 @@ class WorldPlayerPool(ABC):
 
         self.next_net_id += 1
         self.players[player.net_id] = player
+
+        # update clothing
+        packet = GameUpdatePacket(update_type=GameUpdatePacketType.SET_CHARACTER_STATE, net_id=player.net_id)
+
+        player.send(packet)
 
         return True
 
