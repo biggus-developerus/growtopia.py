@@ -6,6 +6,7 @@ from typing import Any, Optional
 import enet
 
 from ..inventory import Inventory
+from ..item import Item
 from .player_avatar import PlayerAvatar
 from .player_login_info import PlayerLoginInfo
 from .player_net import PlayerNet
@@ -27,6 +28,21 @@ class Player(PlayerAvatar, PlayerNet):
         PlayerNet.__init__(self)
 
         self.inventory: Optional[Inventory] = Inventory()
+
+        self.hat: int = 0
+        self.chest: int = 0
+        self.pants: int = 0
+        self.feet: int = 0
+        self.face: int = 0
+        self.hand: int = 0
+        self.back: int = 0
+        self.hair: int = 0
+        self.neck: int = 0
+        self.ances: int = 0
+        self.d2: int = 0
+        self.d3: int = 0
+
+        self.skin: int = 1348247567
 
         self._login_info: PlayerLoginInfo = PlayerLoginInfo()
         self._peer: enet.Peer = peer
@@ -160,6 +176,18 @@ class Player(PlayerAvatar, PlayerNet):
             True if the player had their position updated, False otherwise.
         """
         return self.on_set_pos(x, y, player)
+
+    def get_clothing(self) -> tuple[tuple[int, int, int] | int]:
+        return (
+            # (self.hat, self.back, self.face),
+            # (self.feet, self.neck, self.hand),
+            # (self.pants, self.hair, self.chest),
+            (self.hair, self.chest, self.pants),
+            (self.feet, self.face, self.hand),
+            (self.back, self.hat, self.neck),
+            self.skin,
+            (self.ances, self.d2, self.d3),
+        )
 
     def kill(self, respawn: bool = True) -> bool:
         """
