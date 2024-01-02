@@ -116,4 +116,8 @@ class GameServer(Server, ServerWorldPool):
                 else:
                     ...  # we need to do something here, maybe dispatch ON_MALFORMED_PACKET?
 
+            elif event == EventID.ON_TILE_ACTIVATE_REQUEST:
+                context.tile = context.world.get_tile(context.packet.int_x, context.packet.int_y)
+                context.item = context.tile.get_layer()
+
         return await self.dispatch_event(event, context)

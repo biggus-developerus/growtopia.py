@@ -25,7 +25,7 @@ class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
         weather_id: int = 0,
         version: int = 20,
         flags: int = 64,
-        spawn_pos: tuple[int, int] = (0, 0),
+        spawn_pos: tuple[int, int] = (50, 29),
     ) -> None:
         WorldAvatarPool.__init__(self)
         WorldPlayerPool.__init__(self)
