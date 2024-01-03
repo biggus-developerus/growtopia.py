@@ -138,3 +138,26 @@ class Colour(StrEnum):
     DARK_GRAY = "`a"
     GRAY = "`s"
     CYAN = "`c"
+
+
+class NameTitle(StrEnum):
+    """
+    An enumeration of all the title's a player can have.
+    """
+
+    MAX_LEVEL = "maxlevel"
+    DOCTOR = "doctor"
+    MENTOR = "3"
+    GROW4GOOD = "grow4good"
+    THANKSGIVING = "thanksgiving"
+    YOUTUBE = "youtube"
+    TIKTOK = "tiktok"
+    SHOW_GUILD = "showGuild"
+
+    LEGENDARY = " of Legend``"
+
+    DEVELOPER = "`b"
+    MOD = "`5"
+    OWNER = "`2"
+    ACCESS = "`^"
+    GAME = "`a"
