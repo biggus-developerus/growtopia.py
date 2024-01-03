@@ -5,8 +5,9 @@ from typing import Any, Optional
 
 import enet
 
+from ..enums import NameTitle
 from ..inventory import Inventory
-from ..item import Item
+from ..protocol import GameUpdatePacket, GameUpdatePacketType, VariantList
 from .player_avatar import PlayerAvatar
 from .player_login_info import PlayerLoginInfo
 from .player_net import PlayerNet
@@ -20,7 +21,7 @@ class Player(PlayerAvatar, PlayerNet):
     Parameters
     ----------
     peer: enet.Peer
-        The peer object of the player.
+            The peer object of the player.
     """
 
     def __init__(self, peer: enet.Peer) -> None:
@@ -44,6 +45,9 @@ class Player(PlayerAvatar, PlayerNet):
 
         self.skin: int = 1348247567
 
+        self.titles: list[NameTitle] = []
+        self.name_color: str = ""
+
         self._login_info: PlayerLoginInfo = PlayerLoginInfo()
         self._peer: enet.Peer = peer
 
@@ -57,7 +61,7 @@ class Player(PlayerAvatar, PlayerNet):
         Returns
         -------
         PlayerLoginInfo:
-            The login info of the player.
+                The login info of the player.
         """
         return self._login_info
 
@@ -69,7 +73,7 @@ class Player(PlayerAvatar, PlayerNet):
         Parameters
         ----------
         value: PlayerLoginInfo
-            The login info to set.
+                The login info to set.
         """
         self._login_info = value
 
@@ -81,7 +85,7 @@ class Player(PlayerAvatar, PlayerNet):
         Returns
         -------
         enet.Peer:
-            The peer object of the player.
+                The peer object of the player.
         """
         return self._peer
 
@@ -93,7 +97,7 @@ class Player(PlayerAvatar, PlayerNet):
         Parameters
         ----------
         value: enet.Peer
-            The peer object to set.
+                The peer object to set.
         """
         self._peer = value
 
@@ -104,15 +108,15 @@ class Player(PlayerAvatar, PlayerNet):
         Parameters
         ----------
         file_path: str
-            The path of the file to play.
+                The path of the file to play.
 
         delay: int
-            The delay in milliseconds.
+                The delay in milliseconds.
 
         Returns
         -------
         bool:
-            True if the packet was successfully sent, False otherwise.
+                True if the packet was successfully sent, False otherwise.
         """
         return self._play_sfx(file_path, delay)
 
@@ -123,15 +127,15 @@ class Player(PlayerAvatar, PlayerNet):
         Parameters
         ----------
         item_id: int
-            The item ID to add.
+                The item ID to add.
 
         amount: int
-            The amount of the item to add.
+                The amount of the item to add.
 
         Returns
         -------
         bool:
-            True if the item was successfully added, False otherwise.
+                True if the item was successfully added, False otherwise.
         """
         if self.inventory is None:
             return False
@@ -148,7 +152,7 @@ class Player(PlayerAvatar, PlayerNet):
         Parameters
         ----------
         inventory: Inventory
-            The inventory to send to the player.
+                The inventory to send to the player.
         """
         self.inventory = inventory or self.inventory
 
@@ -164,16 +168,16 @@ class Player(PlayerAvatar, PlayerNet):
         Parameters
         ----------
         x: int
-            The x pos of where the player will be.
+                The x pos of where the player will be.
         y: int
-            The y pos of where the player will be.
+                The y pos of where the player will be.
         player: Optional["Player"]
-            The player to set the position of.
+                The player to set the position of.
 
         Returns
         -------
         bool:
-            True if the player had their position updated, False otherwise.
+                True if the player had their position updated, False otherwise.
         """
         return self.on_set_pos(x, y, player)
 
@@ -197,12 +201,12 @@ class Player(PlayerAvatar, PlayerNet):
         Parameters
         ----------
         respawn: bool
-            Whether the player should return to the world's spawn position or not.
+                Whether the player should return to the world's spawn position or not.
 
         Returns
         -------
         bool:
-            True if the player was killed, False otherwise.
+                True if the player was killed, False otherwise.
         """
         if self.world is None:
             return False
@@ -216,7 +220,7 @@ class Player(PlayerAvatar, PlayerNet):
         Parameters
         ----------
         duration: float
-            The duration in seconds to freeze the player for.
+                The duration in seconds to freeze the player for.
 
         Returns
         -------
@@ -238,7 +242,7 @@ class Player(PlayerAvatar, PlayerNet):
         Returns
         -------
         bool:
-            True if the player is a guest, False otherwise.
+                True if the player is a guest, False otherwise.
         """
         return not self.login_info.tankIDName and not self.login_info.tankIDPass
 
@@ -250,6 +254,140 @@ class Player(PlayerAvatar, PlayerNet):
         Returns
         -------
         str:
-            The player name.
+                The player name.
         """
         return self.login_info.requestedName if self.guest else self.login_info.tankIDName
+
+    def _update_name(self, name: str) -> None:
+        """
+        Sends packet to update player's name.
+
+        Arguments:
+        ----------
+                name: str
+                        The new name.
+        """
+        packet = GameUpdatePacket(
+            update_type=GameUpdatePacketType.CALL_FUNCTION,
+            net_id=self.net_id,
+            variant_list=VariantList("OnNameChanged", name),
+        )
+
+        self.send(packet)
+
+    def _update_country_flag(self, flag: str) -> None:
+        """
+        Sends packet to update player's flag.
+
+        Arguments:
+        ----------
+                flag: str
+                        The new flag to set.
+        """
+        packet = GameUpdatePacket(
+            update_type=GameUpdatePacketType.CALL_FUNCTION,
+            net_id=self.net_id,
+            variant_list=VariantList("OnCountryState", flag),
+        )
+
+        self.send(packet)
+
+    async def add_title(self, title: NameTitle) -> None:
+        """
+        Adds a new name title to the player.
+
+        Arguments:
+        ----------
+                title: NameTitle
+                        The title to add.
+        """
+        # Assure title not dupelicate
+        if title in self.titles:
+            return self.send_log("`4Player already has this title!")
+        # Assure acceptable title
+        if not isinstance(title, NameTitle):
+            return self.send_log("`4Incorrect title type passed!")
+
+        # Add new title to player
+        self.titles.append(title)
+
+        # Game
+        if title == NameTitle.GAME:
+            self.name_color = NameTitle.GAME
+
+        # Developer
+        # Owner
+        # World Access
+        color_titles: list[NameTitle] = [NameTitle.DEVELOPER, NameTitle.OWNER, NameTitle.ACCESS]
+
+        for clr_title in color_titles:
+            if clr_title == title:
+                self.name_color = title
+
+        # Doctor
+        if title == NameTitle.DOCTOR:
+            self.name_color = "`4"
+
+        # Mod
+        if title == NameTitle.MOD:
+            self.name_color = NameTitle.MOD
+
+        from rich import print as pprint
+
+        pprint("NAMEBSDEBUG:", self.name_color, self.name, self.display_name, self.titles, sep="\n", end="\n\n")
+
+        # Update name for titles to take effect
+        await self.change_name()
+
+    async def set_titles(self, titles: list[NameTitle]) -> None:
+        """
+        Helper function used to dump multiple titles at once.
+
+        Arguments:
+        ----------
+                titles: list[NameTitle]
+                        The titles to dump.
+        """
+        for title in titles:
+            self.add_title(title)
+
+    async def change_name(self, name: str | None = None) -> None:
+        """
+        Updates the player's name and adds any available titles.
+
+        Arguments:
+        ----------
+                name: Optional[str]
+                        The new name. (default: None)
+        """
+        # Format name
+        new_name: str = ""
+        # Color
+        new_name += self.name_color
+        # Tags
+        new_name += "Dr. " if NameTitle.DOCTOR in self.titles else ""
+        new_name += "@" if NameTitle.MOD in self.titles else ""
+        # New name
+        new_name += name if self.display_name == None else self.display_name
+        # Legendary title
+        new_name += " of Legend``" if NameTitle.LEGENDARY in self.titles else ""
+
+        # Update name
+        self._update_name(new_name)
+
+        # Format titles
+        remove_titles: list[NameTitle] = [
+            NameTitle.LEGENDARY,
+            NameTitle.MOD,
+            NameTitle.DEVELOPER,
+            NameTitle.OWNER,
+            NameTitle.ACCESS,
+        ]
+
+        titles: list[NameTitle] = []
+        for title in self.titles:
+            if title not in remove_titles:
+                titles.append(title)
+
+        # Update country flag
+        self._update_country_flag(self.country + "|" + "|".join(titles))

@@ -22,7 +22,7 @@ class World(WorldAvatarPool, WorldPlayerPool, WorldTilePool):
         width: int = 100,
         height: int = 60,
         base_weather_id: int = 0,
-        weather_id: int = 0,
+        weather_id: int = 100,
         version: int = 20,
         flags: int = 64,
         spawn_pos: tuple[int, int] = (50, 29),
