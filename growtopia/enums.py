@@ -145,7 +145,7 @@ class NameTitle(StrEnum):
     An enumeration of all the title's a player can have.
     """
 
-    MAX_LEVEL = "maxlevel"
+    MAX_LEVEL = "maxLevel"
     DOCTOR = "doctor"
     MENTOR = "3"
     GROW4GOOD = "grow4good"
