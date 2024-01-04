@@ -43,10 +43,13 @@ class Player(PlayerAvatar, PlayerNet):
         self.d2: int = 0
         self.d3: int = 0
 
-        self.skin: int = 1348247567
+        self.color: tuple[int, int, int] = (100, 80, 194)
+        self.opacity: int = 255
 
         self.titles: list[NameTitle] = []
         self.name_color: str = ""
+
+        self.punch_id: int = 0
 
         self._login_info: PlayerLoginInfo = PlayerLoginInfo()
         self._peer: enet.Peer = peer
@@ -181,18 +184,6 @@ class Player(PlayerAvatar, PlayerNet):
         """
         return self.on_set_pos(x, y, player)
 
-    def get_clothing(self) -> tuple[tuple[int, int, int] | int]:
-        return (
-            # (self.hat, self.back, self.face),
-            # (self.feet, self.neck, self.hand),
-            # (self.pants, self.hair, self.chest),
-            (self.hair, self.chest, self.pants),
-            (self.feet, self.face, self.hand),
-            (self.back, self.hat, self.neck),
-            self.skin,
-            (self.ances, self.d2, self.d3),
-        )
-
     def kill(self, respawn: bool = True) -> bool:
         """
         Kills the player.
@@ -257,6 +248,30 @@ class Player(PlayerAvatar, PlayerNet):
                 The player name.
         """
         return self.login_info.requestedName if self.guest else self.login_info.tankIDName
+
+    def _get_skin(self) -> int:
+        """
+        Helper function that serializes the player's skin value.
+        """
+        r, g, b = self.color
+        a = self.opacity
+
+        return a | b << 8 | g << 16 | r << 24
+
+    def get_clothing(self) -> tuple[tuple[int, int, int] | int]:
+        """
+        Returns the player's clothing data in the correct format.
+        """
+        return (
+            # (self.hat, self.back, self.face),
+            # (self.feet, self.neck, self.hand),
+            # (self.pants, self.hair, self.chest),
+            (self.hair, self.chest, self.pants),
+            (self.feet, self.face, self.hand),
+            (self.back, self.hat, self.neck),
+            self._get_skin(),
+            (self.ances, self.d2, self.d3),
+        )
 
     def _update_name(self, name: str) -> None:
         """
@@ -368,7 +383,7 @@ class Player(PlayerAvatar, PlayerNet):
         new_name += "Dr. " if NameTitle.DOCTOR in self.titles else ""
         new_name += "@" if NameTitle.MOD in self.titles else ""
         # New name
-        new_name += name if self.display_name == None else self.display_name
+        new_name += self.display_name if name == None else name
         # Legendary title
         new_name += " of Legend``" if NameTitle.LEGENDARY in self.titles else ""
 
