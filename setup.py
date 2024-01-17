@@ -1,9 +1,11 @@
-import os
+from os import path, walk
 
 from setuptools import setup
 
 setup(
     packages=[
-        os.path.join(root).replace("\\", ".") for root, _, files in os.walk("growtopia") if "__init__.py" in files
+        path.join(root).replace("\\", ".")
+        for root, _, files in walk("growtopia")
+        if "__init__.py" in files
     ]
 )
