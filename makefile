@@ -28,6 +28,8 @@ install:
 	$(pip) install -U .
 
 install2:
+	rm -r -f build
+	rm -r -f growtopia.py.egg-info
 	$(pip) install --no-cache-dir --no-dependencies --no-build-isolation -U .
 
 upload:
