@@ -136,6 +136,7 @@ profile_**
 
 # IDE-Specific
 .idea
+.vscode
 
 # Jakob specifc :-)
 announcement_to_post.md
