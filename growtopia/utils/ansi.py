@@ -6,7 +6,7 @@ __all__ = (
 from aenum import Flag
 
 from ..constants import (
-    ANSI_ESCAPE
+    ANSI_ESCAPE,
 )
 
 
@@ -30,16 +30,21 @@ class AnsiESC(Flag):
 
         for ansi in AnsiESC:
             if self.has(ansi):
-                params.append(str(ANSI_ESCAPE[ansi.name.lower()]))
+                params.append(ANSI_ESCAPE[ansi.name.lower()])
 
         return params
 
 
 class AnsiStr(str):
-    def wrap(self, *parameters: AnsiESC) -> "AnsiStr":
+    def wrap(self, *parameters: AnsiESC, should_reset: bool = True) -> "AnsiStr":
         combined = AnsiESC(0)
 
         for param in parameters:
             combined |= param
 
-        return AnsiStr(f"\033[{';'.join(combined.get_params())}m{self}\033[0m")
+        reset = f"\033[{ANSI_ESCAPE['reset']}m" if should_reset else ""
+        return AnsiStr(f"\033[{';'.join(combined.get_params())}m{self}{reset}")
+
+    @staticmethod
+    def clear() -> "AnsiStr":
+        return AnsiStr(f"\033{ANSI_ESCAPE['clear']}")
