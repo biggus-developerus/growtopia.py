@@ -3,7 +3,7 @@ __all__ = ("PlayerTribute",)
 from ..utils import (
     File,
     ReadBuffer,
-    WriteBuffer
+    WriteBuffer,
 )
 
 
