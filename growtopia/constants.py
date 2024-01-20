@@ -1,8 +1,11 @@
 __all__ = (
-    "ITEM_ATTR_SIZES",
     "IGNORED_ATTRS",
+    "ITEM_ATTR_SIZES",
     "ANSI_ESCAPE",
+    "LOG_LOOP_SLEEP_TIME",
 )
+
+LOG_LOOP_SLEEP_TIME: float = 0.2  # time to sleep between each flush, (currently 200ms)
 
 IGNORED_ATTRS: dict[int, list[str]] = {
     11: ["flags3", "bodypart", "flags4", "flags5", "unknown", "sit_file", "renderer_file"],
@@ -52,13 +55,15 @@ ITEM_ATTR_SIZES: dict[str, int] = {
     "unknown": 25,
 }
 
-ANSI_ESCAPE: dict[str, int] = {
-    "bold": 1,
-    "underline": 4,
-    "reverse": 7,
-    "invisible": 8,
-    "red": 31,
-    "green": 32,
-    "yellow": 33,
-    "blue": 34,
+ANSI_ESCAPE: dict[str, str] = {
+    "bold": "1",
+    "underline": "4",
+    "reverse": "7",
+    "invisible": "8",
+    "red": "31",
+    "green": "32",
+    "yellow": "33",
+    "blue": "34",
+    "reset": "0",
+    "clear": "c",
 }  # we can add more later (if we need them)
