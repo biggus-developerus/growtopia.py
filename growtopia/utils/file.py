@@ -4,11 +4,11 @@ from typing import Union
 
 from .buffer import (
     ReadBuffer,
-    WriteBuffer
+    WriteBuffer,
 )
 from .proton import (
     decrypt,
-    proton_hash
+    proton_hash,
 )
 
 
