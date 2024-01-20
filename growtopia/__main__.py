@@ -3,7 +3,8 @@ from typing import Union
 from growtopia import (
     File,
     ItemsData,
-    PlayerTribute
+    Logger,
+    PlayerTribute,
 )
 
 
@@ -22,6 +23,8 @@ def parse_file(path: str) -> None:
 
     if isinstance(data, PlayerTribute):
         return
+
+    Logger.wait_until_flushed()
 
     while True:
         inp = input(">> ")
