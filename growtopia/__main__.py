@@ -46,8 +46,6 @@ def main(*args):
                 growtopia help | Show this help message
                 """
             )
-        case _:
-            raise ValueError("Unknown tool")
 
 
 if __name__ == "__main__":
