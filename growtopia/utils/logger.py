@@ -58,7 +58,7 @@ class Log:
 
     def __str__(self) -> AnsiStr:
         return AnsiStr(f"[{self._log_level.name}] {self._time} {self._message}").wrap(
-            self._log_level.value
+            AnsiESC(self._log_level.value)
         )
 
 
@@ -91,16 +91,12 @@ class Logger:
         return True
 
     @classmethod
-    def stop(cls) -> bool:
-        if not cls._running:
-            return False
-
+    def stop(cls) -> None:
         cls._running = False
 
-        cls._thread.join()
-        cls._thread = None
-
-        return True
+        if cls._thread:
+            cls._thread.join()
+            cls._thread = None
 
     @classmethod
     def log(cls, message: str, log_level: LogLevel = LogLevel.INFO) -> None:
