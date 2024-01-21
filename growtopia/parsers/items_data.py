@@ -125,10 +125,10 @@ class Item:
 
         Parameters
         ----------
-        texture_path : str
+        texture_path : `str`
             The path to the texture file. (e.g. "game/test.rttex")
 
-        file_path_or_data : Union[str, memoryview]
+        file_path_or_data : `Union[str, memoryview]`
             The path to the texture file, or the texture file's data. (e.g. "test.rttex" or memoryview(b"test"))
 
         Returns
@@ -168,10 +168,10 @@ class Item:
 
         Parameters
         ----------
-        extra_path : str
+        extra_path : `str`
             The path to the extra file. (e.g. "interface/large/test.rttex")
 
-        file_path_or_data : Union[str, memoryview]
+        file_path_or_data : `Union[str, memoryview]`
             The path to the extra file, or the extra file's data. (e.g. "test.rttex" or memoryview(b"test"))
 
         Returns
@@ -217,6 +217,20 @@ class ItemsData(File):
     """
     Represents the items.dat file.
 
+    Attributes
+    ----------
+    version : `int`
+        The version of the items.dat file.
+
+    item_count : `int`
+        The amount of items in the items.dat file.
+
+    hash : `int`
+        The hash of the items.dat (the content) file.
+
+    items : `list[Item]`
+        The items in the items.dat file.
+
     Examples
     --------
     >>> from growtopia import ItemsData
@@ -243,6 +257,8 @@ class ItemsData(File):
         ValueError
             If `path_or_data` is not items.dat.
         """
+        super().__init__()
+
         if not isinstance(path_or_data, (str, bytes, bytearray, memoryview)):
             raise TypeError(
                 f"Expected str, bytes, bytearray, or memoryview, got {type(path_or_data)}"
@@ -262,7 +278,7 @@ class ItemsData(File):
 
         self.items: list[Item] = []
 
-    def parse(self) -> None:
+    def parse(self) -> bool:
         """
         Parses and calculates the items.dat file's hash.
 
@@ -359,7 +375,7 @@ class ItemsData(File):
 
         Parameters
         ----------
-        overwrite_read_buff : bool
+        overwrite_read_buff : `bool`
             Whether to overwrite the read buffer (self.buffer) with the serialised data.
 
         Returns
@@ -444,10 +460,63 @@ class ItemsData(File):
         return read_buffer
 
     def save(self, path: str) -> None:
+        """
+        Saves the serialised items.dat file to the specified path.
+
+        Parameters
+        ----------
+        path : `str`
+            The path to save the items.dat file to. (e.g. "items.dat")
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        None
+
+        Notes
+        -----
+        - This will overwrite the current read buffer (self.buffer) with the serialised data.
+
+        Examples
+        --------
+        >>> from growtopia import ItemsData
+        >>> items_data = ItemsData("items.dat")
+        >>> items_data.parse()
+        >>> items_data.save("items.dat")
+        """
         self.serialise(True)  # overwrite read buffer (self.buffer)
         super().save(path)  # save file
 
     def add_item(self, item: Item, keep_id: bool = False) -> None:
+        """
+        Adds an item to the `items` list.
+
+        Parameters
+        ----------
+        item : `Item`
+            The item to add to the items.dat file.
+
+        keep_id : `bool`
+            Whether to keep the item's ID to what it is.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        None
+
+        Examples
+        --------
+        >>> from growtopia import ItemsData, Item
+        >>> items_data = ItemsData("items.dat")
+        >>> items_data.parse()
+        >>> items_data.add_item(Item(name="Test"))
+        """
         if item.id == 0 and not keep_id:
             item.id = self.item_count
 
@@ -455,10 +524,57 @@ class ItemsData(File):
         self.item_count += 1
 
     def remove_item(self, item_id: int) -> None:
+        """
+        Removes an item from the `items` list.
+
+        Parameters
+        ----------
+        item_id : `int`
+            The item's ID to remove from the items.dat file.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        None
+
+        Examples
+        --------
+        >>> from growtopia import ItemsData
+        >>> items_data = ItemsData("items.dat")
+        >>> items_data.parse()
+        >>> items_data.remove_item(0)
+        """
         self.items.pop(item_id)
         self.item_count -= 1
 
     def get_item(self, item_id: int) -> Item:
+        """
+        Gets an item from the `items` list.
+
+        Parameters
+        ----------
+        item_id : `int`
+            The item's ID to get from the items.dat file.
+
+        Returns
+        -------
+        `Item`
+            The item with the specified ID.
+
+        Raises
+        ------
+        None
+
+        Examples
+        --------
+        >>> from growtopia import ItemsData
+        >>> items_data = ItemsData("items.dat")
+        >>> items_data.parse()
+        >>> items_data.get_item(0)
+        """
         return self.items[item_id]
 
     def __len__(self) -> int:
