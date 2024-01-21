@@ -1,7 +1,8 @@
 __all__ = ("File",)
 
-from typing import Union
 from abc import ABC
+from typing import Union
+
 from .buffer import (
     ReadBuffer,
     WriteBuffer,
