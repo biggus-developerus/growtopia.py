@@ -231,6 +231,26 @@ class ItemsData(File):
     items : `list[Item]`
         The items in the items.dat file.
 
+    Methods
+    -------
+    parse() -> bool
+        Parses and calculates the items.dat file's hash.
+
+    serialise(overwrite_read_buff: bool = False) -> ReadBuffer
+        Serialises the items.dat file.
+
+    save(path: str) -> None
+        Saves the serialised items.dat file to the specified path.
+
+    add_item(item: Item, keep_id: bool = False) -> None
+        Adds an item to the `items` list.
+
+    remove_item(item_id: int) -> None
+        Removes an item from the `items` list.
+
+    get_item(item_id: int) -> Item
+        Gets an item from the `items` list.
+
     Examples
     --------
     >>> from growtopia import ItemsData
