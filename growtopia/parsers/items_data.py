@@ -284,9 +284,6 @@ class ItemsData(File):
                 f"Expected str, bytes, bytearray, or memoryview, got {type(path_or_data)}"
             )
 
-        if isinstance(path_or_data, (bytes, bytearray)):
-            path_or_data = memoryview(path_or_data)
-
         if not File.is_items_data(path_or_data):
             raise ValueError("File is not items.dat")
 
