@@ -7,10 +7,7 @@ from dataclasses import (
     dataclass,
 )
 from time import time
-from typing import (
-    Iterator,
-    Union,
-)
+from typing import Iterator, Union, Optional
 
 from ..constants import (
     IGNORED_ATTRS,
@@ -214,80 +211,16 @@ class Item:
 
 
 class ItemsData(File):
-    """
-    Represents the items.dat file.
-
-    Attributes
-    ----------
-    version : `int`
-        The version of the items.dat file.
-
-    item_count : `int`
-        The amount of items in the items.dat file.
-
-    hash : `int`
-        The hash of the items.dat (the content) file.
-
-    items : `list[Item]`
-        The items in the items.dat file.
-
-    Methods
-    -------
-    parse() -> bool
-        Parses and calculates the items.dat file's hash.
-
-    serialise(overwrite_read_buff: bool = False) -> ReadBuffer
-        Serialises the items.dat file.
-
-    save(path: str) -> None
-        Saves the serialised items.dat file to the specified path.
-
-    add_item(item: Item, keep_id: bool = False) -> None
-        Adds an item to the `items` list.
-
-    remove_item(item_id: int) -> None
-        Removes an item from the `items` list.
-
-    get_item(item_id: int) -> Item
-        Gets an item from the `items` list.
-
-    Examples
-    --------
-    >>> from growtopia import ItemsData
-    >>> items_data = ItemsData("items.dat")
-    >>> items_data.parse()
-    """
-
-    def __init__(self, path_or_data: Union[str, bytes, bytearray, memoryview]) -> None:
-        """
-        Parameters
-        ----------
-        path_or_data : Union[str, bytes, bytearray]
-            The path to the items.dat file, or the items.dat file's data. (e.g. "items.dat" or memoryview(b"items"))
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        TypeError
-            If `path_or_data` is not a str, bytes, bytearray, or memoryview.
-
-        ValueError
-            If `path_or_data` is not items.dat.
-        """
+    def __init__(self, pob: Optional[Union[str, memoryview]] = None) -> None:
         super().__init__()
 
-        if not isinstance(path_or_data, (str, bytes, bytearray, memoryview)):
-            raise TypeError(
-                f"Expected str, bytes, bytearray, or memoryview, got {type(path_or_data)}"
-            )
+        if pob and not isinstance(pob, (str, memoryview)):
+            raise TypeError(f"Expected str, memoryview, or None, got {type(pob)}")
 
-        if not File.is_items_data(path_or_data):
+        if pob and not File.is_items_data(pob):
             raise ValueError("File is not items.dat")
 
-        self.buffer: ReadBuffer = ReadBuffer.load(path_or_data)
+        self.buffer: Union[ReadBuffer, WriteBuffer] = ReadBuffer.load(pob) if pob else WriteBuffer
 
         self.version: int = 0
         self.item_count: int = 0
@@ -325,6 +258,9 @@ class ItemsData(File):
         >>> items_data = ItemsData("items.dat")
         >>> items_data.parse()
         """
+        if not self.buffer:
+            return False
+
         self.hash = self._get_hash()
 
         self.version = self.buffer.read_int(2)

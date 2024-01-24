@@ -30,10 +30,6 @@ from .ansi import (
 
 
 class LogLevel(Enum):
-    """
-    Log levels, used to determine the color of the log message.
-    """
-
     INFO = AnsiESC.BLUE
     WARNING = AnsiESC.YELLOW
     ERROR = AnsiESC.RED
@@ -41,16 +37,6 @@ class LogLevel(Enum):
 
 
 class Log:
-    """
-    Represents a log message, or a message that will be logged.
-
-    Examples
-    --------
-    >>> from growtopia import Log, LogLevel
-    >>> log = Log(LogLevel.INFO, "Hello world!")
-    >>> print(log)
-    """
-
     def __init__(self, log_level: LogLevel, message: str) -> None:
         self._log_level: LogLevel = log_level
         self._message: str = message
@@ -63,53 +49,6 @@ class Log:
 
 
 class Logger:
-    """
-    Logger class, used to log messages to the console.
-
-    Attributes
-    ----------
-    _thread: `Union[Thread, None]`
-        The logger thread
-
-    _wait_cond: `Condition`
-        The condition used to wait until the queue is empty
-
-    _queue_event: `Event`
-        The event used to notify the logger thread that there are messages in the queue
-
-    _queue_lock: `Lock`
-        The lock used to lock the queue
-
-    _queue: `list[Union[Log, AnsiStr]]`
-        The queue of messages to log
-
-    _running: `bool`
-        Whether the logger is running
-
-    _disabled: `bool`
-        Whether the logger is disabled
-
-    Methods
-    -------
-    start() -> `bool`
-        Starts the logger
-
-    stop() -> `None`
-        Stops the logger
-
-    log(message: `str`, log_level: `LogLevel` = `LogLevel.INFO`) -> `None`
-        Logs a message
-
-    log_ansi(message: `AnsiStr`) -> `None`
-        Logs an ansi message
-
-    log_loop() -> `None`
-        The logger loop
-
-    wait_until_flushed() -> `None`
-        Waits until the queue is empty
-    """
-
     _thread: Union[Thread, None] = None
 
     _wait_cond: Condition = Condition()
@@ -123,28 +62,6 @@ class Logger:
 
     @classmethod
     def start(cls) -> bool:
-        """
-        Starts the logger
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        `bool`
-            Whether the logger was started
-
-        Raises
-        ------
-        None
-
-        Examples
-        --------
-        >>> from growtopia import Logger
-        >>> Logger.start()
-        True
-        """
         if cls._disabled:
             return False
 
@@ -161,26 +78,6 @@ class Logger:
 
     @classmethod
     def stop(cls) -> None:
-        """
-        Stops the logger
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        None
-
-        Examples
-        --------
-        >>> from growtopia import Logger
-        >>> Logger.stop()
-        """
         cls._running = False
 
         if cls._thread:
@@ -189,31 +86,6 @@ class Logger:
 
     @classmethod
     def log(cls, message: str, log_level: LogLevel = LogLevel.INFO) -> None:
-        """
-        Logs a message
-
-        Parameters
-        ----------
-        message: `str`
-            The message to log
-
-        log_level: `LogLevel`
-            The log level of the message
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        None
-
-        Examples
-        --------
-        >>> from growtopia import Logger, LogLevel
-        >>> Logger.log("Hello world!", LogLevel.INFO)
-        [INFO] 00:00:00 Hello world!
-        """
         with cls._queue_lock:
             cls._queue.append(Log(log_level, message))
 
@@ -221,27 +93,6 @@ class Logger:
 
     @classmethod
     def log_ansi(cls, message: AnsiStr) -> None:
-        """
-        Logs an ansi message
-
-        Parameters
-        ----------
-        message: `AnsiStr`
-            The ansi message to log
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        None
-
-        Examples
-        --------
-        >>> from growtopia import Logger, AnsiStr
-        >>> Logger.log_ansi(AnsiStr("Hello world!").wrap(AnsiESC.RED))
-        """
         with cls._queue_lock:
             cls._queue.append(message)
 
@@ -249,26 +100,6 @@ class Logger:
 
     @classmethod
     def log_loop(cls) -> None:
-        """
-        Logger loop, used to log messages from the queue
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        None
-
-        Examples
-        --------
-        >>> from growtopia import Logger
-        >>> Logger.log_loop()
-        """
         while cls._running:
             cls._queue_event.wait()
 
@@ -290,26 +121,6 @@ class Logger:
 
     @classmethod
     def wait_until_flushed(cls) -> None:
-        """
-        Waits until the queue is empty
-
-        Parameters
-        ----------
-        None
-
-        Returns
-        -------
-        None
-
-        Raises
-        ------
-        None
-
-        Examples
-        --------
-        >>> from growtopia import Logger
-        >>> Logger.wait_until_flushed()
-        """
         while True:
             with cls._wait_cond:
                 cls._wait_cond.wait()
@@ -320,130 +131,21 @@ class Logger:
 
 
 def log_info(message: str) -> None:
-    """
-    Logs an info message
-
-    Parameters
-    ----------
-    message : `str`
-        The message to log
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    None
-
-    Examples
-    --------
-    >>> from growtopia import log_info
-    >>> log_info("Hello world!")
-    [INFO] 00:00:00 Hello world!
-    """
     Logger.log(message, LogLevel.INFO)
 
 
 def log_warning(message: str) -> None:
-    """
-    Logs a warning message
-
-    Parameters
-    ----------
-    message : `str`
-        The message to log
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    None
-
-    Examples
-    --------
-    >>> from growtopia import log_warning
-    >>> log_warning("Hello world!")
-    [WARNING] 00:00:00 Hello world!
-    """
     Logger.log(message, LogLevel.WARNING)
 
 
 def log_error(message: str) -> None:
-    """
-    Logs an error message
-
-    Parameters
-    ----------
-    message : `str`
-        The message to log
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    None
-
-    Examples
-    --------
-    >>> from growtopia import log_error
-    >>> log_error("Hello world!")
-    [ERROR] 00:00:00 Hello world!
-    """
     Logger.log(message, LogLevel.ERROR)
 
 
 def log_critical(message: str) -> None:
-    """
-    Logs a critical message
-
-    Parameters
-    ----------
-    message : `str`
-        The message to log
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    None
-
-    Examples
-    --------
-    >>> from growtopia import log_critical
-    >>> log_critical("Hello world!")
-    [CRITICAL] 00:00:00 Hello world!
-    """
     Logger.log(message, LogLevel.CRITICAL)
 
 
 def disable_logger() -> None:
-    """
-    Disables the logger
-
-    Parameters
-    ----------
-    None
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    None
-
-    Examples
-    --------
-    >>> from growtopia import disable_logger
-    >>> disable_logger()
-    """
-
     Logger.stop()
     Logger._disabled = True
