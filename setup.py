@@ -8,5 +8,4 @@ setup(
         for root, _, files in walk("growtopia")
         if "__init__.py" in files and root != "stubs"
     ],
-    include_package_data=True,
 )
