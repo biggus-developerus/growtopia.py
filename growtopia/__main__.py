@@ -24,11 +24,6 @@ def parse_file(path: str) -> None:
     if isinstance(data, PlayerTribute):
         return
 
-    Logger.wait_until_flushed()
-
-    while True:
-        inp = input(">> ")
-
 
 def main(*args):
     tool = args[0] if args else None
