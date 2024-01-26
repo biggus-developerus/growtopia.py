@@ -124,6 +124,22 @@ class Item:
 
     renderer_file_path: str = ""
 
+    def set_pet(
+        self,
+        pet_name: str,
+        pet_prefix: str,
+        pet_suffix: str,
+        pet_ability: str,
+        pet_texture_path: str,
+        file_path_or_data: Union[str, memoryview],
+    ) -> None:
+        self.pet_name = pet_name
+        self.pet_prefix = pet_prefix
+        self.pet_suffix = pet_suffix
+        self.pet_ability = pet_ability
+
+        self.set_extra_file(pet_texture_path, file_path_or_data)
+
     def set_texture_file(
         self,
         texture_path: str,
