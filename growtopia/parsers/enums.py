@@ -6,8 +6,14 @@ __all__ = (
     "ItemCollisionType",
 )
 
-from aenum import IntEnum, Flag
-from ..utils import log_warning
+from aenum import (
+    Flag,
+    IntEnum,
+)
+
+from ..utils import (
+    log_warning,
+)
 
 
 def _create_pseudo_member(cls, value: int) -> int:

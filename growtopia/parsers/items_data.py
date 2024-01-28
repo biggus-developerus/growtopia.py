@@ -7,14 +7,10 @@ from dataclasses import (
     dataclass,
 )
 from time import time
-from typing import Iterator, Union, Optional
-
-from .enums import (
-    ItemClothingType,
-    ItemProperty,
-    ItemCategory,
-    ItemVisualEffectType,
-    ItemCollisionType,
+from typing import (
+    Iterator,
+    Optional,
+    Union,
 )
 
 from ..constants import (
@@ -37,6 +33,13 @@ from ..utils.proton import (
     decrypt,
     encrypt,
     proton_hash,
+)
+from .enums import (
+    ItemCategory,
+    ItemClothingType,
+    ItemCollisionType,
+    ItemProperty,
+    ItemVisualEffectType,
 )
 
 
