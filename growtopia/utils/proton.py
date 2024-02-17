@@ -4,7 +4,8 @@ __all__ = (
     "proton_hash",
 )
 
-# Different functions for encryption and decryption to avoid confusion. (or well having a function name that doesn't make sense)
+# Different functions for encryption and decryption to avoid confusion
+# or well having a function name that doesn't make sense
 
 
 def encrypt(string: str, key: int) -> str:
