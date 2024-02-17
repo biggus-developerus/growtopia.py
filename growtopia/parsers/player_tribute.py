@@ -1,7 +1,7 @@
 __all__ = ("PlayerTribute",)
 
+from ..ABC import File
 from ..utils import (
-    File,
     ReadBuffer,
     WriteBuffer,
 )
@@ -9,9 +9,10 @@ from ..utils import (
 
 class PlayerTribute(File):
     def __init__(self, path: str) -> None:
-        if not File.is_player_tribute(path):
-            raise ValueError("File is not player_tribute.dat")
+        # if not File.is_player_tribute(path):
+        #     raise ValueError("File is not player_tribute.dat")
 
+        super().__init__(path)
         self.buffer: ReadBuffer = ReadBuffer.load_file(path)
 
         self.version: int = 0
