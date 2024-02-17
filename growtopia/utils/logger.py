@@ -2,10 +2,7 @@ __all__ = (
     "Logger",
     "Log",
     "LogLevel",
-    "log_info",
-    "log_warning",
-    "log_error",
-    "log_critical",
+    "log",
     "disable_logger",
 )
 
@@ -18,7 +15,7 @@ from threading import (
     Thread,
 )
 from time import sleep
-from typing import Union
+from typing import List, Union
 
 from ..constants import (
     LOG_LOOP_SLEEP_TIME,
@@ -57,19 +54,20 @@ class Logger:
 
     _queue: list[Union[Log, AnsiStr]] = []
 
-    _running: bool = False
     _disabled: bool = False
+
+    running: bool = False
 
     @classmethod
     def start(cls) -> bool:
         if cls._disabled:
             return False
 
-        if cls._running and cls._thread:
-            cls._running = False
+        if cls.running and cls._thread:
+            cls.running = False
             cls._thread.join()
 
-        cls._running = True
+        cls.running = True
 
         cls._thread = Thread(target=cls.log_loop, daemon=True)
         cls._thread.start()
@@ -78,7 +76,7 @@ class Logger:
 
     @classmethod
     def stop(cls) -> None:
-        cls._running = False
+        cls.running = False
 
         if cls._thread:
             cls._thread.join()
@@ -100,10 +98,10 @@ class Logger:
 
     @classmethod
     def log_loop(cls) -> None:
-        while cls._running:
+        while cls.running:
             cls._queue_event.wait()
 
-            queue = []
+            queue: List[Log]
 
             with cls._queue_lock:
                 queue = cls._queue.copy()
@@ -130,20 +128,8 @@ class Logger:
                 break
 
 
-def log_info(message: str) -> None:
-    Logger.log(message, LogLevel.INFO)
-
-
-def log_warning(message: str) -> None:
-    Logger.log(message, LogLevel.WARNING)
-
-
-def log_error(message: str) -> None:
-    Logger.log(message, LogLevel.ERROR)
-
-
-def log_critical(message: str) -> None:
-    Logger.log(message, LogLevel.CRITICAL)
+def log(log_level: LogLevel, message: str) -> None:
+    Logger.log(message, log_level)
 
 
 def disable_logger() -> None:
