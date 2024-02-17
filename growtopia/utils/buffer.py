@@ -33,6 +33,10 @@ class ReadBuffer(BuffBase):
         self.data: memoryview = data.toreadonly() if not data.readonly else data
         self.offset: int = 0
 
+    @property
+    def data_at_offset(self) -> memoryview:
+        return self.data[self.offset :]
+
     def skip(self, size: int) -> None:
         self.offset += size
 
@@ -54,7 +58,9 @@ class ReadBuffer(BuffBase):
 
         return value
 
-    def read_string(self, length_int_size: int = 4, *, string_size: int = 0, is_items_data_string: bool = False) -> str:
+    def read_string(
+        self, length_int_size: int = 4, *, string_size: int = 0, is_items_data_string: bool = False
+    ) -> str:
         if string_size == 0:
             length = self.read_int(length_int_size)
         else:
