@@ -63,7 +63,7 @@ class ReadBuffer(BuffBase):
         if is_items_data_string:
             value = "".join(chr(i) for i in self.get_bytes(self.offset, self.offset + length))
         else:
-            value = self.get_bytes(self.offset, self.offset).decode()
+            value = self.get_bytes(self.offset, self.offset + length).decode()
 
         self.offset += length
         return value
