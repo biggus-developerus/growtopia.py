@@ -13,23 +13,17 @@ from typing import (
     Union,
 )
 
+from ..ABC import File
 from ..constants import (
     IGNORED_ATTRS,
     ITEM_ATTR_SIZES,
 )
-from ..utils.ansi import (
+from ..utils import (
     AnsiStr,
-)
-from ..utils.buffer import (
-    ReadBuffer,
-    WriteBuffer,
-)
-from ..utils.file import File
-from ..utils.logger import (
     Logger,
     LogLevel,
-)
-from ..utils.proton import (
+    ReadBuffer,
+    WriteBuffer,
     decrypt,
     encrypt,
     proton_hash,
@@ -62,7 +56,7 @@ class Item:
     texture_x: int = 0
     texture_y: int = 0
 
-    storage_type: int = 0  # TODO: find out what this shit is
+    storage_type: int = 0  # How the item is stored in the texture file ig?
     is_stripey_wallpaper: int = 0
     collision_type: ItemCollisionType = ItemCollisionType(0)
     break_hits: int = 0
@@ -241,7 +235,6 @@ class Item:
     @classmethod
     def from_bytes(cls, version: int, buffer: ReadBuffer) -> "Item":
         item = cls()
-
         for attr in item.__dict__:
             if attr in IGNORED_ATTRS.get(version, []):
                 continue
@@ -252,10 +245,8 @@ class Item:
                 setattr(item, attr, attr_value.__class__(buffer.read_int(ITEM_ATTR_SIZES[attr])))
             elif isinstance(attr_value, str):
                 string = buffer.read_string()
-
                 if attr == "name":
                     string = decrypt(string, item.id)
-
                 setattr(item, attr, string)
             elif isinstance(attr_value, bytearray):
                 setattr(item, attr, bytearray(buffer.read_bytes(ITEM_ATTR_SIZES[attr])))
@@ -267,7 +258,7 @@ class Item:
 
 class ItemsData(File):
     def __init__(self, pob: Optional[Union[str, memoryview]] = None) -> None:
-        super().__init__()
+        super().__init__(pob if isinstance(pob, str) else "")
 
         if pob and not isinstance(pob, (str, memoryview)):
             raise TypeError(f"Expected str, memoryview, or None, got {type(pob)}")
