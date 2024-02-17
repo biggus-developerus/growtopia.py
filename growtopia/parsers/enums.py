@@ -6,17 +6,25 @@ __all__ = (
     "ItemCollisionType",
 )
 
+from typing import (
+    Type,
+    TypeVar,
+)
+
 from aenum import (
     Flag,
     IntEnum,
 )
 
 from ..utils import (
-    log_warning,
+    LogLevel,
+    log,
 )
 
+T = TypeVar("T")
 
-def _create_pseudo_member(cls, value: int) -> int:
+
+def _create_pseudo_member(cls: T, value: int) -> Type[T]:
     member_name = f"UNKNOWN_{value}"
 
     if member_name not in cls.__members__:
@@ -43,7 +51,7 @@ class ItemClothingType(IntEnum):
 
     @classmethod
     def _missing_(cls, value: int) -> "ItemClothingType":
-        log_warning(f"Unknown clothing type {value}, returning pseudo member")
+        log(LogLevel.WARNING, "Unknown clothing type {value}, returning pseudo member")
         return _create_pseudo_member(cls, value)
 
 
@@ -194,7 +202,7 @@ class ItemCategory(IntEnum):
 
     @classmethod
     def _missing_(cls, value: int) -> "ItemCategory":
-        log_warning(f"Unknown category {value}, returning pseudo member")
+        log(LogLevel.WARNING, "Unknown category {value}, returning pseudo member")
         return _create_pseudo_member(cls, value)
 
 
@@ -202,9 +210,12 @@ class ItemVisualEffectType(IntEnum):
     # TODO: find out what visual effects r..
     # cuz honestly how the fuck does "Hot Head"
     # have the same "visual effect type" as "Showgirl Leggings"???
+
+    NONE = 0
+
     @classmethod
     def _missing_(cls, value: int) -> "ItemVisualEffectType":
-        log_warning(f"Unknown visual effect type {value}, returning pseudo member")
+        log(LogLevel.WARNING, f"Unknown visual effect type {value}, returning pseudo member")
         return _create_pseudo_member(cls, value)
 
 
@@ -212,7 +223,7 @@ class ItemCollisionType(IntEnum):
     NONE = 0  # no collision
     SOLID = 1  # proper solid
     PLATFORM = 2  # can pass through, just not go down
-    ENTRANCE = 3  # entrnace, can pass through with access
+    ENTRANCE = 3  # entrance, can pass through with access
     TOGGLEABLE_SOLID = 4  # dragon gate, laboratory, etc
     ONE_WAY = 5  # one-way block, one side collision
     VIP_ENTRANCE = 6  # vip entrance, can pass through with access
@@ -226,7 +237,7 @@ class ItemCollisionType(IntEnum):
 
     @classmethod
     def _missing_(cls, value: int) -> "ItemCollisionType":
-        log_warning(f"Unknown collision type {value}, returning pseudo member")
+        log(LogLevel.WARNING, "Unknown collision type {value}, returning pseudo member")
         return _create_pseudo_member(cls, value)
 
 
