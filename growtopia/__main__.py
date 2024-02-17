@@ -13,8 +13,8 @@ def parse_file(path: str) -> None:
 
     if File.is_items_data(path):
         data = ItemsData(path)
-    elif File.is_player_tribute(path):
-        data = PlayerTribute(path)
+    # elif File.is_player_tribute(path):
+    #     data = PlayerTribute(path)
 
     if data is None:
         raise ValueError("Unknown file type, must be items.dat or player_tribute.dat")
@@ -23,7 +23,6 @@ def parse_file(path: str) -> None:
 
     if isinstance(data, PlayerTribute):
         return
-
 
 def main(*args):
     tool = args[0] if args else None
