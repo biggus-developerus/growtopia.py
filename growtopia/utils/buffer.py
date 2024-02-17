@@ -5,6 +5,10 @@ __all__ = (
 
 from typing import Union
 
+from ..decorators import (
+    type_checker,
+)
+
 
 class BuffBase:
     def __len__(self) -> int:
@@ -24,10 +28,8 @@ class BuffBase:
 
 
 class ReadBuffer(BuffBase):
+    @type_checker
     def __init__(self, data: memoryview) -> None:
-        if not isinstance(data, memoryview):
-            raise TypeError(f"Expected memoryview, got {type(data)}")
-
         self.data: memoryview = data.toreadonly() if not data.readonly else data
         self.offset: int = 0
 
@@ -52,12 +54,18 @@ class ReadBuffer(BuffBase):
 
         return value
 
-    def read_string(self, length_int_size: int = 2) -> str:
-        length = self.read_int(length_int_size)
-        value = "".join(chr(i) for i in self.get_bytes(self.offset, self.offset + length))
+    def read_string(self, length_int_size: int = 4, *, string_size: int = 0, is_items_data_string: bool = False) -> str:
+        if string_size == 0:
+            length = self.read_int(length_int_size)
+        else:
+            length = string_size
+
+        if is_items_data_string:
+            value = "".join(chr(i) for i in self.get_bytes(self.offset, self.offset + length))
+        else:
+            value = self.get_bytes(self.offset, self.offset).decode()
 
         self.offset += length
-
         return value
 
     def __len__(self) -> int:
@@ -70,15 +78,18 @@ class ReadBuffer(BuffBase):
         return self.data[index]
 
     @staticmethod
+    @type_checker
     def load_file(path: str) -> "ReadBuffer":
         with open(path, "rb") as file:
             return ReadBuffer(memoryview(file.read()))
 
     @staticmethod
+    @type_checker
     def load_bytes(data: Union[bytes, bytearray]) -> "ReadBuffer":
         return ReadBuffer(memoryview(data))
 
     @staticmethod  # PBM = Path, Bytes, Memoryview
+    @type_checker
     def load(pbm: Union[str, bytes, memoryview]) -> "ReadBuffer":
         if isinstance(pbm, str):
             return ReadBuffer.load_file(pbm)
@@ -86,8 +97,6 @@ class ReadBuffer(BuffBase):
             return ReadBuffer.load_bytes(pbm)
         elif isinstance(pbm, memoryview):
             return ReadBuffer(pbm)
-        else:
-            raise TypeError(f"Unknown type: {type(pbm)}, expected str, bytes or memoryview")
 
 
 class WriteBuffer(BuffBase):
@@ -100,10 +109,10 @@ class WriteBuffer(BuffBase):
     def write_int(self, value: int, int_size: int = 4) -> None:
         self.write_bytes(value.to_bytes(int_size, "little"))
 
-    def write_string(self, value: str, length_int_size: int = 2) -> None:
+    def write_string(self, value: str, length_int_size: int = 4) -> None:
         encoded_value = value.encode()
-
-        self.write_int(len(encoded_value), length_int_size)
+        if length_int_size > 0:
+            self.write_int(len(encoded_value), length_int_size)
         self.write_bytes(encoded_value)
 
     @property
