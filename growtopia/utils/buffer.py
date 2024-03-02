@@ -1,138 +1,90 @@
-__all__ = (
-    "ReadBuffer",
-    "WriteBuffer",
+__all__ = ("Buffer",)
+
+from typing import (
+    Literal,
+    Optional,
+    Union,
 )
 
-from typing import Union
+from typeguard import (
+    typechecked,
+)
 
-from ..decorators import (
-    type_checker,
+from ..utils.compression import (
+    CompressionType,
+    zlib_compress,
+    zlib_decompress,
 )
 
 
-class BuffBase:
-    def __len__(self) -> int:
-        raise NotImplementedError
+class Buffer:
+    @typechecked
+    def __init__(self, data: Optional[bytearray] = None) -> None:
+        self.__data: bytearray = data or bytearray()
+        self.__offset: int = 0
 
-    def __bool__(self) -> bool:
-        raise NotImplementedError
+    @staticmethod
+    def load(path_or_data: Union[str, bytearray]) -> "Buffer":
+        if isinstance(path_or_data, str):
+            with open(path_or_data, "rb") as f:
+                return Buffer(bytearray(f.read()))
 
-    def __getitem__(self, _: int) -> int:
-        raise NotImplementedError
+        return Buffer(path_or_data)
 
-    def __repr__(self) -> str:
-        return f"<Buffer size={len(self)}>"
+    def save_to_file(self, path: str) -> None:
+        with open(path, "wb") as f:
+            f.write(self.data)
 
-    def __str__(self) -> str:
-        return repr(self)
+    def compress(self, compression_type: CompressionType) -> None:
+        if compression_type == CompressionType.ZLIB:
+            self.__data = bytearray(zlib_compress(self.data))
+        else:
+            raise ValueError(f"Unknown compression type: {compression_type}")
 
-
-class ReadBuffer(BuffBase):
-    @type_checker
-    def __init__(self, data: memoryview) -> None:
-        self.data: memoryview = data.toreadonly() if not data.readonly else data
-        self.offset: int = 0
-
-    @property
-    def data_at_offset(self) -> memoryview:
-        return self.data[self.offset :]
+    def decompress(self, compression_type: CompressionType) -> None:
+        if compression_type == CompressionType.ZLIB:
+            self.__data = bytearray(zlib_decompress(self.data))
+        else:
+            raise ValueError(f"Unknown compression type: {compression_type}")
 
     def skip(self, size: int) -> None:
-        self.offset += size
+        self.__offset += size
 
-    def get_chunk(self, start: int, end: int) -> "ReadBuffer":
-        return ReadBuffer(self.data[start:end])
+    def reset_offset(self) -> None:
+        self.__offset = 0
 
-    def get_bytes(self, start: int, end: int) -> bytes:
-        return self.get_chunk(start, end).data.tobytes()
+    def read(self, size: int) -> bytearray:
+        val = self.data[self.offset : self.offset + size]
+        self.skip(size)
 
-    def read_bytes(self, size: int) -> bytes:
-        value = self.get_bytes(self.offset, self.offset + size)
-        self.offset += size
+        return val
 
-        return value
+    def read_int(self, int_size: int = 4, byteorder: Literal["little", "big"] = "little") -> int:
+        return int.from_bytes(self.read(int_size), byteorder=byteorder)
 
-    def read_int(self, int_size: int = 4) -> int:
-        value = int.from_bytes(self.get_bytes(self.offset, self.offset + int_size), "little")
-        self.offset += int_size
+    def read_str(self, str_size: int, encoding: str = "utf-8") -> str:
+        return self.read(str_size).decode(encoding)
 
-        return value
+    def write(self, data: Union[bytes, bytearray]) -> None:
+        self.__data.extend(data)
+        self.skip(len(data))
 
-    def read_string(
-        self, length_int_size: int = 4, *, string_size: int = 0, is_items_data_string: bool = False
-    ) -> str:
-        if string_size == 0:
-            length = self.read_int(length_int_size)
-        else:
-            length = string_size
+    def write_int(
+        self, value: int, int_size: int = 4, byteorder: Literal["little", "big"] = "little"
+    ) -> None:
+        self.write(value.to_bytes(int_size, byteorder=byteorder))
 
-        if is_items_data_string:
-            value = "".join(chr(i) for i in self.get_bytes(self.offset, self.offset + length))
-        else:
-            value = self.get_bytes(self.offset, self.offset + length).decode()
-
-        self.offset += length
-        return value
-
-    def __len__(self) -> int:
-        return len(self.data)
-
-    def __bool__(self) -> bool:
-        return bool(self.data)
-
-    def __getitem__(self, index: int) -> int:
-        return self.data[index]
-
-    @staticmethod
-    @type_checker
-    def load_file(path: str) -> "ReadBuffer":
-        with open(path, "rb") as file:
-            return ReadBuffer(memoryview(file.read()))
-
-    @staticmethod
-    @type_checker
-    def load_bytes(data: Union[bytes, bytearray]) -> "ReadBuffer":
-        return ReadBuffer(memoryview(data))
-
-    @staticmethod  # PBM = Path, Bytes, Memoryview
-    @type_checker
-    def load(pbm: Union[str, bytes, memoryview]) -> "ReadBuffer":
-        if isinstance(pbm, str):
-            return ReadBuffer.load_file(pbm)
-        elif isinstance(pbm, (bytes, bytearray)):
-            return ReadBuffer.load_bytes(pbm)
-        elif isinstance(pbm, memoryview):
-            return ReadBuffer(pbm)
-
-
-class WriteBuffer(BuffBase):
-    def __init__(self) -> None:
-        self.__data: bytearray = bytearray()
-
-    def write_bytes(self, data: bytes) -> None:
-        self.__data += data
-
-    def write_int(self, value: int, int_size: int = 4) -> None:
-        self.write_bytes(value.to_bytes(int_size, "little"))
-
-    def write_string(self, value: str, length_int_size: int = 4) -> None:
-        encoded_value = value.encode()
-        if length_int_size > 0:
-            self.write_int(len(encoded_value), length_int_size)
-        self.write_bytes(encoded_value)
+    def write_str(self, value: str, encoding: str = "utf-8") -> None:
+        self.write(value.encode(encoding))
 
     @property
-    def data(self) -> memoryview:
-        return memoryview(self.__data).toreadonly()
+    def offset(self) -> int:
+        return self.__offset
 
-    def __len__(self) -> int:
-        return len(self.__data)
+    @property
+    def data(self) -> bytearray:
+        return self.__data
 
-    def __bool__(self) -> bool:
-        return bool(self.__data)
-
-    def __getitem__(self, index: int) -> int:
-        return self.__data[index]
-
-    def __setitem__(self, index: int, value: int) -> None:
-        self.__data[index] = value
+    @property
+    def data_at_offset(self) -> bytearray:
+        return self.__data[self.__offset :]
