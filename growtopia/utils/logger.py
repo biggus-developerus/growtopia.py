@@ -14,12 +14,8 @@ from threading import (
     Lock,
     Thread,
 )
-from time import sleep
 from typing import List, Union
 
-from ..constants import (
-    LOG_LOOP_SLEEP_TIME,
-)
 from .ansi import (
     AnsiESC,
     AnsiStr,
@@ -115,17 +111,14 @@ class Logger:
 
             cls._queue_event.clear()
 
-            sleep(LOG_LOOP_SLEEP_TIME)
-
     @classmethod
     def wait_until_flushed(cls) -> None:
-        while True:
-            with cls._wait_cond:
-                cls._wait_cond.wait()
-                # wait until the queue is empty
-                # we break immediately after because the condition
-                # is only notified when the queue is empty
-                break
+        with cls._queue_lock:
+            if not cls._queue:
+                return
+
+        with cls._wait_cond:
+            cls._wait_cond.wait()
 
 
 def log(log_level: LogLevel, message: str) -> None:
