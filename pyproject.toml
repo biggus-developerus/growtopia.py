@@ -23,6 +23,7 @@ requires-python = ">=3.8.0"
 dependencies = [
     "enet @ git+https://github.com/kajob-dev/pyenet",
     "aenum",
+    "typeguard",
 ]
 
 [project.urls]
