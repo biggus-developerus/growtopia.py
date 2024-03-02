@@ -4,6 +4,8 @@ __all__ = (
     "ItemProperty",
     "ItemVisualEffectType",
     "ItemCollisionType",
+    "ItemStorageType",
+    "ItemMaterialType",
 )
 
 from typing import (
@@ -12,8 +14,8 @@ from typing import (
 )
 
 from aenum import (
-    Flag,
     IntEnum,
+    IntFlag,
 )
 
 from ..utils import (
@@ -24,13 +26,14 @@ from ..utils import (
 T = TypeVar("T")
 
 
-def _create_pseudo_member(cls: T, value: int) -> Type[T]:
+def _create_pseudo_member(cls: T, value: int) -> T:
     member_name = f"UNKNOWN_{value}"
 
     if member_name not in cls.__members__:
         member = int.__new__(cls, value)
-        member._name_ = member_name
-        member._value_ = value
+
+        setattr(member, "_name_", member_name)
+        setattr(member, "_value_", value)
 
         cls._value2member_map_[value] = member
         cls.__members__[member_name] = member
@@ -38,7 +41,14 @@ def _create_pseudo_member(cls: T, value: int) -> Type[T]:
     return cls(value)
 
 
-class ItemClothingType(IntEnum):
+class EnumBase(IntEnum):
+    @classmethod
+    def _missing_(cls: T, value: int) -> T:
+        log(LogLevel.WARNING, f"Unknown {cls.__name__} ({value}), returning pseudo member")
+        return _create_pseudo_member(cls, value)
+
+
+class ItemClothingType(EnumBase):
     HEAD = 0
     SHIRT = 1
     PANTS = 2
@@ -49,13 +59,8 @@ class ItemClothingType(IntEnum):
     HAIR = 7
     NECK = 8
 
-    @classmethod
-    def _missing_(cls, value: int) -> "ItemClothingType":
-        log(LogLevel.WARNING, "Unknown clothing type {value}, returning pseudo member")
-        return _create_pseudo_member(cls, value)
 
-
-class ItemCategory(IntEnum):
+class ItemCategory(EnumBase):
     FIST = 0
     WRENCH = 1
     DOOR = 2
@@ -137,7 +142,7 @@ class ItemCategory(IntEnum):
     PET_TRAINER = 78
     STEAM_ENGINE = 79
     LOCK_BOT = 80
-    SPECIAL_WEATHER_MACHINE = 81  # fucking autism why is it not just fucking "weather machine"
+    SPECIAL_WEATHER_MACHINE = 81
     SPIRIT_STORAGE_UNIT = 82
     DISPLAY_SHELF = 83
     VIP_ENTRANCE = 84
@@ -145,7 +150,7 @@ class ItemCategory(IntEnum):
     CHALLENGE_FLAG = 86
     FISH_MOUNT = 87
     PORTRAIT = 88
-    SPECIAL_WEATHER_MACHINE_2 = 89  # fucking autism why is it not just fucking "weather machine"
+    SPECIAL_WEATHER_MACHINE_2 = 89
     FOSSIL = 90
     FOSSIL_PREP_STATION = 91
     DNA_PROCESSOR = 92
@@ -200,26 +205,12 @@ class ItemCategory(IntEnum):
     KRANKENS_GALACTIC_BLOCK = 141
     FRIENDS_ENTRANCE = 142
 
-    @classmethod
-    def _missing_(cls, value: int) -> "ItemCategory":
-        log(LogLevel.WARNING, "Unknown category {value}, returning pseudo member")
-        return _create_pseudo_member(cls, value)
 
-
-class ItemVisualEffectType(IntEnum):
-    # TODO: find out what visual effects r..
-    # cuz honestly how the fuck does "Hot Head"
-    # have the same "visual effect type" as "Showgirl Leggings"???
-
+class ItemVisualEffectType(EnumBase):
     NONE = 0
 
-    @classmethod
-    def _missing_(cls, value: int) -> "ItemVisualEffectType":
-        log(LogLevel.WARNING, f"Unknown visual effect type {value}, returning pseudo member")
-        return _create_pseudo_member(cls, value)
 
-
-class ItemCollisionType(IntEnum):
+class ItemCollisionType(EnumBase):
     NONE = 0  # no collision
     SOLID = 1  # proper solid
     PLATFORM = 2  # can pass through, just not go down
@@ -235,14 +226,9 @@ class ItemCollisionType(IntEnum):
     TIMED_COLLISION = 12  # timed collision, collision on for x time
     FRIENDS_ENTRANCE = 13  # friends entrance, can pass through if on friends list (ig idk)
 
-    @classmethod
-    def _missing_(cls, value: int) -> "ItemCollisionType":
-        log(LogLevel.WARNING, "Unknown collision type {value}, returning pseudo member")
-        return _create_pseudo_member(cls, value)
 
-
-class ItemProperty(Flag):
-    FLIPPED = 1 << 0
+class ItemProperty(IntFlag):
+    FLIPPABLE = 1 << 0
     EDITABLE = 1 << 1
     SEEDLESS = 1 << 2
     PERMANENT = 1 << 3
@@ -257,4 +243,11 @@ class ItemProperty(Flag):
     PUBLIC = 1 << 12
     FOREGROUND = 1 << 13
     HOLIDAY = 1 << 14
-    UNTRADABLE = 1 << 15
+    UNTRADEABLE = 1 << 15
+
+
+class ItemStorageType(EnumBase):
+    SINGLE_FRAME = 1
+
+
+class ItemMaterialType(EnumBase): ...
