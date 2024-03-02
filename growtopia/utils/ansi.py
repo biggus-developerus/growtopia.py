@@ -5,9 +5,18 @@ __all__ = (
 
 from aenum import Flag
 
-from ..constants import (
-    ANSI_ESCAPE,
-)
+ANSI_ESCAPE: dict[str, str] = {
+    "bold": "1",
+    "underline": "4",
+    "reverse": "7",
+    "invisible": "8",
+    "red": "31",
+    "green": "32",
+    "yellow": "33",
+    "blue": "34",
+    "reset": "0",
+    "clear": "c",
+}
 
 
 class AnsiESC(Flag):
