@@ -7,6 +7,7 @@ from dataclasses import (
 from typing import (
     Any,
     Iterator,
+    List,
     Literal,
     Optional,
 )
@@ -15,7 +16,7 @@ from typing import (
 @dataclass
 class ItemPunchOption:
     op: str
-    args: list[Any] = field(default_factory=list)
+    args: List[Any] = field(default_factory=list)
 
     @staticmethod
     def on_punch_start() -> "ItemPunchOption":
@@ -72,7 +73,7 @@ class ItemPunchOption:
 
 class ItemPunchOptions:
     def __init__(self, options: Optional[list[ItemPunchOption]] = None) -> None:
-        self.options: list[ItemPunchOption] = options or []
+        self.options: List[ItemPunchOption] = options or []
 
     def add_punch_option(self, option: ItemPunchOption) -> None:
         self.options.append(option)
