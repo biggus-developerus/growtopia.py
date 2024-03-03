@@ -22,10 +22,6 @@ from .punch_options import *
 T = TypeVar("T")
 
 
-def deserialise_enum(t: Type[T], size: int, buffer: Buffer) -> T:
-    return t(buffer.read_int(size))
-
-
 # deal with it, daft monkey.
 
 ITEM_DESERIALISERS: Dict[Type[T], Callable[[str, Buffer], T]] = {
@@ -159,6 +155,8 @@ class Item:
 
             if attr == "name":
                 item.name = xor_cipher(item.name, item.id)
+            elif attr == "break_hits":
+                item.break_hits = item.break_hits // 6
 
         return item
 
@@ -167,13 +165,13 @@ class Item:
             if attr in ITEM_IGNORED_ATTRS[version]:
                 continue
 
+            attr_val = getattr(self, attr)
             if attr == "name":
-                buffer.write_int(len((name := xor_cipher(self.name, self.id)).encode()), 2)
-                buffer.write_str(name)
+                attr_val = xor_cipher(attr_val, self.id)
+            elif attr == "break_hits":
+                attr_val *= 6
 
-                continue
-
-            ITEM_SERIALISERS[type(getattr(self, attr))](attr, getattr(self, attr), buffer)
+            ITEM_SERIALISERS[type(attr_val)](attr, attr_val, buffer)
 
     def is_of_category(self, item_category: ItemCategory) -> bool:
         return self.category == item_category
@@ -242,4 +240,4 @@ class Item:
         return bool(self.properties & ItemProperty.UNTRADEABLE)
 
     def __str__(self) -> str:
-        return f"<{self.__class__.__name__}: name={self.name}, id={self.id}, properties={self.properties}>"
+        return f"<{self.__class__.__name__}: name={self.name}, id={self.id}, category={self.category.name}, properties={self.properties.name}>"
