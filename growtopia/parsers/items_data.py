@@ -3,6 +3,7 @@ __all__ = ("ItemsData",)
 from typing import (
     Iterator,
     List,
+    Optional,
     Union,
 )
 
@@ -10,7 +11,6 @@ from typeguard import (
     typechecked,
 )
 
-from ..types import TBytesLike
 from ..utils import (
     Buffer,
     CompressionType,
@@ -24,35 +24,30 @@ LATEST_ITEMS_DATA_VERSION: int = 16
 
 
 class ItemsData:
-    def __init__(self) -> None:
-        self.buffer: Buffer = Buffer()
-
-        self.version: int = 0
+    def __init__(self, version: Optional[int], items: Optional[List[Item]]) -> None:
+        self.version: int = version or 0
         self.hash: int = 0
-        self.items: List[Item] = []
+        self.items: List[Item] = items or []
 
     @staticmethod
     @typechecked
     def load(
-        path_or_bytes: Union[str, TBytesLike],
-        is_compressed: bool = False,
+        path_or_bytes: Union[str, bytearray],
+        *,
+        compressed: bool = False,
         compression_type: CompressionType = CompressionType.ZLIB,
     ) -> "ItemsData":
         buffer = Buffer.load(path_or_bytes)
 
-        items_data = ItemsData()
-
-        if is_compressed:
+        if compressed:
             buffer.decompress(compression_type)
 
-        items_data.version = buffer.read_int(2)
-        items_data.items = [
-            Item.from_bytes(buffer, LATEST_ITEMS_DATA_VERSION) for _ in range(buffer.read_int())
-        ]
-        items_data.hash = hash_data(buffer.data)
+        items_data = ItemsData(
+            buffer.read_int(2),
+            [Item.from_bytes(buffer, LATEST_ITEMS_DATA_VERSION) for _ in range(buffer.read_int())],
+        )
 
-        buffer._offset = 0
-        items_data.buffer = buffer
+        items_data.set_hash()
 
         Logger.log(
             f"Loaded {path_or_bytes if isinstance(path_or_bytes, str) else 'items data'} file | {items_data}",
@@ -65,6 +60,7 @@ class ItemsData:
 
     def to_bytes(
         self,
+        *,
         compress: bool = False,
         compression_type: CompressionType = CompressionType.ZLIB,
     ) -> Buffer:
@@ -86,6 +82,9 @@ class ItemsData:
         Logger.wait_until_flushed()
 
         return buffer
+
+    def set_hash(self, data: Optional[bytearray] = None) -> int:
+        self.hash = hash_data(data or self.to_bytes().data)
 
     def __str__(self) -> str:
         return f"<ItemsData: version={self.version}, hash={self.hash}, items={len(self.items)}>"
