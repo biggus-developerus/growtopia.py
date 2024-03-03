@@ -1,8 +1,11 @@
+from os import chdir, path
+
 from growtopia import (
     ItemsData,
     disable_logger,
 )
 
+chdir(path.abspath(path.dirname(__file__)))
 disable_logger()
 
 
