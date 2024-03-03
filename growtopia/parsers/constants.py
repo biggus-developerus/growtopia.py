@@ -58,7 +58,46 @@ ITEM_ATTR_SIZES: Dict[str, int] = {
     "sit_overlay_offset_y": 4,
 }
 
-ITEM_IGNORED_ATTRS: Dict[int, List[str]] = {16: []}
+ITEM_IGNORED_ATTRS: Dict[int, List[str]] = {
+    11: [
+        "flags5",
+        "bodypart",
+        "flags6",
+        "growpass_property",
+        "can_player_sit",
+        "sit_player_offset_x",
+        "sit_player_offset_y",
+        "sit_overlay_x",
+        "sit_overlay_y",
+        "sit_overlay_offset_x",
+        "sit_overlay_offset_y",
+        "sit_overlay_texture",
+        "renderer_file",
+    ],
+    12: [
+        "flags4",
+        "flags5",
+        "unknown",
+        "sit_file",
+        "renderer_file",
+    ],
+    13: [
+        "flags5",
+        "unknown",
+        "sit_file",
+        "renderer_file",
+    ],
+    14: [
+        "unknown",
+        "sit_file",
+        "renderer_file",
+    ],
+    15: [
+        "renderer_file",
+    ],
+    16: [],
+}
+
 ITEM_ENUM_TYPES: List[Type] = [
     ItemProperty,
     ItemCategory,
