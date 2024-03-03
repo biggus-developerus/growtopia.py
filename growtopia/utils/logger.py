@@ -48,7 +48,7 @@ class Logger:
     _queue_event: Event = Event()
     _queue_lock: Lock = Lock()
 
-    _queue: list[Union[Log, AnsiStr]] = []
+    _queue: List[Union[Log, AnsiStr]] = []
 
     _disabled: bool = False
 
@@ -113,6 +113,9 @@ class Logger:
 
     @classmethod
     def wait_until_flushed(cls) -> None:
+        if cls._disabled:
+            return
+
         with cls._queue_lock:
             if not cls._queue:
                 return
