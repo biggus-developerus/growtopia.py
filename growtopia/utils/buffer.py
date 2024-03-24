@@ -15,9 +15,14 @@ from ..utils.compression import (
     zlib_compress,
     zlib_decompress,
 )
+from ..utils.crypto import (
+    hash_data,
+)
 
 
 class Buffer:
+    __slots__ = ("__data", "__offset")
+
     @typechecked
     def __init__(self, data: Optional[bytearray] = None) -> None:
         self.__data: bytearray = data or bytearray()
@@ -35,15 +40,18 @@ class Buffer:
         with open(path, "wb") as f:
             f.write(self.data)
 
+    def hash(self) -> int:
+        return hash_data(self.data)
+
     def compress(self, compression_type: CompressionType) -> None:
         if compression_type == CompressionType.ZLIB:
-            self.__data = bytearray(zlib_compress(self.data))
+            self.__data = zlib_compress(self.view)
         else:
             raise ValueError(f"Unknown compression type: {compression_type}")
 
     def decompress(self, compression_type: CompressionType) -> None:
         if compression_type == CompressionType.ZLIB:
-            self.__data = bytearray(zlib_decompress(self.data))
+            self.__data = zlib_decompress(self.view)
         else:
             raise ValueError(f"Unknown compression type: {compression_type}")
 
@@ -54,13 +62,19 @@ class Buffer:
         self.__offset = 0
 
     def read(self, size: int) -> bytearray:
-        val = self.data[self.offset : self.offset + size]
+        val = self.__data[self.offset : self.offset + size]
+        self.skip(size)
+
+        return val
+
+    def read_view(self, size: int) -> memoryview:
+        val = self.view[self.offset : self.offset + size]
         self.skip(size)
 
         return val
 
     def read_int(self, int_size: int = 4, byteorder: Literal["little", "big"] = "little") -> int:
-        return int.from_bytes(self.read(int_size), byteorder=byteorder)
+        return int.from_bytes(self.read_view(int_size), byteorder=byteorder)
 
     def read_str(self, str_size: int, encoding: str = "utf-8") -> str:
         return self.read(str_size).decode(encoding)
@@ -86,5 +100,23 @@ class Buffer:
         return self.__data
 
     @property
+    def view(self) -> memoryview:
+        return memoryview(self.__data).toreadonly()
+
+    @property
+    def size(self) -> int:
+        return len(self)
+
+    @property
+    def size_remaining(self) -> int:
+        return len(self) - self.offset
+
+    @property
     def data_at_offset(self) -> bytearray:
         return self.__data[self.__offset :]
+
+    def __bool__(self) -> bool:
+        return bool(self.data)
+
+    def __len__(self) -> int:
+        return len(self.data)
