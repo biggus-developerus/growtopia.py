@@ -72,14 +72,10 @@ class ItemPunchOption:
 
 
 class ItemPunchOptions:
+    __slots__ = ("options",)
+
     def __init__(self, options: Optional[list[ItemPunchOption]] = None) -> None:
         self.options: List[ItemPunchOption] = options or []
-
-    def add_punch_option(self, option: ItemPunchOption) -> None:
-        self.options.append(option)
-
-    def to_string(self) -> str:
-        return self.__str__()
 
     @staticmethod
     def from_str(string_opts: str) -> "ItemPunchOptions":
@@ -94,6 +90,12 @@ class ItemPunchOptions:
             )
 
         return punch_opts
+
+    def to_string(self) -> str:
+        return self.__str__()
+
+    def add_punch_option(self, option: ItemPunchOption) -> None:
+        self.options.append(option)
 
     def __str__(self) -> str:
         return ";".join(str(i) for i in self.options)
