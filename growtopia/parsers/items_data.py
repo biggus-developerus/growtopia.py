@@ -12,18 +12,21 @@ from typeguard import (
 )
 
 from ..utils import (
+    LOG_LEVEL_INFO,
     Buffer,
     CompressionType,
-    Logger,
-    LogLevel,
     hash_data,
+    log,
+)
+from .constants import (
+    LATEST_ITEMS_DATA_VERSION,
 )
 from .item import Item
 
-LATEST_ITEMS_DATA_VERSION: int = 16
-
 
 class ItemsData:
+    __slots__ = ("version", "hash", "items")
+
     def __init__(self, version: Optional[int], items: Optional[List[Item]]) -> None:
         self.version: int = version or 0
         self.hash: int = 0
@@ -49,12 +52,10 @@ class ItemsData:
 
         items_data.set_hash()
 
-        Logger.log(
+        log(
+            LOG_LEVEL_INFO,
             f"Loaded {path_or_bytes if isinstance(path_or_bytes, str) else 'items data'} file | {items_data}",
-            LogLevel.INFO,
         )
-
-        Logger.wait_until_flushed()
 
         return items_data
 
@@ -74,12 +75,7 @@ class ItemsData:
         if compress:
             buffer.compress(compression_type)
 
-        Logger.log(
-            f"Serialised items data | {self}",
-            LogLevel.INFO,
-        )
-
-        Logger.wait_until_flushed()
+        log(LOG_LEVEL_INFO, f"Serialised items data | {self}")
 
         return buffer
 
@@ -94,3 +90,6 @@ class ItemsData:
 
     def __iter__(self) -> Iterator[Item]:
         return iter(self.items)
+
+    def __len__(self) -> int:
+        return len(self.items)
