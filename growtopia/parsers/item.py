@@ -7,22 +7,26 @@ from dataclasses import (
 from typing import (
     Callable,
     Dict,
+    Optional,
     Type,
     TypeVar,
 )
 
+from ..net import HTTP
 from ..utils import (
     Buffer,
     xor_cipher,
 )
 from .constants import *
 from .enums import *
+from .pet_info import *
 from .punch_options import *
+from .seed_info import *
+from .sit_info import *
 
 T = TypeVar("T")
 
-
-# deal with it, daft monkey.
+# COPE + MALD + SEETHE
 
 ITEM_DESERIALISERS: Dict[Type[T], Callable[[str, Buffer], T]] = {
     **{
@@ -33,9 +37,13 @@ ITEM_DESERIALISERS: Dict[Type[T], Callable[[str, Buffer], T]] = {
     bool: lambda attr, buffer: bool(buffer.read_int(ITEM_ATTR_SIZES[attr])),
     str: lambda _, buffer: buffer.read_str(buffer.read_int(2)),
     bytearray: lambda attr, buffer: bytearray(buffer.read(ITEM_ATTR_SIZES[attr])),
+    tuple: lambda _, buffer: (buffer.read_int(1), buffer.read_int(1)),
+    ItemPetInfo: lambda _, buffer: ItemPetInfo.from_bytes(buffer),
+    ItemSeedInfo: lambda _, buffer: ItemSeedInfo.from_bytes(buffer),
     ItemPunchOptions: lambda _, buffer: ItemPunchOptions.from_str(
         buffer.read_str(buffer.read_int(2))
     ),
+    ItemSitInfo: lambda _, buffer: ItemSitInfo.from_bytes(buffer),
 }
 
 ITEM_SERIALISERS: Dict[Type[T], Callable[[str, T, Buffer], None]] = {
@@ -50,11 +58,22 @@ ITEM_SERIALISERS: Dict[Type[T], Callable[[str, T, Buffer], None]] = {
         buffer.write_str(value),
     ],
     bytearray: lambda _, value, buffer: buffer.write(value),
+    tuple: lambda _, value, buffer: [buffer.write_int(value[0], 1), buffer.write_int(value[1], 1)],
+    ItemPetInfo: lambda _, value, buffer: value.to_bytes(buffer),
+    ItemSeedInfo: lambda _, value, buffer: value.to_bytes(buffer),
     ItemPunchOptions: lambda _, value, buffer: [
         buffer.write_int(len((str_val := str(value)).encode()), 2),
         buffer.write_str(str_val),
     ],
+    ItemSitInfo: lambda _, value, buffer: value.to_bytes(buffer),
 }
+
+
+@dataclass
+class ItemTextureInfo:
+    path: str = ""
+    hash: int = 0
+    pos: tuple[int, int] = (0, 0)
 
 
 @dataclass
@@ -74,14 +93,15 @@ class Item:
 
     flags2: int = 0  # TODO: find out what this shit is
 
-    texture_x: int = 0
-    texture_y: int = 0
+    texture_pos: tuple[int, int] = (0, 0)
 
     storage_type: ItemStorageType = ItemStorageType(0)
-    is_stripey_wallpaper: int = 0
-    collision_type: ItemCollisionType = ItemCollisionType(0)
-    break_hits: int = 0
 
+    is_stripey_wallpaper: int = 0
+
+    collision_type: ItemCollisionType = ItemCollisionType(0)
+
+    break_hits: int = 0
     reset_time: int = 0
 
     clothing_type: ItemClothingType = ItemClothingType(0)
@@ -93,17 +113,8 @@ class Item:
 
     audio_volume: int = 0
 
-    pet_name: str = ""
-    pet_prefix: str = ""
-    pet_suffix: str = ""
-    pet_ability: str = ""
-
-    seed_base_index: int = 0
-    seed_overlay_index: int = 0
-    tree_base_index: int = 0
-    tree_leaves_index: int = 0
-    seed_colour: int = 0
-    seed_overlay_colour: int = 0
+    pet_info: ItemPetInfo = field(default_factory=ItemPetInfo)
+    seed_info: ItemSeedInfo = field(default_factory=ItemSeedInfo)
 
     ingredient: int = 0
 
@@ -131,14 +142,7 @@ class Item:
 
     growpass_property: int = 0
 
-    can_player_sit: bool = False
-    sit_player_offset_x: int = 0
-    sit_player_offset_y: int = 0
-    sit_overlay_x: int = 0
-    sit_overlay_y: int = 0
-    sit_overlay_offset_x: int = 0
-    sit_overlay_offset_y: int = 0
-    sit_overlay_texture: str = ""
+    sit_info: ItemSitInfo = field(default_factory=ItemSitInfo)
 
     renderer_file_path: str = ""
 
@@ -150,8 +154,7 @@ class Item:
             if attr in ITEM_IGNORED_ATTRS[version]:
                 continue
 
-            ret = ITEM_DESERIALISERS[type(getattr(item, attr))](attr, data)
-            setattr(item, attr, ret)
+            setattr(item, attr, ITEM_DESERIALISERS[type(getattr(item, attr))](attr, data))
 
             if attr == "name":
                 item.name = xor_cipher(item.name, item.id)
@@ -166,6 +169,7 @@ class Item:
                 continue
 
             attr_val = getattr(self, attr)
+
             if attr == "name":
                 attr_val = xor_cipher(attr_val, self.id)
             elif attr == "break_hits":
@@ -178,6 +182,101 @@ class Item:
 
     def has_property(self, item_property: ItemProperty) -> bool:
         return self.properties & item_property
+
+    async def fetch_texture_file(self, **kwargs) -> Buffer:
+        if not self.texture_path:
+            return Buffer()
+
+        return await HTTP.fetch_file_from_cdn(self.texture_path, **kwargs)
+
+    async def fetch_texture_file2(self, **kwargs) -> Buffer:
+        if not self.texture_path2:
+            return Buffer()
+
+        return await HTTP.fetch_file_from_cdn(self.texture_path2, **kwargs)
+
+    async def fetch_extra_file(self, **kwargs) -> Buffer:
+        if not self.extra_file_path:
+            return Buffer()
+
+        return await HTTP.fetch_file_from_cdn(self.extra_file_path, **kwargs)
+
+    async def update_texture_hash(
+        self,
+        file_path: str = "",
+        *,
+        texture_hash: Optional[int] = None,
+        **kwargs,
+    ) -> bool:
+        if texture_hash:
+            self.texture_hash = texture_hash
+            return True
+
+        data: Buffer
+        if not file_path:
+            data = await self.fetch_texture_file(**kwargs)
+        else:
+            data = Buffer.load(file_path)
+
+        if not data:
+            return False
+
+        self.texture_hash = data.hash()
+        return True
+
+    async def update_texture_hash2(
+        self,
+        file_path: str = "",
+        *,
+        texture_hash: Optional[int] = None,
+        **kwargs,
+    ) -> bool:
+        if texture_hash:
+            self.texture_hash = texture_hash
+            return True
+
+        data: Buffer
+        if not file_path:
+            data = await self.fetch_texture_file2(**kwargs)
+        else:
+            data = Buffer.load(file_path)
+
+        if not data:
+            return False
+
+        self.texture_hash = data.hash()
+        return True
+
+    async def update_extra_file_hash(
+        self,
+        file_path: str = "",
+        *,
+        extra_file_hash: Optional[int] = None,
+        **kwargs,
+    ) -> bool:
+        if extra_file_hash:
+            self.extra_file_hash = extra_file_hash
+            return True
+
+        data: Buffer
+        if not file_path:
+            data = await self.fetch_extra_file(**kwargs)
+        else:
+            data = Buffer.load(file_path)
+
+        if not data:
+            return False
+
+        self.extra_file_hash = data.hash()
+        return True
+
+    @property
+    def texture_info(self) -> ItemTextureInfo:
+        return ItemTextureInfo(
+            self.texture_path,
+            self.texture_hash,
+            (self.texture_x, self.texture_y),
+        )
 
     @property
     def is_flippable(self) -> bool:
@@ -238,6 +337,10 @@ class Item:
     @property
     def is_untradeable(self) -> bool:
         return bool(self.properties & ItemProperty.UNTRADEABLE)
+
+    @property
+    def is_clothing(self) -> bool:
+        return self.category == ItemCategory.CLOTHING
 
     def __str__(self) -> str:
         return f"<{self.__class__.__name__}: name={self.name}, id={self.id}, category={self.category.name}, properties={self.properties.name}>"
