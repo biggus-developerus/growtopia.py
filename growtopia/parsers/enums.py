@@ -8,10 +8,7 @@ __all__ = (
     "ItemMaterialType",
 )
 
-from typing import (
-    Type,
-    TypeVar,
-)
+from typing import TypeVar
 
 from aenum import (
     IntEnum,
@@ -19,7 +16,7 @@ from aenum import (
 )
 
 from ..utils import (
-    LogLevel,
+    LOG_LEVEL_WARNING,
     log,
 )
 
@@ -44,7 +41,7 @@ def _create_pseudo_member(cls: T, value: int) -> T:
 class EnumBase(IntEnum):
     @classmethod
     def _missing_(cls: T, value: int) -> T:
-        log(LogLevel.WARNING, f"Unknown {cls.__name__} ({value}), returning pseudo member")
+        log(LOG_LEVEL_WARNING, f"Unknown {cls.__name__} ({value}), returning pseudo member")
         return _create_pseudo_member(cls, value)
 
 
