@@ -1,23 +1,36 @@
+from asyncio import run
 from os import chdir, path
+from json import dump
+
+import pytest
 
 from growtopia import (
     ItemsData,
-    disable_logger,
 )
 
 chdir(path.abspath(path.dirname(__file__)))
-disable_logger()
 
 
-def test_items_data_parser():
-    items_data = ItemsData.load("data/items.dat")
-    items_data.to_bytes(compress=True).save_to_file("data/compressed_items.dat")
+def find_flags(combined_flags):
+    result = []
+    flag = 1
+    while combined_flags:
+        if combined_flags & 1:
+            result.append(flag)
+        flag <<= 1
+        combined_flags >>= 1
+    return result
 
-    items_data = ItemsData.load("data/compressed_items.dat", compressed=True)
 
-    for i, item in enumerate(items_data):
+@pytest.mark.asyncio
+async def test_items_data_parser():
+    items_data = ItemsData.load(
+        ItemsData.load("data/items.dat").to_bytes(compress=True).data,
+        compressed=True,
+    )
+
+    for i, item in enumerate(items_data.items):
         assert i == item.id
 
-
 if __name__ == "__main__":
-    test_items_data_parser()
+    run(test_items_data_parser())
