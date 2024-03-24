@@ -1,5 +1,6 @@
 __all__ = ("Buffer",)
 
+import struct
 from typing import (
     Literal,
     Optional,
@@ -76,6 +77,13 @@ class Buffer:
     def read_int(self, int_size: int = 4, byteorder: Literal["little", "big"] = "little") -> int:
         return int.from_bytes(self.read_view(int_size), byteorder=byteorder)
 
+    def read_float(
+        self,
+        float_size: int = 4,
+        fmt: Union[str, bytes] = "f",
+    ) -> float:
+        return struct.unpack(fmt, self.read(float_size))[0]
+
     def read_str(self, str_size: int, encoding: str = "utf-8") -> str:
         return self.read(str_size).decode(encoding)
 
@@ -87,6 +95,13 @@ class Buffer:
         self, value: int, int_size: int = 4, byteorder: Literal["little", "big"] = "little"
     ) -> None:
         self.write(value.to_bytes(int_size, byteorder=byteorder))
+
+    def write_float(
+        self,
+        value: float,
+        fmt: Union[str, bytes] = "f",
+    ) -> None:
+        self.write(struct.pack(fmt, value))
 
     def write_str(self, value: str, encoding: str = "utf-8") -> None:
         self.write(value.encode(encoding))

@@ -10,6 +10,7 @@ from ast import literal_eval
 from dataclasses import (
     dataclass,
 )
+from typing import Optional
 
 from utils import Buffer
 
@@ -18,6 +19,9 @@ from .enums import (
     PacketFlag,
     PacketType,
     UpdateType,
+)
+from .variant_list import (
+    VariantList,
 )
 
 
@@ -136,7 +140,7 @@ class UpdatePacket:
     int_y: int = 0
     extra_data_size: int = 0
     extra_data: Buffer = Buffer()
-    # variant_list: Optional[VariantList] = None
+    variant_list: Optional[VariantList] = None
 
     def __init__(self, data: Buffer) -> None:
         # bunch of stupid checks fuck me
@@ -166,7 +170,7 @@ class UpdatePacket:
                     if flag not in self.flags:
                         self.flags.append(flag)
 
-        self.float_ = data.read_int()  # float
+        self.float_ = data.read_float()  # float
         self.int_ = data.read_int()  # int
         self.vec_x = data.read_int()  # vec_x
         self.vec_y = data.read_int()  # vec_y
@@ -184,25 +188,25 @@ class UpdatePacket:
             self.extra_data = data.read(data.size_remaining)  # extra_data
             self.extra_data_size = len(self.extra_data)  # extra_data_size
 
-    # def set_variant_list(self, variant_list: VariantList) -> None:
-    # 	if PacketFlag.EXTRA_DATA not in self.flags:
-    # 		self.flags.append(PacketFlag.EXTRA_DATA)
+    def set_variant_list(self, variant_list: VariantList) -> None:
+        if PacketFlag.EXTRA_DATA not in self.flags:
+            self.flags.append(PacketFlag.EXTRA_DATA)
 
-    # 	self.extra_data = variant_list.serialize()
-    # 	self.extra_data_size = len(self.extra_data)
+        self.extra_data = variant_list.serialize()
+        self.extra_data_size = len(self.extra_data)
 
-    # 	self.variant_list = variant_list
+        self.variant_list = variant_list
 
-    # def get_variant_list(self) -> Optional[VariantList]:
-    # 	if PacketFlag.EXTRA_DATA not in self.flags:
-    # 		return None
+    def get_variant_list(self) -> Optional[VariantList]:
+        if PacketFlag.EXTRA_DATA not in self.flags:
+            return None
 
-    # 	if self.variant_list:
-    # 		return self.variant_list
+        if self.variant_list:
+            return self.variant_list
 
-    # 	self.variant_list = VariantList(self.extra_data)
+        self.variant_list = VariantList(self.extra_data)
 
-    # 	return self.variant_list
+        return self.variant_list
 
     def serialize(self) -> Buffer:
         data: Buffer = Buffer()
@@ -226,7 +230,7 @@ class UpdatePacket:
 
         data.write_int(combined_flags)
 
-        data.write_int(self.float_)
+        data.write_float(self.float_)
         data.write_int(self.int_)
 
         data.write_int(self.vec_x)

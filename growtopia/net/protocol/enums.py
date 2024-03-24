@@ -2,6 +2,7 @@ __all__ = (
     "PacketType",
     "ObjectType",
     "PacketFlag",
+    "VariantType",
     "UpdateType",
     "EffectFlag",
 )
@@ -29,6 +30,16 @@ class PacketFlag(IntFlag):
     NONE = 0
     EXTRA_DATA = 8
     FACING_LEFT = 16
+
+
+class VariantType(IntEnum):
+    NONE = 0
+    FLOAT = 1
+    STR = 2
+    VECTOR2 = 3
+    VECTOR3 = 4
+    UINT = 5
+    INT = 6
 
 
 class UpdateType(IntEnum):
