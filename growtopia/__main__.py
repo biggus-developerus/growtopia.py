@@ -1,3 +1,5 @@
+from asyncio import run
+
 from growtopia import (
     ItemsData,
 )
@@ -7,7 +9,7 @@ def parse_file(path: str) -> None:
     items_data = ItemsData.load(path)
 
 
-def main(*args):
+async def main(*args):
     tool = args[0] if args else None
 
     match tool:
@@ -28,4 +30,4 @@ def main(*args):
 if __name__ == "__main__":
     from sys import argv
 
-    main(*argv[1:] if len(argv) > 1 else [])
+    run(main(*argv[1:] if len(argv) > 1 else []))
