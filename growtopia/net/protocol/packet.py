@@ -29,16 +29,6 @@ from .variant_list import (
 class HelloPacket:
     packet_type: PacketType = PacketType.HELLO
 
-    def __init__(self, data: Buffer) -> None:
-        # Some more stupid checks lol
-        if data.size < 4:
-            raise Exception("PacketTooSmall")
-
-        self.packet_type = data.read_int()  # type
-
-        if self.packet_type != PacketType.HELLO:
-            raise Exception("PacketNotMatch")
-
     def serialize(self) -> Buffer:
         data: Buffer = Buffer()
 
@@ -52,17 +42,8 @@ class TextPacket:
     packet_type: PacketType = PacketType.TEXT
     text: str = ""
 
-    def __init__(self, data: Buffer) -> None:
-        # CHEEECKS
-        if data.size < 4:
-            raise Exception("PacketTooSmall")
-
-        self.packet_type = data.read_int()  # type
-
-        if self.packet_type != PacketType.TEXT:
-            raise Exception("PacketNotMatch")
-
-        self.text = data.read_str(data.size_remaining)  # text
+    def __init__(self, text: str) -> None:
+        self.text = text
 
     def serialize(self) -> Buffer:
         data: Buffer = Buffer()
@@ -72,6 +53,21 @@ class TextPacket:
 
         return data
 
+    @classmethod
+    def from_bytes(cls, data: Buffer) -> "TextPacket":
+        # CHEEECKS
+        if data.size < 4:
+            raise Exception("PacketTooSmall")
+
+        packet_type = data.read_int()  # type
+
+        if packet_type != PacketType.TEXT:
+            raise Exception("PacketNotMatch")
+
+        text = data.read_str(data.size_remaining)  # text
+
+        return cls(text)
+
 
 @dataclass
 class MessagePacket:
@@ -80,26 +76,17 @@ class MessagePacket:
     action: str = ""
     arguments: dict[str, any] = {}
 
-    def __init__(self, data: Buffer) -> None:
-        # MORREE checkcs
-        if data.size < 4:
-            raise Exception("PacketTooSmall")
+    def __init__(self, text: str) -> None:
+        self.text = text
 
-        self.packet_type = data.read_int()  # type
+        _text: list[str] = text.split("\n")
 
-        if self.packet_type != PacketType.GAME_MESSAGE:
-            raise Exception("PacketNotMatch")
-
-        self.text = data.read_str(data.size_remaining)  # text
-
-        self._text: list[str] = self.text.split("\n")
-
-        self.action = self._text[0].split("|")[1]
-        self._text.pop(0)  # Remove the action
+        self.action = _text[0].split("|")[1]
+        _text.pop(0)  # Remove the action
 
         self.arguments: dict[str, any] = {}
 
-        for arg in self._text:
+        for arg in _text:
             (key, value) = arg.split("|")
 
             # Type caster
@@ -117,6 +104,21 @@ class MessagePacket:
         data.write_str(self.text)
 
         return data
+
+    @classmethod
+    def from_bytes(cls, data: Buffer) -> "MessagePacket":
+        # MORREE checkcs
+        if data.size < 4:
+            raise Exception("PacketTooSmall")
+
+        packet_type = data.read_int()  # type
+
+        if packet_type != PacketType.GAME_MESSAGE:
+            raise Exception("PacketNotMatch")
+
+        text = data.read_str(data.size_remaining)  # text
+
+        return cls(text)
 
 
 @dataclass
@@ -142,51 +144,24 @@ class UpdatePacket:
     extra_data: Buffer = Buffer()
     variant_list: Optional[VariantList] = None
 
-    def __init__(self, data: Buffer) -> None:
-        # bunch of stupid checks fuck me
-        if data.size < 4:
-            raise Exception("PacketTooSmall")
+    def __init__(self, **kwargs) -> None:
+        fields = self.__dataclass_fields__
 
-        self.packet_type = data.read_int()  # type
+        for key, value in kwargs.items():
+            if key not in fields.keys():
+                continue
 
-        if self.packet_type != PacketType.GAME_UPDATE:
-            raise Exception("PacketDontMatch")
+            if key == "packet_type":
+                assert value == PacketType.GAME_UPDATE
 
-        if data.size < 52:
-            raise Exception("PacketTooSmall")
+            field_type: any = fields[key].type
 
-        self.update_type = data.read_int(1)  # update_type
-        self.object_type = data.read_int(1)  # object_type
-        self.count1 = data.read_int(1)  # count1
-        self.count2 = data.read_int(1)  # count2
-        self.net_id = data.read_int()  # net_id
-        self.target_net_id = data.read_int()  # target_net_id
+            if type(value) != field_type:
+                raise Exception(
+                    f"Incorrect type passed for '{key}', expected {field_type} got {type(value)}"
+                )
 
-        flag_value = data.read_int()  # flags
-
-        if flag_value != 0:
-            for flag in PacketFlag:
-                if flag_value & flag:
-                    if flag not in self.flags:
-                        self.flags.append(flag)
-
-        self.float_ = data.read_float()  # float
-        self.int_ = data.read_int()  # int
-        self.vec_x = data.read_int()  # vec_x
-        self.vec_y = data.read_int()  # vec_y
-        self.velo_x = data.read_int()  # velo_x
-        self.velo_y = data.read_int()  # velo_y
-        self.particle_rotation = data.read_int()  # particle_rotation
-        self.int_x = data.read_int()  # int_x
-        self.int_y = data.read_int()  # int_y
-
-        if (PacketFlag.EXTRA_DATA in self.flags) or (data.size_remaining > 0):
-            # making sure it aint fucked up
-            if data.size_remaining < 60:
-                raise Exception("PacketTooSmall")
-
-            self.extra_data = data.read(data.size_remaining)  # extra_data
-            self.extra_data_size = len(self.extra_data)  # extra_data_size
+            fields[key] = value
 
     def set_variant_list(self, variant_list: VariantList) -> None:
         if PacketFlag.EXTRA_DATA not in self.flags:
@@ -251,3 +226,61 @@ class UpdatePacket:
             data.write(self.extra_data)
 
         return data
+
+    @classmethod
+    def from_bytes(cls, data: Buffer) -> "UpdatePacket":
+        kwargs: dict[str, any] = {}
+
+        # bunch of stupid checks fuck me
+        if data.size < 4:
+            raise Exception("PacketTooSmall")
+
+        packet_type = data.read_int()
+
+        if packet_type != PacketType.GAME_UPDATE:
+            raise Exception("PacketDontMatch")
+
+        kwargs["packet_type"] = packet_type  # type
+
+        if data.size < 52:
+            raise Exception("PacketTooSmall")
+
+        kwargs["update_type"] = data.read_int(1)  # update_type
+        kwargs["object_type"] = data.read_int(1)  # object_type
+        kwargs["count1"] = data.read_int(1)  # count1
+        kwargs["count2"] = data.read_int(1)  # count2
+        kwargs["net_id"] = data.read_int()  # net_id
+        kwargs["target_net_id"] = data.read_int()  # target_net_id
+
+        flag_value = data.read_int()
+        flags: list[PacketFlag] = []
+
+        if flag_value != 0:
+            for flag in PacketFlag:
+                if flag_value & flag:
+                    if flag not in flags:
+                        flags.append(flag)
+
+        kwargs["flags"] = flag_value  # flags
+
+        kwargs["float_"] = data.read_float()  # float
+        kwargs["int_"] = data.read_int()  # int
+        kwargs["vec_x"] = data.read_int()  # vec_x
+        kwargs["vec_y"] = data.read_int()  # vec_y
+        kwargs["velo_x"] = data.read_int()  # velo_x
+        kwargs["velo_y"] = data.read_int()  # velo_y
+        kwargs["particle_rotation"] = data.read_int()  # particle_rotation
+        kwargs["int_x"] = data.read_int()  # int_x
+        kwargs["int_y"] = data.read_int()  # int_y
+
+        if (PacketFlag.EXTRA_DATA in flags) or (data.size_remaining > 0):
+            # making sure it aint fucked up
+            if data.size_remaining < 60:
+                raise Exception("PacketTooSmall")
+
+            extra_data = data.read(data.size_remaining)
+
+            kwargs["extra_data_size"] = len(extra_data)  # extra_data_size
+            kwargs["extra_data"] = extra_data  # extra_data
+
+        return cls(**kwargs)
