@@ -1,5 +1,4 @@
 __all__ = ("Tile",)
 
 
-class Tile:
-    ...
+class Tile: ...

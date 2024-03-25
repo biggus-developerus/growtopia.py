@@ -247,5 +247,4 @@ class ItemStorageType(EnumBase):
     SINGLE_FRAME = 1
 
 
-class ItemMaterialType(EnumBase):
-    ...
+class ItemMaterialType(EnumBase): ...

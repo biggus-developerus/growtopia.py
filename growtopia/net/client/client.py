@@ -62,5 +62,4 @@ class Client(NetClient, Dispatcher, ABC):
         await self.dispatch_event(EventID.ON_CLEANUP, self)
 
     @abstractmethod
-    async def _handle_event(self, context: ClientContext) -> None:
-        ...
+    async def _handle_event(self, context: ClientContext) -> None: ...

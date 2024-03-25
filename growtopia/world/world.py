@@ -1,5 +1,4 @@
 __all__ = ("World",)
 
 
-class World:
-    ...
+class World: ...
