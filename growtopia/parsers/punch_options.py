@@ -71,11 +71,9 @@ class ItemPunchOption:
         return f"{self.op}{args}"
 
 
+@dataclass
 class ItemPunchOptions:
-    __slots__ = ("options",)
-
-    def __init__(self, options: Optional[list[ItemPunchOption]] = None) -> None:
-        self.options: List[ItemPunchOption] = options or []
+    options: List[ItemPunchOption] = field(default_factory=list)
 
     @staticmethod
     def from_str(string_opts: str) -> "ItemPunchOptions":
