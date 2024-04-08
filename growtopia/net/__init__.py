@@ -1,2 +1,2 @@
 from .constants import *
-from .http import *
+from ._http import *
