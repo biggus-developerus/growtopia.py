@@ -38,14 +38,14 @@ def _create_pseudo_member(cls: T, value: int) -> T:
     return cls(value)
 
 
-class EnumBase(IntEnum):
+class IntEnumBase(IntEnum):
     @classmethod
     def _missing_(cls: T, value: int) -> T:
         log(LOG_LEVEL_WARNING, f"Unknown {cls.__name__} ({value}), returning pseudo member")
         return _create_pseudo_member(cls, value)
 
 
-class ItemClothingType(EnumBase):
+class ItemClothingType(IntEnumBase):
     HEAD = 0
     SHIRT = 1
     PANTS = 2
@@ -57,7 +57,7 @@ class ItemClothingType(EnumBase):
     NECK = 8
 
 
-class ItemCategory(EnumBase):
+class ItemCategory(IntEnumBase):
     FIST = 0
     WRENCH = 1
     DOOR = 2
@@ -203,11 +203,11 @@ class ItemCategory(EnumBase):
     FRIENDS_ENTRANCE = 142
 
 
-class ItemVisualEffectType(EnumBase):
+class ItemVisualEffectType(IntEnumBase):
     NONE = 0
 
 
-class ItemCollisionType(EnumBase):
+class ItemCollisionType(IntEnumBase):
     NONE = 0  # no collision
     SOLID = 1  # proper solid
     PLATFORM = 2  # can pass through, just not go down
@@ -243,8 +243,8 @@ class ItemProperty(IntFlag):
     UNTRADEABLE = 1 << 15
 
 
-class ItemStorageType(EnumBase):
+class ItemStorageType(IntEnumBase):
     SINGLE_FRAME = 1
 
 
-class ItemMaterialType(EnumBase): ...
+class ItemMaterialType(IntEnumBase): ...
