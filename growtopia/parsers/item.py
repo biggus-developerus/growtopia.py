@@ -134,7 +134,7 @@ class Item:
     reserved: bytearray = field(default_factory=bytearray)
 
     punch_options: ItemPunchOptions = field(default_factory=ItemPunchOptions)
-    
+
     flags5: int = 0
     bodypart: bytearray = field(default_factory=bytearray)
 

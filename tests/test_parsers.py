@@ -1,6 +1,5 @@
 from asyncio import run
 from os import chdir, path
-from json import dump
 
 import pytest
 
@@ -20,6 +19,7 @@ async def test_items_data_parser():
 
     for i, item in enumerate(items_data.items):
         assert i == item.id
+
 
 if __name__ == "__main__":
     run(test_items_data_parser())
