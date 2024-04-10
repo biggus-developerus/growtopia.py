@@ -1,8 +1,8 @@
 __all__ = (
-    "UBI_CDN",
-    "UBI_CDN_PATH",
-    "UBI_PC32_USER_AGENT",
-    "UBI_PC64_USER_AGENT",
+	"UBI_CDN",
+	"UBI_CDN_PATH",
+	"UBI_PC32_USER_AGENT",
+	"UBI_PC64_USER_AGENT",
 )
 
 UBI_CDN: str = "https://ubistatic-a.akamaihd.net"
