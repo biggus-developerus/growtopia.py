@@ -275,7 +275,7 @@ class Item:
         return ItemTextureInfo(
             self.texture_path,
             self.texture_hash,
-            (self.texture_x, self.texture_y),
+            self.texture_pos,
         )
 
     @property
