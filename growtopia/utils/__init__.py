@@ -1,10 +1,10 @@
 # isort:skip_file
 from logging import (
-	DEBUG as LOG_LEVEL_DEBUG,
-	INFO as LOG_LEVEL_INFO,
-	WARNING as LOG_LEVEL_WARNING,
-	ERROR as LOG_LEVEL_ERROR,
-	CRITICAL as LOG_LEVEL_CRITICAL,
+    DEBUG as LOG_LEVEL_DEBUG,
+    INFO as LOG_LEVEL_INFO,
+    WARNING as LOG_LEVEL_WARNING,
+    ERROR as LOG_LEVEL_ERROR,
+    CRITICAL as LOG_LEVEL_CRITICAL,
 )
 
 from .buffer import *
@@ -16,4 +16,4 @@ logger = Setup.setup_logger("growtopia")
 
 
 def log(level: int, msg: str) -> None:
-	logger.log(level, msg)
+    logger.log(level, msg)
