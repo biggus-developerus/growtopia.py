@@ -28,6 +28,14 @@ class TestStruct2(Packer):
 
     unknown_type: Pack[T]
 
+@dataclass
+class TestOptional(Packer):
+    __test__ = False
+
+    non_opt: Pack[int32]
+    optional_int: OptionalPack[int32] = None
+    optional_int2: OptionalPack[int8] = None
+    
 def test_packer() -> None:
     int8_value = 100
     str_value = "hi"
@@ -49,6 +57,20 @@ def test_packer() -> None:
 
     with pytest.raises(ValueError):
         TestStruct2(69)
+
+    with pytest.raises(ValueError):
+        TestOptional(None, None).pack()
+
+    data = bytearray(b'\x01\x00\x00\x002\x00\x00\x00')
+    data2 = bytearray(b'\x01\x00\x00\x00')
+
+    opt1_test = TestOptional.from_bytes(data, None)
+    opt2_test = TestOptional.from_bytes(data2, None)
+
+    assert opt1_test.non_opt == 1 and opt1_test.optional_int == 50 and opt1_test.optional_int2 == None
+    assert opt2_test.non_opt == 1 and opt2_test.optional_int == None and opt2_test.optional_int2 == None
+
+    print(opt1_test, opt2_test)
 
 
 if __name__ == "__main__":

@@ -13,6 +13,7 @@ from typing import (
 
 from .._types import (
     LengthPrefixedStr,
+    OptionalPack,
     Pack,
     int8,
     int16,
@@ -48,16 +49,24 @@ def _make_int_unpacker(size: int) -> Callable[[bytearray], Tuple[int, Optional[i
     )
 
 
-TYPE_TO_PACK_MAPPING = {
-    Pack[int32]: (_make_int_packer(4), _make_int_unpacker(4)),
-    Pack[int16]: (_make_int_packer(2), _make_int_unpacker(2)),
-    Pack[int8]: (_make_int_packer(1), _make_int_unpacker(1)),
-    Pack[LengthPrefixedStr]: (_pack_lps, _unpack_lps),
-}
+TYPE_TO_PACK_MAPPING = {}
+TYPE_TO_SIZE_MAPPING = {}  # used to determine min required size of data (when unpacking)
 
-TYPE_TO_SIZE_MAPPING = {  # used to determine min required size of data (when unpacking)
-    Pack[int32]: 4,
-    Pack[int16]: 2,
-    Pack[int8]: 1,
-    Pack[LengthPrefixedStr]: 2,
-}
+for pack_type in [Pack, OptionalPack]:  # crazy ikr
+    TYPE_TO_PACK_MAPPING.update(
+        {
+            pack_type[int32]: (_make_int_packer(4), _make_int_unpacker(4)),
+            pack_type[int16]: (_make_int_packer(2), _make_int_unpacker(2)),
+            pack_type[int8]: (_make_int_packer(1), _make_int_unpacker(1)),
+            pack_type[LengthPrefixedStr]: (_pack_lps, _unpack_lps),
+        }
+    )
+
+    TYPE_TO_SIZE_MAPPING.update(
+        {
+            pack_type[int32]: 4,
+            pack_type[int16]: 2,
+            pack_type[int8]: 1,
+            pack_type[LengthPrefixedStr]: 2,
+        }
+    )
