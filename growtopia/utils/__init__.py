@@ -10,6 +10,7 @@ from logging import (
 from .buffer import *
 from .compression import *
 from .crypto import *
+from .packer import *
 from .setup import *
 
 logger = Setup.setup_logger("growtopia")
