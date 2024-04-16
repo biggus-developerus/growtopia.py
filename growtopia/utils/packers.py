@@ -43,7 +43,9 @@ def _make_int_packer(size: int) -> Callable[[int], bytearray]:
 
 
 def _make_int_unpacker(size: int) -> Callable[[bytearray], Tuple[int, Optional[int]]]:
-    return lambda data: (-1, None) if len(data) < size else (size, int.from_bytes(data[:size], "little"))
+    return lambda data: (
+        (-1, None) if len(data) < size else (size, int.from_bytes(data[:size], "little"))
+    )
 
 
 TYPE_TO_PACK_MAPPING = {
@@ -53,7 +55,7 @@ TYPE_TO_PACK_MAPPING = {
     Pack[LengthPrefixedStr]: (_pack_lps, _unpack_lps),
 }
 
-TYPE_TO_SIZE_MAPPING = { # used to determine min required size of data (when unpacking)
+TYPE_TO_SIZE_MAPPING = {  # used to determine min required size of data (when unpacking)
     Pack[int32]: 4,
     Pack[int16]: 2,
     Pack[int8]: 1,
