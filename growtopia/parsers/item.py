@@ -27,6 +27,7 @@ from .sit_info import *
 T = TypeVar("T")
 
 # COPE + MALD + SEETHE
+# Actually.. we could prolly use utils.packer for this.. but like I'm too lazy.
 
 ITEM_DESERIALISERS: Dict[Type[T], Callable[[str, Buffer], T]] = {
     **{
