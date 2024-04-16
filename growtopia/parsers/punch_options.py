@@ -9,7 +9,6 @@ from typing import (
     Iterator,
     List,
     Literal,
-    Optional,
 )
 
 
