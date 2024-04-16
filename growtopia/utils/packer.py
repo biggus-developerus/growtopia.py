@@ -34,7 +34,7 @@ class Packer:
             if attr_type not in TYPE_TO_PACK_MAPPING:
                 continue
 
-            cls._pack_mapping[attr] = TYPE_TO_PACK_MAPPING[attr_type],
+            cls._pack_mapping[attr] = TYPE_TO_PACK_MAPPING[attr_type]
             cls._min_size += TYPE_TO_SIZE_MAPPING[attr_type]
 
         return super().__new__(cls)
