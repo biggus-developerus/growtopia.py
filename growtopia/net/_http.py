@@ -17,6 +17,8 @@ from .constants import (
     UBI_PC32_USER_AGENT,
 )
 
+# TODO: Rewrite. Why? It's dogwank.
+
 
 class HTTP:
     @staticmethod
