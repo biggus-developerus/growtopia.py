@@ -39,21 +39,11 @@ def _unpack_lps(data: bytearray) -> Tuple[int, Optional[LengthPrefixedStr]]:
 
 
 def _make_int_packer(size: int) -> Callable[[int], bytearray]:
-    if size == 1:
-        return lambda val: bytearray(val.to_bytes(1, "little"))
-    elif size == 2:
-        return lambda val: bytearray(val.to_bytes(2, "little"))
-    elif size == 4:
-        return lambda val: bytearray(val.to_bytes(4, "little"))
+    return lambda val: bytearray(val.to_bytes(size, "little"))
 
 
 def _make_int_unpacker(size: int) -> Callable[[bytearray], Tuple[int, Optional[int]]]:
-    if size == 1:
-        return lambda data: (-1, None) if len(data) < 1 else (1, int.from_bytes(data[:1], "little"))
-    if size == 2:
-        return lambda data: (-1, None) if len(data) < 2 else (2, int.from_bytes(data[:2], "little"))
-    if size == 4:
-        return lambda data: (-1, None) if len(data) < 4 else (4, int.from_bytes(data[:4], "little"))
+    return lambda data: (-1, None) if len(data) < size else (size, int.from_bytes(data[:size], "little"))
 
 
 TYPE_TO_PACK_MAPPING = {
