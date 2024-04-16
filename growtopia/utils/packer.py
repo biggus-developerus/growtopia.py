@@ -3,8 +3,10 @@ __all__ = ("Packer",)
 from typing import (
     Callable,
     Type,
+    get_origin,
 )
 
+from .._types import Pack
 from .packers import *
 
 
@@ -31,8 +33,15 @@ class Packer:
         cls._pack_mapping = {}
         cls._min_size = 0
         for attr, attr_type in cls.__annotations__.items():
-            if attr_type not in TYPE_TO_PACK_MAPPING:
+            type_origin = get_origin(attr_type)
+
+            if attr_type not in TYPE_TO_PACK_MAPPING and not type_origin is Pack:
                 continue
+
+            if attr_type not in TYPE_TO_PACK_MAPPING and type_origin is Pack:
+                raise ValueError(
+                    f"Unhandled type of `Pack` type origin. Available (packable) types are {', '.join([str(key) for key in TYPE_TO_PACK_MAPPING.keys()])}"
+                )
 
             cls._pack_mapping[attr] = TYPE_TO_PACK_MAPPING[attr_type]
             cls._min_size += TYPE_TO_SIZE_MAPPING[attr_type]
@@ -55,9 +64,6 @@ class Packer:
             return False
 
         for attr, packer in self._pack_mapping.items():
-            if offset > data_len:
-                return False
-
             size, val = packer[1](data[offset:])
 
             if size == -1:
