@@ -1,5 +1,5 @@
 from os import chdir, path
-
+from dataclasses import dataclass
 from growtopia import Packer
 from growtopia._types import *
 
@@ -18,6 +18,11 @@ class TestStruct(Packer):
         self.str_value: str = None
         self.int_value: int = None
 
+@dataclass
+class TestStruct2(Packer):
+    __test__ = False
+
+    int_value: Pack[int32]
 
 def test_packer() -> None:
     int8_value = 100
@@ -37,6 +42,9 @@ def test_packer() -> None:
     assert test_struct.str_value == str_value and test_struct.int_value == int_value
     assert test_struct.pack() == data
     assert test_struct.unpack(data[:-1]) == False
+
+    test_struct2: TestStruct2 = TestStruct2(69)
+    assert test_struct2.pack() == int.to_bytes(69, 4, "little")
 
 
 if __name__ == "__main__":
