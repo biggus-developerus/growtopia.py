@@ -5,6 +5,7 @@ __all__ = (
     "TYPE_TO_SIZE_MAPPING",
 )
 
+import struct
 from typing import (
     Callable,
     Optional,
@@ -59,6 +60,12 @@ for pack_type in [Pack, OptionalPack]:  # crazy ikr
             pack_type[int16]: (_make_int_packer(2), _make_int_unpacker(2)),
             pack_type[int8]: (_make_int_packer(1), _make_int_unpacker(1)),
             pack_type[LengthPrefixedStr]: (_pack_lps, _unpack_lps),
+            pack_type[float]: (
+                lambda val: bytearray(struct.pack("f", val)),
+                lambda data: (
+                    (-1, None) if len(data[:4]) < 4 else (4, struct.unpack("f", data[:4])[0])
+                ),
+            ),
         }
     )
 
@@ -68,5 +75,6 @@ for pack_type in [Pack, OptionalPack]:  # crazy ikr
             pack_type[int16]: 2,
             pack_type[int8]: 1,
             pack_type[LengthPrefixedStr]: 2,
+            pack_type[float]: 4,
         }
     )
