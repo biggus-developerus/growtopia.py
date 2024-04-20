@@ -24,11 +24,8 @@ from growtopia._types import (
     int32,
 )
 
-# TODO: find a better and more efficient way to pack/unpack
-
-
-def _pack_lps(val: str) -> bytearray:
-    return bytearray(len(val).to_bytes(2, "little") + val.encode())
+def _pack_lps(val: str) -> bytes:
+    return len(val).to_bytes(2, "little") + val.encode()
 
 
 def _unpack_lps(data: bytearray) -> Tuple[int, Optional[str]]:
@@ -63,8 +60,8 @@ def _unpack_lpd(data: bytearray) -> Tuple[int, Optional[bytearray]]:
     return 2 + data_len, data[2 : 2 + data_len]
 
 
-def _make_int_packer(size: int) -> Callable[[int], bytearray]:
-    return lambda val: bytearray(val.to_bytes(size, "little", signed=True))
+def _make_int_packer(size: int) -> Callable[[int], bytes]:
+    return lambda val: val.to_bytes(size, "little", signed=True)
 
 
 def _make_int_unpacker(size: int) -> Callable[[bytearray], Tuple[int, Optional[int]]]:
