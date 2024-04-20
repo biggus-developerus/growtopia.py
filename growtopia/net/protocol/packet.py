@@ -53,11 +53,17 @@ class StrPacket(Packer):
 
 
 class TextPacket(StrPacket):
+    packet_type: Pack[int32]
+    text: OptionalPack[AllStr]
+
     def __init__(self, text: Optional[str] = None) -> None:
         super().__init__(PacketType.TEXT, text)
 
 
 class MsgPacket(StrPacket):
+    packet_type: Pack[int32]
+    text: OptionalPack[AllStr]
+    
     def __init__(self, text: Optional[None] = None) -> None:
         super().__init__(PacketType.MSG, text)
 
