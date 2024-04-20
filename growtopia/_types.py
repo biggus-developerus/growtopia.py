@@ -15,6 +15,7 @@ from typing import (
 )
 
 LengthPrefixedStr = TypeVar("LengthPrefixedStr", bound=str)
+LengthPrefixedData = TypeVar("LengthPrefixedData", bytes, bytearray)
 AllStr = TypeVar("AllStr", bound=str)
 AllData = TypeVar("AllData", bytes, bytearray)
 int8 = TypeVar("int8", bound=int)

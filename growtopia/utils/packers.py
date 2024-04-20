@@ -16,6 +16,7 @@ from growtopia._types import (
     AllData,
     AllStr,
     LengthPrefixedStr,
+    LengthPrefixedData,
     OptionalPack,
     Pack,
     int8,
@@ -23,12 +24,14 @@ from growtopia._types import (
     int32,
 )
 
+# TODO: find a better and more efficient way to pack/unpack
 
-def _pack_lps(val: LengthPrefixedStr) -> bytearray:
+
+def _pack_lps(val: str) -> bytearray:
     return bytearray(len(val).to_bytes(2, "little") + val.encode())
 
 
-def _unpack_lps(data: bytearray) -> Tuple[int, Optional[LengthPrefixedStr]]:
+def _unpack_lps(data: bytearray) -> Tuple[int, Optional[str]]:
     if len(data) < 2:
         return -1, None
 
@@ -40,6 +43,23 @@ def _unpack_lps(data: bytearray) -> Tuple[int, Optional[LengthPrefixedStr]]:
         return 2, ""
 
     return 2 + str_len, data[2 : 2 + str_len].decode()
+
+def _pack_lpd(val: bytearray) -> bytearray:
+    return bytearray(len(val).to_bytes(2, "little") + val)
+
+
+def _unpack_lpd(data: bytearray) -> Tuple[int, Optional[bytearray]]:
+    if len(data) < 2:
+        return -1, None
+
+    data_len = int.from_bytes(data[:2], "little")
+
+    if data_len < 0:
+        return -1, None
+    if data_len == 0:
+        return 2, ""
+
+    return 2 + data_len, data[2 : 2 + data_len]
 
 
 def _make_int_packer(size: int) -> Callable[[int], bytearray]:
@@ -62,6 +82,7 @@ for pack_type in [Pack, OptionalPack]:  # crazy ikr
             pack_type[int16]: (_make_int_packer(2), _make_int_unpacker(2)),
             pack_type[int8]: (_make_int_packer(1), _make_int_unpacker(1)),
             pack_type[LengthPrefixedStr]: (_pack_lps, _unpack_lps),
+            pack_type[LengthPrefixedData]: (_pack_lpd, _unpack_lpd),
             pack_type[AllStr]: (
                 lambda val: bytearray(val.encode()),
                 lambda data: (len(data), data.decode()),
@@ -85,6 +106,7 @@ for pack_type in [Pack, OptionalPack]:  # crazy ikr
             pack_type[int16]: 2,
             pack_type[int8]: 1,
             pack_type[LengthPrefixedStr]: 2,
+            pack_type[LengthPrefixedData]: 2,
             pack_type[float]: 4,
         }
     )
