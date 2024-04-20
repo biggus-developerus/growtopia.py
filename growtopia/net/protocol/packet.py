@@ -56,6 +56,7 @@ class MsgPacket(StrPacket):
         super().__init__(PacketType.MSG, text)
 
 
+# TODO: Add aliases for these awtistic attrs lel
 class UpdatePacket(Packer):
     packet_type: Pack[int32]
     update_type: Pack[int8]
