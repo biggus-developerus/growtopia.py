@@ -6,7 +6,7 @@ from typing import (
     get_origin,
 )
 
-from .._types import (
+from growtopia._types import (
     OptionalPack,
     Pack,
 )

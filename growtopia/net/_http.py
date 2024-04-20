@@ -10,7 +10,10 @@ from aiohttp import (
     ClientSession,
 )
 
-from ..utils import Buffer
+from growtopia.utils import (
+    Buffer,
+)
+
 from .constants import (
     UBI_CDN,
     UBI_CDN_PATH,

@@ -12,11 +12,12 @@ from typing import (
     TypeVar,
 )
 
-from ..net import HTTP
-from ..utils import (
+from growtopia.net import HTTP
+from growtopia.utils import (
     Buffer,
     xor_cipher,
 )
+
 from .constants import *
 from .enums import *
 from .pet_info import *

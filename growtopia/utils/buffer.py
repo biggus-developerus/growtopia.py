@@ -11,14 +11,12 @@ from typeguard import (
     typechecked,
 )
 
-from ..utils.compression import (
+from .compression import (
     CompressionType,
     zlib_compress,
     zlib_decompress,
 )
-from ..utils.crypto import (
-    hash_data,
-)
+from .crypto import hash_data
 
 
 class Buffer:

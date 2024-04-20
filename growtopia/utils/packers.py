@@ -12,7 +12,7 @@ from typing import (
     Tuple,
 )
 
-from .._types import (
+from growtopia._types import (
     LengthPrefixedStr,
     OptionalPack,
     Pack,

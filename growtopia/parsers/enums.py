@@ -15,7 +15,7 @@ from aenum import (
     IntFlag,
 )
 
-from ..utils import (
+from growtopia.utils import (
     LOG_LEVEL_WARNING,
     log,
 )

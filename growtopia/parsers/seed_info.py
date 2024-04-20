@@ -4,7 +4,9 @@ from dataclasses import (
     dataclass,
 )
 
-from ..utils import Buffer
+from growtopia.utils import (
+    Buffer,
+)
 
 
 @dataclass

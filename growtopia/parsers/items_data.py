@@ -11,13 +11,14 @@ from typeguard import (
     typechecked,
 )
 
-from ..utils import (
+from growtopia.utils import (
     LOG_LEVEL_INFO,
     Buffer,
     CompressionType,
     hash_data,
     log,
 )
+
 from .constants import (
     LATEST_ITEMS_DATA_VERSION,
 )
