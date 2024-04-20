@@ -15,8 +15,8 @@ from typing import (
 from growtopia._types import (
     AllData,
     AllStr,
-    LengthPrefixedStr,
     LengthPrefixedData,
+    LengthPrefixedStr,
     OptionalPack,
     Pack,
     int8,
@@ -35,7 +35,7 @@ def _unpack_lps(data: bytearray) -> Tuple[int, Optional[str]]:
     if len(data) < 2:
         return -1, None
 
-    str_len = int.from_bytes(data[:2], "little")
+    str_len = int.from_bytes(data[:2], "little", signed=True)
 
     if str_len < 0:
         return -1, None
@@ -43,6 +43,7 @@ def _unpack_lps(data: bytearray) -> Tuple[int, Optional[str]]:
         return 2, ""
 
     return 2 + str_len, data[2 : 2 + str_len].decode()
+
 
 def _pack_lpd(val: bytearray) -> bytearray:
     return bytearray(len(val).to_bytes(2, "little") + val)
@@ -63,12 +64,12 @@ def _unpack_lpd(data: bytearray) -> Tuple[int, Optional[bytearray]]:
 
 
 def _make_int_packer(size: int) -> Callable[[int], bytearray]:
-    return lambda val: bytearray(val.to_bytes(size, "little"))
+    return lambda val: bytearray(val.to_bytes(size, "little", signed=True))
 
 
 def _make_int_unpacker(size: int) -> Callable[[bytearray], Tuple[int, Optional[int]]]:
     return lambda data: (
-        (-1, None) if len(data) < size else (size, int.from_bytes(data[:size], "little"))
+        (-1, None) if len(data) < size else (size, int.from_bytes(data[:size], "little", signed=True))
     )
 
 
