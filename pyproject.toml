@@ -8,7 +8,6 @@ description = "A simple asynchronous API for Growtopia, capable of creating serv
 readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = [
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -18,7 +17,7 @@ classifiers = [
 ]
 
 version = "0.1.4"
-requires-python = ">=3.8.0"
+requires-python = ">=3.9.0"
 
 dependencies = [
     "enet @ git+https://github.com/kajob-dev/pyenet",
