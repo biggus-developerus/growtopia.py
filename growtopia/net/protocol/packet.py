@@ -15,4 +15,4 @@ class Packet(Packer):
     packet_type: Pack[int32]
 
     def __init__(self, packet_type: int = PacketType.HELLO) -> None:
-        self.packet_type: int32 = packet_type
+        self.packet_type: int = packet_type
