@@ -88,7 +88,7 @@ class UpdatePacket(Packer):
         target_net_id: int = 0,
         flags: UpdateFlags = UpdateFlags.NONE,
         float_: float = 0.0,
-        int_: float = 0,
+        int_: int = 0,
         vec_x: float = 0.0,
         vec_y: float = 0.0,
         velo_x: float = 0.0,
