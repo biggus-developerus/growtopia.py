@@ -24,6 +24,7 @@ from growtopia._types import (
     int32,
 )
 
+
 def _pack_lps(val: str) -> bytes:
     return len(val).to_bytes(2, "little") + val.encode()
 
