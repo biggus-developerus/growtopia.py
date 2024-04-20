@@ -13,6 +13,8 @@ from typing import (
 )
 
 from growtopia._types import (
+    AllData,
+    AllStr,
     LengthPrefixedStr,
     OptionalPack,
     Pack,
@@ -60,6 +62,14 @@ for pack_type in [Pack, OptionalPack]:  # crazy ikr
             pack_type[int16]: (_make_int_packer(2), _make_int_unpacker(2)),
             pack_type[int8]: (_make_int_packer(1), _make_int_unpacker(1)),
             pack_type[LengthPrefixedStr]: (_pack_lps, _unpack_lps),
+            pack_type[AllStr]: (
+                lambda val: bytearray(val.encode()),
+                lambda data: (len(data), data.decode()),
+            ),
+            pack_type[AllData]: (
+                lambda val: bytearray(val),
+                lambda data: (len(data), bytearray(data)),
+            ),
             pack_type[float]: (
                 lambda val: bytearray(struct.pack("f", val)),
                 lambda data: (
