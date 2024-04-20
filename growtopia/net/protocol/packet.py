@@ -23,8 +23,8 @@ from growtopia.utils import (
 
 from .enums import (
     PacketType,
-    UpdateType,
     UpdateFlags,
+    UpdateType,
 )
 
 

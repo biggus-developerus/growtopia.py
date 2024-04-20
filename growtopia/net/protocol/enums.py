@@ -4,7 +4,10 @@ __all__ = (
     "UpdateFlags",
 )
 
-from aenum import IntEnum, IntFlag
+from aenum import (
+    IntEnum,
+    IntFlag,
+)
 
 
 class PacketType(IntEnum):
@@ -56,6 +59,7 @@ class UpdateType(IntEnum):
     ACTIVE_ARROW_TO_ITEM = 37
     SELECT_TILE_INDEX = 38
     SEND_PLAYER_TRIBUTE_DATA = 39
+
 
 class UpdateFlags(IntFlag):
     NONE = 0

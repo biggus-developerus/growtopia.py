@@ -69,7 +69,9 @@ def _make_int_packer(size: int) -> Callable[[int], bytearray]:
 
 def _make_int_unpacker(size: int) -> Callable[[bytearray], Tuple[int, Optional[int]]]:
     return lambda data: (
-        (-1, None) if len(data) < size else (size, int.from_bytes(data[:size], "little", signed=True))
+        (-1, None)
+        if len(data) < size
+        else (size, int.from_bytes(data[:size], "little", signed=True))
     )
 
 

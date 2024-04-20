@@ -82,7 +82,7 @@ class Packer:
                 raise ValueError(
                     f"{attr} cannot be None as it's not an optional member (obv lel fix yer kode baddei.)"
                 )
-            
+
             if val is not None:
                 data += packer[0](val)
 
