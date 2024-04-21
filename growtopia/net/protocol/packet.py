@@ -121,7 +121,7 @@ class UpdatePacket(Packer):
         self.target_net_id: int = target_net_id
         self.flags: UpdateFlags = flags
         self.float_: float = float_
-        self.int_: float = int_
+        self.int_: int = int_
         self.vec_x: float = vec_x
         self.vec_y: float = vec_y
         self.velo_x: float = velo_x
