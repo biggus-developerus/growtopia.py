@@ -6,9 +6,9 @@ __all__ = (
     "UpdatePacket",
 )
 
-import enet
-
 from typing import Optional
+
+import enet
 
 from growtopia._types import (
     AllData,
@@ -38,6 +38,7 @@ class Packet(Packer):
     def enet_packet(self, flags: int = enet.PACKET_FLAG_RELIABLE) -> enet.Packet:
         return enet.Packet(self.pack(), flags)
 
+
 class StrPacket(Packer):
     packet_type: Pack[int32]
     text: OptionalPack[AllStr]
@@ -59,7 +60,7 @@ class StrPacket(Packer):
             return {}
 
         return {kvp[0]: kvp[-1] for i in self.text.split("\n") if (len(kvp := i.split("|")) == 2)}
-    
+
     def enet_packet(self, flags: int = enet.PACKET_FLAG_RELIABLE) -> enet.Packet:
         return enet.Packet(self.pack(), flags)
 
