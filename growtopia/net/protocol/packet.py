@@ -14,7 +14,6 @@ from growtopia._types import (
     OptionalPack,
     Pack,
     int8,
-    int16,
     int32,
 )
 from growtopia.utils import (

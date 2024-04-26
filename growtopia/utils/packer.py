@@ -14,13 +14,6 @@ from growtopia._types import (
 from .packers import *
 
 
-class Sentinel:
-    pass
-
-
-SENTINEL = Sentinel()
-
-
 class Packer:
     _pack_mapping: dict[Type, Callable[..., bytearray]]
     _min_size: int
