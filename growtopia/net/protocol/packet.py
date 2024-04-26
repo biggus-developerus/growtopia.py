@@ -8,6 +8,8 @@ __all__ = (
 
 from typing import Optional
 
+import enet
+
 from growtopia._types import (
     AllData,
     AllStr,
@@ -32,6 +34,9 @@ class Packet(Packer):
 
     def __init__(self, packet_type: PacketType = PacketType.HELLO) -> None:
         self.packet_type: PacketType = packet_type
+
+    def enet_packet(self, flags: int = enet.PACKET_FLAG_RELIABLE) -> enet.Packet:
+        return enet.Packet(self.pack(), flags)
 
 
 class StrPacket(Packer):
