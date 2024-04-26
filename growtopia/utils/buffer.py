@@ -22,11 +22,6 @@ from .crypto import hash_data
 class Buffer:
     __slots__ = ("__data", "__offset")
 
-    @typechecked
-    def __init__(self, data: Optional[bytearray] = None) -> None:
-        self.__data: bytearray = data or bytearray()
-        self.__offset: int = 0
-
     @staticmethod
     def load(path_or_data: Union[str, bytearray]) -> "Buffer":
         if isinstance(path_or_data, str):
@@ -34,6 +29,11 @@ class Buffer:
                 return Buffer(bytearray(f.read()))
 
         return Buffer(path_or_data)
+
+    @typechecked
+    def __init__(self, data: Optional[bytearray] = None) -> None:
+        self.__data: bytearray = data or bytearray()
+        self.__offset: int = 0
 
     def save_to_file(self, path: str) -> None:
         with open(path, "wb") as f:

@@ -28,11 +28,6 @@ from .item import Item
 class ItemsData:
     __slots__ = ("version", "hash", "items")
 
-    def __init__(self, version: Optional[int], items: Optional[List[Item]]) -> None:
-        self.version: int = version or 0
-        self.hash: int = 0
-        self.items: List[Item] = items or []
-
     @staticmethod
     @typechecked
     def load(
@@ -59,6 +54,11 @@ class ItemsData:
         )
 
         return items_data
+
+    def __init__(self, version: Optional[int], items: Optional[List[Item]]) -> None:
+        self.version: int = version or 0
+        self.hash: int = 0
+        self.items: List[Item] = items or []
 
     def to_bytes(
         self,
