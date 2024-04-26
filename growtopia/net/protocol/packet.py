@@ -38,6 +38,12 @@ class StrPacket(Packer):
     packet_type: Pack[int32]
     text: OptionalPack[AllStr]
 
+    @staticmethod
+    def from_mapping(
+        mapping: dict[str, str], packet_type: PacketType = PacketType.MSG
+    ) -> "StrPacket":
+        return StrPacket(packet_type, "\n".join([f"{k}|{v}\n" for k, v in mapping.items()]))
+
     def __init__(
         self, packet_type: PacketType = PacketType.TEXT, text: Optional[str] = None
     ) -> None:
@@ -55,6 +61,10 @@ class TextPacket(StrPacket):
     packet_type: Pack[int32]
     text: OptionalPack[AllStr]
 
+    @staticmethod
+    def from_mapping(mapping: dict[str, str]) -> "TextPacket":
+        return StrPacket.from_mapping(mapping, PacketType.TEXT)
+
     def __init__(self, text: Optional[str] = None) -> None:
         super().__init__(PacketType.TEXT, text)
 
@@ -65,6 +75,10 @@ class MsgPacket(StrPacket):
 
     def __init__(self, text: Optional[None] = None) -> None:
         super().__init__(PacketType.MSG, text)
+
+    @staticmethod
+    def from_mapping(mapping: dict[str, str]) -> "MsgPacket":
+        return StrPacket.from_mapping(mapping, PacketType.MSG)
 
 
 # TODO: Add aliases for these awtistic attrs lel

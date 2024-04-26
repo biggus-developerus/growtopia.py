@@ -29,6 +29,10 @@ def test_protocol() -> None:
         and len(data) == 56
     )
 
+    packet = growtopia.TextPacket.from_mapping({"requestedName": "xd", "tankIDName": "xd2", "tankIDPass": "xd3"})
+    assert packet.get_mapping() == {"requestedName": "xd", "tankIDName": "xd2", "tankIDPass": "xd3"}
+    assert packet.text == "\n".join([f"{k}|{v}\n" for k, v in packet.get_mapping().items()])
+
 
 if __name__ == "__main__":
     test_protocol()
