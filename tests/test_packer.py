@@ -1,11 +1,14 @@
+from dataclasses import (
+    dataclass,
+)
+from os import chdir, path
+from struct import pack
+from typing import TypeVar
+
 import pytest
 
-from struct import pack, unpack
-from os import chdir, path
-from dataclasses import dataclass
 from growtopia import Packer
 from growtopia._types import *
-from typing import TypeVar
 
 chdir(path.abspath(path.dirname(__file__)))
 
@@ -24,12 +27,16 @@ class TestStruct(Packer):
         self.int_value: int = None
         self.float_value: float = None
 
+
 T = TypeVar("T")
+
+
 @dataclass
 class TestStruct2(Packer):
     __test__ = False
 
     unknown_type: Pack[T]
+
 
 @dataclass
 class TestOptional(Packer):
@@ -38,7 +45,8 @@ class TestOptional(Packer):
     non_opt: Pack[int32]
     optional_int: OptionalPack[int32] = None
     optional_int2: OptionalPack[int8] = None
-    
+
+
 def test_packer() -> None:
     int8_value = 100
     str_value = "hi"
@@ -53,10 +61,19 @@ def test_packer() -> None:
     data += pack("f", float_value)
 
     test_struct: TestStruct = TestStruct()
-    
-    assert test_struct.str_value == None and test_struct.int_value == None and test_struct.int8_value == None and test_struct.float_value == None
+
+    assert (
+        test_struct.str_value == None
+        and test_struct.int_value == None
+        and test_struct.int8_value == None
+        and test_struct.float_value == None
+    )
     assert test_struct.unpack(data)
-    assert test_struct.str_value == str_value and test_struct.int_value == int_value and int(float_value) == int(test_struct.float_value)
+    assert (
+        test_struct.str_value == str_value
+        and test_struct.int_value == int_value
+        and int(float_value) == int(test_struct.float_value)
+    )
     assert test_struct.pack() == data
     assert test_struct.unpack(data[:-1]) == False
 
@@ -66,14 +83,20 @@ def test_packer() -> None:
     with pytest.raises(ValueError):
         TestOptional(None, None).pack()
 
-    data = bytearray(b'\x01\x00\x00\x002\x00\x00\x00')
-    data2 = bytearray(b'\x01\x00\x00\x00')
+    data = bytearray(b"\x01\x00\x00\x002\x00\x00\x00")
+    data2 = bytearray(b"\x01\x00\x00\x00")
 
     opt1_test = TestOptional.from_bytes(data, None)
     opt2_test = TestOptional.from_bytes(data2, None)
 
-    assert opt1_test.non_opt == 1 and opt1_test.optional_int == 50 and opt1_test.optional_int2 == None
-    assert opt2_test.non_opt == 1 and opt2_test.optional_int == None and opt2_test.optional_int2 == None
+    assert (
+        opt1_test.non_opt == 1 and opt1_test.optional_int == 50 and opt1_test.optional_int2 == None
+    )
+    assert (
+        opt2_test.non_opt == 1
+        and opt2_test.optional_int == None
+        and opt2_test.optional_int2 == None
+    )
 
 
 if __name__ == "__main__":
