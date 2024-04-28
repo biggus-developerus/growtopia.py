@@ -17,8 +17,10 @@ async def test_items_data_parser():
         compressed=True,
     )
 
-    for i, item in enumerate(items_data.items):
+    for i, item in enumerate(items_data):
         assert i == item.id
+
+    assert items_data[2].name.lower() == "dirt"
 
 
 if __name__ == "__main__":
