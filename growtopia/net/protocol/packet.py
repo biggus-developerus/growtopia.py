@@ -81,12 +81,13 @@ class MsgPacket(StrPacket):
     packet_type: Pack[int32]
     text: OptionalPack[AllStr]
 
-    def __init__(self, text: Optional[None] = None) -> None:
-        super().__init__(PacketType.MSG, text)
-
     @staticmethod
     def from_mapping(mapping: dict[str, str]) -> "MsgPacket":
         return StrPacket.from_mapping(mapping, PacketType.MSG)
+        
+    def __init__(self, text: Optional[None] = None) -> None:
+        super().__init__(PacketType.MSG, text)
+
 
 
 # TODO: Add aliases for these awtistic attrs lel
