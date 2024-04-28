@@ -5,3 +5,6 @@ aiohttp
 
 pytest
 pytest-asyncio
+
+black
+isort
