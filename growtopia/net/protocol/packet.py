@@ -150,8 +150,8 @@ class UpdatePacket(Packer):
         self.particle_rotation: float = particle_rotation
         self.int_x: int = int_x
         self.int_y: int = int_y
-        self.extra_data_size: int = extra_data_size or None
-        self.extra_data: bytes = extra_data or None
+        self.extra_data_size: Optional[int] = extra_data_size or None
+        self.extra_data: Optional[bytes] = extra_data or None
 
     def enet_packet(self, flags: int = enet.PACKET_FLAG_RELIABLE) -> enet.Packet:
         return enet.Packet(self.pack(), flags)
