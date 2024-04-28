@@ -13,8 +13,8 @@ profile:
 	$(python) profile_.py
 
 format:
-	$(python) -m black ./growtopia
-	$(python) -m isort ./growtopia
+	$(python) -m black ./growtopia ./tests
+	$(python) -m isort ./growtopia ./tests
 
 format-check:
 	$(python) -m black --check .
