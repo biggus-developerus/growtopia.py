@@ -1,4 +1,4 @@
-__all__ = ("Setup",)
+__all__ = ("_setup_logger",)
 
 import logging
 
@@ -21,17 +21,13 @@ class ColouredFrmtr(logging.Formatter):
         return f"{colour}{record.name.upper()} - [{lvl_name}] {msg}{ANSI_RESET}"
 
 
-class Setup:
-    @staticmethod
-    def setup_logger(name: str, min_level: int = logging.INFO) -> logging.Logger:
-        logger = logging.getLogger(name)
-        logger.setLevel(min_level)
+def _setup_logger(name: str, min_level: int = logging.INFO) -> logging.Logger:
+    logger = logging.getLogger(name)
+    logger.setLevel(min_level)
 
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(
-            ColouredFrmtr(fmt="%(asctime)s - %(message)s", datefmt="%H:%M:%S")
-        )
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(ColouredFrmtr(fmt="%(asctime)s - %(message)s", datefmt="%H:%M:%S"))
 
-        logger.addHandler(stream_handler)
+    logger.addHandler(stream_handler)
 
-        return logger
+    return logger

@@ -13,7 +13,7 @@ from .crypto import *
 from .packer import *
 from .setup import *
 
-logger = Setup.setup_logger("growtopia")
+logger = _setup_logger("growtopia")
 
 
 def log(level: int, msg: str) -> None:
