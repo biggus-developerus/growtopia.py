@@ -44,12 +44,16 @@ ITEM_ATTR_SIZES: Dict[str, int] = {
     "bodypart": 9,
     "flags6": 4,
     "growpass_property": 4,
+    "unknown_int": 4,
+    "renderer_file_hash": 4,
 }
 
 # TODO: Support older versions
 ITEM_IGNORED_ATTRS: Dict[int, List[str]] = {
     15: ["renderer_file_path"],
-    16: [],
+    16: ["unknown_int", "renderer_file_hash"],
+    17: ["renderer_file_hash"],
+    18: [],
 }
 
 ITEM_ENUM_TYPES: List[Type] = [

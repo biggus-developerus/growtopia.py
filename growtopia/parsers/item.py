@@ -148,6 +148,9 @@ class Item:
 
     renderer_file_path: str = ""
 
+    unknown_int: int = 0  # idk, too lazy to find out asw.
+    renderer_file_hash: int = 0
+
     @staticmethod
     def from_bytes(data: Buffer, version) -> "Item":
         item = Item()
