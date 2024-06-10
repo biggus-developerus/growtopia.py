@@ -34,8 +34,15 @@ class Packet(Packer):
 
     def __init__(self, packet_type: PacketType = PacketType.HELLO) -> None:
         self.packet_type: PacketType = packet_type
+        self._prepacked_data: Optional[bytearray] = None
+
+    def prepack(self) -> None:
+        self._prepacked_data = self.pack()
 
     def enet_packet(self, flags: int = enet.PACKET_FLAG_RELIABLE) -> enet.Packet:
+        if self._prepacked_data:
+            return enet.Packet(self._prepacked_data, flags)
+
         return enet.Packet(self.pack(), flags)
 
 
@@ -54,15 +61,22 @@ class StrPacket(Packer):
     ) -> None:
         self.packet_type: PacketType = packet_type
         self.text: str = text or ""
+        self._prepacked_data: Optional[bytearray] = None
+
+    def prepack(self) -> None:
+        self._prepacked_data = self.pack()
+
+    def enet_packet(self, flags: int = enet.PACKET_FLAG_RELIABLE) -> enet.Packet:
+        if self._prepacked_data:
+            return enet.Packet(self._prepacked_data, flags)
+
+        return enet.Packet(self.pack(), flags)
 
     def get_mapping(self) -> dict[str, str]:
         if not self.text:
             return {}
 
         return {kvp[0]: kvp[-1] for i in self.text.split("\n") if (len(kvp := i.split("|")) == 2)}
-
-    def enet_packet(self, flags: int = enet.PACKET_FLAG_RELIABLE) -> enet.Packet:
-        return enet.Packet(self.pack(), flags)
 
 
 class TextPacket(StrPacket):
@@ -152,6 +166,13 @@ class UpdatePacket(Packer):
         self.int_y: int = int_y
         self.extra_data_size: Optional[int] = extra_data_size or None
         self.extra_data: Optional[bytes] = extra_data or None
+        self._prepacked_data: Optional[bytearray] = None
+
+    def prepack(self) -> None:
+        self._prepacked_data = self.pack()
 
     def enet_packet(self, flags: int = enet.PACKET_FLAG_RELIABLE) -> enet.Packet:
+        if self._prepacked_data:
+            return enet.Packet(self._prepacked_data, flags)
+
         return enet.Packet(self.pack(), flags)
