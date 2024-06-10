@@ -13,7 +13,7 @@ from typing import (
 
 from .enums import *
 
-LATEST_ITEMS_DATA_VERSION: int = 16
+LATEST_ITEMS_DATA_VERSION: int = 18
 
 ITEM_ATTR_SIZES: Dict[str, int] = {
     "id": 4,
@@ -50,8 +50,6 @@ ITEM_ATTR_SIZES: Dict[str, int] = {
 
 # TODO: Support older versions
 ITEM_IGNORED_ATTRS: Dict[int, List[str]] = {
-    15: ["renderer_file_path"],
-    16: ["unknown_int", "renderer_file_hash"],
     17: ["renderer_file_hash"],
     18: [],
 }
