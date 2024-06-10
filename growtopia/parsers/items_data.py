@@ -41,9 +41,10 @@ class ItemsData:
         if compressed:
             buffer.decompress(compression_type)
 
+        version = buffer.read_int(2)
         items_data = ItemsData(
-            buffer.read_int(2),
-            [Item.from_bytes(buffer, LATEST_ITEMS_DATA_VERSION) for _ in range(buffer.read_int())],
+            version,
+            [Item.from_bytes(buffer, version) for _ in range(buffer.read_int())],
         )
 
         items_data.set_hash()
