@@ -4,6 +4,7 @@ from typing import (
     Callable,
     Type,
     get_origin,
+    Self,
 )
 
 from growtopia._types import (
@@ -20,13 +21,13 @@ class Packer:
     _optional_members: list[str]
 
     @classmethod
-    def from_bytes(cls, data: bytearray, *default_args, **default_kwargs) -> "Packer":
+    def from_bytes(cls, data: bytearray, *default_args, **default_kwargs) -> "Self":
         obj = cls(*default_args, **default_kwargs)
         obj.unpack(data)
 
         return obj
 
-    def __new__(cls, *_, **__) -> "Packer":
+    def __new__(cls, *_, **__) -> "Self":
         if getattr(cls, "_pack_mapping", None):
             return super().__new__(cls)
 
