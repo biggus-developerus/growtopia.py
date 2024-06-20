@@ -2,6 +2,7 @@ __all__ = (
     "PacketType",
     "UpdateType",
     "UpdateFlags",
+    "VariantType",
 )
 
 from aenum import (
@@ -64,3 +65,12 @@ class UpdateType(IntEnum):
 class UpdateFlags(IntFlag):
     NONE = 0
     EXTRA_DATA = 1 << 3
+
+
+class VariantType(IntEnum):
+    FLOAT = 1
+    STR = 2
+    VECTOR2 = 3
+    VECTOR3 = 4
+    UINT = 8
+    INT = 9

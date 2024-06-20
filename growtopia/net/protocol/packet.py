@@ -15,17 +15,24 @@ from growtopia._types import (
     AllStr,
     OptionalPack,
     Pack,
+    TVariant,
     int8,
     int32,
 )
+from growtopia.net.protocol.variant import (
+    TYPE_TO_OBJ_MAPPING,
+)
 from growtopia.utils import (
+    LOG_LEVEL_ERROR,
     Packer,
+    log,
 )
 
 from .enums import (
     PacketType,
     UpdateFlags,
     UpdateType,
+    VariantType,
 )
 
 
@@ -176,3 +183,42 @@ class UpdatePacket(Packer):
             return enet.Packet(self._prepacked_data, flags)
 
         return enet.Packet(self.pack(), flags)
+
+    def get_variant_list(self) -> list[TVariant]:
+        if not self.flags & UpdateFlags.EXTRA_DATA:
+            return []
+
+        offset = 1
+        variant_count = self.extra_data[0]
+        variants = []
+
+        for i in range(variant_count):
+            variant_index = self.extra_data[offset]
+            variant_type = VariantType(self.extra_data[offset + 1])
+
+            if variant_index != i:
+                log(
+                    LOG_LEVEL_ERROR,
+                    f"Variant ({variant_type.name}) index doesn't match its position in the list!! (expected index: {i}, got {variant_index})",
+                )
+
+                return []
+
+            variant_obj = TYPE_TO_OBJ_MAPPING[variant_type]().from_bytes(self.extra_data[offset:])
+            variants.append(variant_obj)
+
+            offset += variant_obj.get_size()
+
+        return variants
+
+    def set_variant_list(self, *variants: TVariant, keep_index: bool = False) -> None:
+        self.flags |= UpdateFlags.EXTRA_DATA
+        self.extra_data = bytearray(len(variants).to_bytes(1, "little"))
+
+        for i, variant in enumerate(variants):
+            if not keep_index:
+                variant.index = i
+
+            self.extra_data.extend(variant.pack())
+
+        self.extra_data_size = len(self.extra_data)

@@ -7,17 +7,21 @@ __all__ = (
     "int8",
     "int16",
     "int32",
+    "TVariantValue",
     "TVariant",
 )
 
 from typing import (
+    TYPE_CHECKING,
     Generic,
     TypeVar,
-    TYPE_CHECKING
 )
 
 if TYPE_CHECKING:
-    from growtopia.net.protocol.variant import Variant
+    from growtopia.net.protocol.variant import (
+        IntVariant,
+        StrVariant,
+    )
 
 type LengthPrefixedStr = str
 type LengthPrefixedData = bytes | bytearray
@@ -26,9 +30,12 @@ type AllData = bytes | bytearray
 type int8 = int
 type int16 = int
 type int32 = int
-type TVariant = int | float | str | tuple | Variant
+type TVariantValue = int | str
+type TVariant = IntVariant | StrVariant
 
 T = TypeVar("T")
+
+
 class Pack(Generic[T]):
     pass
 

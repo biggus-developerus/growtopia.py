@@ -2,9 +2,9 @@ __all__ = ("Packer",)
 
 from typing import (
     Callable,
+    Self,
     Type,
     get_origin,
-    Self,
 )
 
 from growtopia._types import (
