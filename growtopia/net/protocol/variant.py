@@ -32,7 +32,7 @@ class Variant:
     def get_size(self) -> int:
         if self.variant_type == VariantType.STR:
             return 2 + len(self.variant_value)
-        if self.variant_type == VariantType.INT:
+        if self.variant_type == VariantType.INT or self.variant_type == VariantType.UINT or self.variant_type == VariantType.FLOAT:
             return 6
 
 
