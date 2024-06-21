@@ -41,8 +41,17 @@ def test_protocol() -> None:
     vars = packet.get_variant_list()
 
     assert len(vars) == 2
-    assert vars[0].index == 0 and vars[0].variant_type == growtopia.VariantType.INT and vars[0].variant_value == 5
-    assert vars[1].index == 1 and vars[1].variant_type == growtopia.VariantType.STR and vars[1].variant_value == "HI!"
+    assert (
+        vars[0].index == 0
+        and vars[0].variant_type == growtopia.VariantType.INT
+        and vars[0].variant_value == 5
+    )
+    assert (
+        vars[1].index == 1
+        and vars[1].variant_type == growtopia.VariantType.STR
+        and vars[1].variant_value == "HI!"
+    )
+
 
 if __name__ == "__main__":
     test_protocol()

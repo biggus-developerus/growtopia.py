@@ -44,6 +44,7 @@ class IntVariant(Variant, Packer):
     def __init__(self, variant_value: int | None = None) -> None:
         Variant.__init__(self, -1, VariantType.INT, variant_value)
 
+
 class UIntVariant(Variant, Packer):
     index: Pack[int8]
     variant_type: Pack[int8]
@@ -52,6 +53,7 @@ class UIntVariant(Variant, Packer):
     def __init__(self, variant_value: int | None = None) -> None:
         Variant.__init__(self, -1, VariantType.UINT, variant_value)
 
+
 class FloatVariant(Variant, Packer):
     index: Pack[int8]
     variant_type: Pack[int8]
@@ -59,6 +61,7 @@ class FloatVariant(Variant, Packer):
 
     def __init__(self, variant_value: float | None = None) -> None:
         Variant.__init__(self, -1, VariantType.FLOAT, variant_value)
+
 
 class StrVariant(Variant, Packer):
     index: Pack[int8]
