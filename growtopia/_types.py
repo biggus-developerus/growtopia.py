@@ -19,8 +19,10 @@ from typing import (
 
 if TYPE_CHECKING:
     from growtopia.net.protocol.variant import (
+        FloatVariant,
         IntVariant,
         StrVariant,
+        UIntVariant,
     )
 
 type LengthPrefixedStr = str
@@ -31,7 +33,7 @@ type int8 = int
 type int16 = int
 type int32 = int
 type TVariantValue = int | str
-type TVariant = IntVariant | StrVariant
+type TVariant = IntVariant | UIntVariant | FloatVariant | StrVariant
 
 T = TypeVar("T")
 
