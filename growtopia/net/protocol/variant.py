@@ -71,5 +71,7 @@ class StrVariant(Variant, Packer):
 
 TYPE_TO_OBJ_MAPPING: dict[VariantType, TVariant] = {
     VariantType.INT: IntVariant,
+    VariantType.UINT: UIntVariant,
+    VariantType.FLOAT: FloatVariant,
     VariantType.STR: StrVariant,
 }
