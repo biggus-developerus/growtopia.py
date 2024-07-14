@@ -21,6 +21,7 @@ dependencies = [
     "aenum",
     "typeguard",
     "aiohttp",
+    "bs4",
 ]
 
 [project.urls]
