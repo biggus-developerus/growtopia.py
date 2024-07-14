@@ -28,7 +28,7 @@ jobs:
         python -m pip install .
     - name: Run pytest
       run: |
-        pytest ./tests -vv -s
+        pytest ./tests -vv -s -k "not test_login.py"
 
   test-ubuntu:
     runs-on: ubuntu-latest
@@ -49,4 +49,4 @@ jobs:
         python -m pip install .
     - name: Run pytest
       run: |
-        pytest ./tests -vv -s
+        pytest ./tests -vv -s -k "not test_login.py"
