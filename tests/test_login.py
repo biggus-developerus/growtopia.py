@@ -11,7 +11,7 @@ from growtopia import (
 
 @pytest.mark.asyncio
 async def test_login():
-    login_info = LoginData(game_version="4.62")  
+    login_info = LoginData(game_version="4.62")
     # The only required field is game_version;
     # the rest can remain empty.
     # I'm unsure if this also applies
