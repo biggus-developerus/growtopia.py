@@ -12,7 +12,6 @@ from growtopia.utils import (
 @dataclass
 class ItemPetInfo:
     name: str = ""
-    name: str = ""
     prefix: str = ""
     suffix: str = ""
     ability: str = ""
