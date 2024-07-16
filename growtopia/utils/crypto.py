@@ -3,10 +3,6 @@ __all__ = (
     "hash_data",
 )
 
-from typeguard import (
-    typechecked,
-)
-
 
 def xor_cipher(string: str, key: int) -> str:
     key %= (key_len := len("*PBG892FXX982ABC"))
@@ -22,7 +18,6 @@ def xor_cipher(string: str, key: int) -> str:
     return result
 
 
-@typechecked
 def hash_data(data: bytearray) -> int:
     result = 0x55555555
 

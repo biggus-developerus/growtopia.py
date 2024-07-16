@@ -8,20 +8,14 @@ from zlib import (
     decompress,
 )
 
-from typeguard import (
-    typechecked,
-)
-
 
 class CompressionType(Enum):
     ZLIB = 0
 
 
-@typechecked
 def zlib_compress(data: Union[memoryview, bytearray], level: int = Z_BEST_COMPRESSION) -> bytearray:
     return bytearray(compress(data, level=level))
 
 
-@typechecked
 def zlib_decompress(data: Union[memoryview, bytearray]) -> bytearray:
     return bytearray(decompress(data))

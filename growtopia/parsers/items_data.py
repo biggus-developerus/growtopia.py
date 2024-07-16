@@ -7,10 +7,6 @@ from typing import (
     Union,
 )
 
-from typeguard import (
-    typechecked,
-)
-
 from growtopia.utils import (
     LOG_LEVEL_INFO,
     Buffer,
@@ -29,7 +25,6 @@ class ItemsData:
     __slots__ = ("version", "hash", "items")
 
     @staticmethod
-    @typechecked
     def load(
         path_or_bytes: Union[str, bytearray],
         *,

@@ -7,10 +7,6 @@ from typing import (
     Union,
 )
 
-from typeguard import (
-    typechecked,
-)
-
 from .compression import (
     CompressionType,
     zlib_compress,
@@ -30,7 +26,6 @@ class Buffer:
 
         return Buffer(path_or_data)
 
-    @typechecked
     def __init__(self, data: Optional[bytearray] = None) -> None:
         self.__data: bytearray = data or bytearray()
         self.__offset: int = 0
