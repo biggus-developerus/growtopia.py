@@ -54,8 +54,6 @@ class StrPacket:
         lines = self.text.split("\n")
         return {key: value for key, value in (line.split("|") for line in lines if "|" in line)}
 
-@packable
-@dataclass
 class TextPacket(StrPacket):
     type: Pack[Int32] = PacketType.TEXT
     text: OptionalPack[AllStr] = None
@@ -65,8 +63,6 @@ class TextPacket(StrPacket):
         return super().from_mapping(mapping)
 
 
-@packable
-@dataclass
 class MessagePacket(StrPacket):
     type: Pack[Int32] = PacketType.MSG
     text: OptionalPack[AllStr] = None
