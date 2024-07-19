@@ -1,46 +1,30 @@
-__all__ = (
-    "Pack",
-    "OptionalPack",
-    "LengthPrefixedStr",
-    "AllStr",
-    "AllData",
-    "int8",
-    "int16",
-    "int32",
-    "TVariantValue",
-    "TVariant",
+__all__ = ("AllStr", "LengthPrefixedData")
+
+from packer import (
+    TypeDescriptor,
 )
 
-from typing import (
-    TYPE_CHECKING,
-    Generic,
-    TypeVar,
-)
 
-if TYPE_CHECKING:
-    from growtopia.net.protocol.variant import (
-        FloatVariant,
-        IntVariant,
-        StrVariant,
-        UIntVariant,
-    )
+class AllStr(TypeDescriptor):
+    __data_size__ = 0  # should always be optional cuz laikeee ya??
 
-type LengthPrefixedStr = str
-type LengthPrefixedData = bytes | bytearray
-type AllStr = str
-type AllData = bytes | bytearray
-type int8 = int
-type int16 = int
-type int32 = int
-type TVariantValue = int | str
-type TVariant = IntVariant | UIntVariant | FloatVariant | StrVariant
+    @classmethod
+    def pack(cls, value: str) -> bytes:
+        return value.encode()
 
-T = TypeVar("T")
+    @classmethod
+    def unpack(cls, data: bytearray) -> str:
+        return data.decode("utf-8")
 
 
-class Pack(Generic[T]):
-    pass
+class LengthPrefixedData(TypeDescriptor):
+    __data_size__ = 4  # length of the prefix (length prefix)
 
+    @classmethod
+    def pack(cls, val: bytes) -> bytes:
+        return int.to_bytes(len(val), cls.__data_size__, "little") + val
 
-class OptionalPack(Generic[T]):
-    pass
+    @classmethod
+    def unpack(cls, data: bytearray) -> tuple[int, bytes]:
+        data_len = int.from_bytes(data[: cls.__data_size__], "little")
+        return data_len + cls.__data_size__, data[cls.__data_size__ : cls.__data_size__ + data_len]
