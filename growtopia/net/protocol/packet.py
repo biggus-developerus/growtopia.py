@@ -3,6 +3,7 @@ __all__ = (
     "StrPacket",
     "TextPacket",
     "MessagePacket",
+    "UpdatePacket",
 )
 
 from dataclasses import (
@@ -22,9 +23,10 @@ from packer import (
 
 from growtopia._types import (
     AllStr,
+    LengthPrefixedData
 )
 
-from .enums import PacketType
+from .enums import PacketType, UpdateFlags, UpdateType
 
 
 @packable
@@ -70,3 +72,36 @@ class MessagePacket(StrPacket):
     @classmethod
     def from_mapping(cls, mapping: dict[str, str]) -> "TextPacket":
         return super().from_mapping(mapping)
+
+@packable
+@dataclass
+class UpdatePacket:
+    type: Pack[Int32] = PacketType.UPDATE
+
+    update_type: Pack[Int8] = UpdateType.STATE_UPDATE
+    object_type: Pack[Int8] = 0
+    
+    count1: Pack[Int8] = 0 
+    count2: Pack[Int8] = 0
+    
+    net_id: Pack[Int32] = -1
+    target_net_id: Pack[Int32] = 0
+    
+    flags: Pack[Int32] = UpdateFlags.NONE
+    
+    float_: Pack[Float] = 0.0
+    int_: Pack[Int32] = 0
+    
+    vec_x: Pack[Float] = 0.0
+    vec_y: Pack[Float] = 0.0
+    
+    velo_x: Pack[Float] = 0.0
+    velo_y: Pack[Float] = 0.0
+    
+    particle_rotation: Pack[Float] = 0.0
+    
+    int_x: Pack[Int32] = 0
+    int_y: Pack[Int32] = 0
+    
+    extra_data: OptionalPack[LengthPrefixedData] = None
+
