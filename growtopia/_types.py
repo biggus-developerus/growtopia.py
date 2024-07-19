@@ -13,8 +13,8 @@ class AllStr(TypeDescriptor):
         return value.encode()
 
     @classmethod
-    def unpack(cls, data: bytearray) -> str:
-        return data.decode("utf-8")
+    def unpack(cls, data: bytearray) -> tuple[int, str]:
+        return len(data), data.decode("utf-8")
 
 
 class LengthPrefixedData(TypeDescriptor):
