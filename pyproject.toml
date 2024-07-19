@@ -17,15 +17,16 @@ version = "0.1.4"
 requires-python = ">=3.12.0"
 
 dependencies = [
-    "enet @ git+https://github.com/kajob-dev/pyenet",
+    "enet @ git+https://github.com/biggus-developerus/pyenet",
+    "packer @ git+https://github.com/biggus-developerus/packer.typed.git",
     "aenum",
     "aiohttp",
     "bs4",
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/kaJob-dev/growtopia.py"
-"Bug Tracker" = "https://github.com/kaJob-dev/growtopia.py/issues"
+"Homepage" = "https://github.com/biggus-developerus/growtopia.py"
+"Bug Tracker" = "https://github.com/biggus-developerus/growtopia.py/issues"
 
 [tool.black]
 line-length = 100
