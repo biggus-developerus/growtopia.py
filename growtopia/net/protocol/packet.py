@@ -105,3 +105,32 @@ class UpdatePacket:
     
     extra_data: OptionalPack[LengthPrefixedData] = None
 
+    def __post_init__(self) -> None:
+        self.type: PacketType
+
+        self.update_type: UpdateType
+        self.object_type: int
+        
+        self.count1: int
+        self.count2: int
+        
+        self.net_id: int
+        self.target_net_id: int
+        
+        self.flags: UpdateFlags
+        
+        self.float_: float
+        self.int_: int
+        
+        self.vec_x: float
+        self.vec_y: float
+        
+        self.velo_x: float
+        self.velo_y: float
+        
+        self.particle_rotation: float
+        
+        self.int_x: int
+        self.int_y: int
+        
+        self.extra_data: bytearray
