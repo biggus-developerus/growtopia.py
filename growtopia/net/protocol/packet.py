@@ -51,8 +51,8 @@ class StrPacket:
         if not self.text:
             return {}
 
-        return {kvp[0]: kvp[-1] for i in self.text.split("\n") if (len(kvp := i.split("|")) == 2)}
-
+        lines = self.text.split("\n")
+        return {key: value for key, value in (line.split("|") for line in lines if "|" in line)}
 
 @packable
 @dataclass
