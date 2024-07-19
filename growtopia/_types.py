@@ -18,7 +18,7 @@ class AllStr(TypeDescriptor):
 
 
 class LengthPrefixedData(TypeDescriptor):
-    __data_size__ = 4  # length of the prefix (length prefix)
+    __data_size__ = 4  # size of the prefix (length prefix)
 
     @classmethod
     def pack(cls, val: bytes) -> bytes:
