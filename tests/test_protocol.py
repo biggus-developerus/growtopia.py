@@ -9,14 +9,16 @@ def test_protocol() -> None:
     packet = growtopia.Packet(growtopia.PacketType.HELLO)
     assert packet.pack() == bytearray(b"\x01\x00\x00\x00")
 
-    packet = growtopia.StrPacket(growtopia.PacketType.TEXT, "action|msg\nlog|xd\n")
-    assert packet.pack() == bytearray(b"\x02\x00\x00\x00action|msg\nlog|xd\n")
+    packet = growtopia.StrPacket(growtopia.PacketType.TEXT, "action|log\nmsg|xd\n")
+    assert packet.pack() == bytearray(b"\x02\x00\x00\x00action|log\nmsg|xd\n")
 
-    packet = growtopia.StrPacket(growtopia.PacketType.MSG, "action|msg\nlog|xd\n")
-    assert packet.pack() == bytearray(b"\x03\x00\x00\x00action|msg\nlog|xd\n")
+    packet = growtopia.StrPacket(growtopia.PacketType.MSG, "action|log\nmsg|xd\n")
+    assert packet.pack() == bytearray(b"\x03\x00\x00\x00action|log\nmsg|xd\n")
 
-    size = packet.unpack(bytearray(b"\x03\x00\x00\x00action|msg\nlog|xd\n"))
+    size = packet.unpack(bytearray(b"\x03\x00\x00\x00action|log\nmsg|xd\n"))
     assert size == 22
+
+    assert growtopia.TextPacket.from_mapping({"action": "log"}).text == "action|log\n"
 
 
 if __name__ == "__main__":
