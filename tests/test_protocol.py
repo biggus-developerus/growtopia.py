@@ -19,6 +19,7 @@ def test_protocol() -> None:
     assert size == 22
 
     assert growtopia.TextPacket.from_mapping({"action": "log"}).text == "action|log\n"
+    assert packet.get_mapping() == {"action": "log", "msg": "xd"}
 
 
 if __name__ == "__main__":
