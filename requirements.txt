@@ -1,5 +1,5 @@
 enet @ git+https://github.com/kajob-dev/pyenet
-packer @ git+https://github.com/biggus-developerus/packer.typed.git
+packer-typed @ git+https://github.com/biggus-developerus/packer.typed.git
 
 aenum
 aiohttp
