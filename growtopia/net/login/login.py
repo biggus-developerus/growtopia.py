@@ -85,7 +85,7 @@ class Login:
 
             try:
                 json_data = JSONDecoder().decode(data.decode())
-                if json_data.get("status") == "failed":
+                if json_data.get("status", "failed") == "failed":
                     data = None
             except JSONDecodeError:
                 pass
